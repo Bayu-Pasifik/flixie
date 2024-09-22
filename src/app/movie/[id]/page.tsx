@@ -1,109 +1,152 @@
 "use client";
-
-import { useDetailMovie } from "@/hooks/useDetailMovie";
 import Image from "next/image";
-import { useParams } from "next/navigation"; // Mengambil parameter dari URL
-import { FaStar } from "react-icons/fa"; // Untuk rating bintang
+import Link from "next/link"; // Import Link for navigation
+import SectionCarousel from "@/components/SectionCarousel";
+import { useDetailMovie } from "@/hooks/useDetailMovie";
+import { useCredits } from "@/hooks/useCredits";
+import { useImages } from "@/hooks/useImages";
+import { useVideos } from "@/hooks/useVideo";
+import { useParams } from "next/navigation";
 
 export default function MovieDetailPage() {
-  const { id } = useParams(); // Mendapatkan nilai ID dari URL
+  const { id } = useParams();
   const movieId = typeof id === "string" ? parseInt(id, 10) : 0;
 
-  if (!id) {
-    return <div>Movie ID not found</div>;
-  }
+  const {
+    data: movie,
+    isLoading: movieLoading,
+    error: movieError,
+  } = useDetailMovie(movieId);
+  const {
+    data: casts,
+    isLoading: castLoading,
+    error: castError,
+  } = useCredits(movieId);
+  const {
+    data: images,
+    isLoading: imagesLoading,
+    error: imagesError,
+  } = useImages(movieId);
+  const {
+    data: videos,
+    isLoading: videosLoading,
+    error: videosError,
+  } = useVideos(movieId);
 
-  const { data: movie, isLoading, error } = useDetailMovie(movieId);
+  if (movieLoading || castLoading || imagesLoading || videosLoading)
+    return <div>Loading...</div>;
+  if (movieError || castError || imagesError || videosError)
+    return <div>Error loading data</div>;
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  // Limit items to 10 for display in the carousel
+  const limitedImages = images?.slice(0, 10);
+  const limitedCasts = casts?.slice(0, 10);
+  const limitedVideos = videos?.slice(0, 10);
 
   return (
-    <div className="relative bg-slate-900 text-white w-full min-h-screen">
-      {/* Backdrop as background */}
-      <div className="absolute inset-0 z-0">
+    <div className="bg-slate-800 w-full h-full min-h-screen p-4">
+      <div className="flex flex-col lg:flex-row items-center lg:items-start lg:space-x-8 p-4">
+        {/* Movie Poster and Info */}
         <Image
-          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${movie?.backdrop_path}`}
+          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${movie?.poster_path}`}
           alt={movie?.title!}
-          layout="fill"
-          objectFit="cover"
-          objectPosition="center"
-          className="opacity-30"
+          width={300}
+          height={450}
+          className="rounded shadow-lg"
         />
-      </div>
 
-      {/* Content container */}
-      <div className="relative z-10 flex flex-col lg:flex-row lg:space-x-8 p-8 lg:p-16">
-        {/* Poster Image */}
-        <div className="flex-shrink-0 mb-8 lg:mb-0 lg:w-1/3">
-          <Image
-            src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${movie?.poster_path}`}
-            alt={movie?.title!}
-            width={400}
-            height={600}
-            className="rounded-lg shadow-lg"
-          />
-        </div>
+        {/* Movie Information */}
+        <div className="mt-6 lg:mt-0 w-full">
+          <h1 className="text-4xl font-bold mb-4">{movie?.title}</h1>
+          <p className="italic mb-6">{movie?.tagline}</p>
 
-        {/* Movie Details */}
-        <div className="lg:w-2/3 space-y-6">
-          {/* Title */}
-          <h1 className="text-5xl lg:text-6xl font-bold text-white">
-            {movie?.title}
-          </h1>
-          {/* Tagline */}
-          {movie?.tagline && (
-            <p className="text-lg italic text-gray-400">{movie?.tagline}</p>
-          )}
-          {/* Overview */}
-          <p className="text-lg leading-relaxed">{movie?.overview}</p>
-
-          {/* Genres */}
-          <p className="font-semibold text-lg">
-            Genres:{" "}
-            <span className="text-gray-300">
-              {movie?.genres.map((genre) => genre.name).join(", ")}
-            </span>
-          </p>
-
-          {/* Rating */}
-          <div className="flex items-center space-x-2">
-            <FaStar className="text-yellow-400 text-2xl" />
-            <span className="text-2xl font-bold">{movie?.vote_average}</span>
-            <span className="text-2xl font-bold">/ 10</span>
+          <div className="mb-4">
+            <strong>Rating:</strong> {movie?.vote_average}/10
           </div>
 
-          {/* Additional Info */}
-          <div className="space-y-2">
-            <p>
-              <span className="font-semibold">Release Date: </span>
-              {new Date(movie?.release_date!).toLocaleDateString()}
-            </p>
-            <p>
-              <span className="font-semibold">Runtime: </span>
-              {movie?.runtime} minutes
-            </p>
-            <p>
-              <span className="font-semibold">Production Companies: </span>
-              {movie?.production_companies
-                .map((company) => company.name)
-                .join(", ")}
-            </p>
+          <div className="mb-4">
+            <strong>Genres:</strong>{" "}
+            {movie?.genres.map((genre) => genre.name).join(", ")}
           </div>
 
-          {/* Movie Homepage Button */}
-          {movie?.homepage && (
+          <div className="mb-6">
+            <strong>Overview:</strong>
+            <p>{movie?.overview}</p>
+          </div>
+
+          <div className="flex space-x-4">
             <a
               href={movie?.homepage}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block mt-4 px-6 py-3 bg-yellow-500 text-black font-semibold rounded-lg shadow hover:bg-yellow-600 transition duration-300"
+              className="text-blue-500 hover:underline"
             >
-              Visit Official Website
+              Official Website
             </a>
-          )}
+            <a
+              href={`https://www.imdb.com/title/${movie?.imdb_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-yellow-500 hover:underline"
+            >
+              IMDb
+            </a>
+          </div>
         </div>
       </div>
+
+      {/* Images Carousel */}
+      <SectionCarousel
+        title="Movie Images"
+        items={limitedImages!}
+        viewMoreLink={`/movie/${movieId}/images`} // Link to full list
+        renderItem={(image) => (
+          <Image
+            src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+            alt="movie-image"
+            width={3840}
+            height={2160}
+            className="rounded-md"
+          />
+        )}
+      />
+
+      {/* Cast Carousel */}
+      <SectionCarousel
+        title="Cast"
+        items={limitedCasts!}
+        viewMoreLink={`/movie/${movieId}/cast`} 
+        renderItem={(cast) => (
+          <div className="flex flex-col items-center w-full h-full">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${cast.profile_path}`}
+              alt={cast.name}
+              width={400}
+              height={300}
+              className="rounded-md object-cover"
+            />
+            <p className="text-white mt-2">{cast.name}</p>
+            <p className="text-gray-400 text-sm">{cast.character}</p>
+          </div>
+        )}
+      />
+
+      {/* Videos Carousel */}
+      <SectionCarousel
+        title="Videos"
+        items={limitedVideos!}
+        viewMoreLink={`/movie/${movieId}/videos`} // Link to full list
+        renderItem={(video) => (
+          <iframe
+            src={`https://www.youtube.com/embed/${video.key}`}
+            title={video.name}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="rounded-lg w-full h-72 object-cover"
+          />
+        )}
+      />
     </div>
   );
 }
