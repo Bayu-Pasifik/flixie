@@ -5,7 +5,7 @@ import Providers from "@/util/Providers";
 import Navbar from "@/components/Navbar";
 
 export const metadata = {
-  title: "My Next.js App",
+  title: "Flixie",
   description: "A Next.js app with TypeScript, React Query, and shadcn/ui",
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={cn("bg-gray-100")}>
+      <body>
         <Navbar />
         <Providers>{children}</Providers>
       </body>
