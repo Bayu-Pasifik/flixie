@@ -2,8 +2,9 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://jsonplaceholder.typicode.com', // API publik
+  baseURL: process.env.NEXT_PUBLIC_API_URL, 
   headers: {
+    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`, 
     'Content-Type': 'application/json',
   },
 });

@@ -2,23 +2,23 @@
 "use client"; // Pastikan komponen menggunakan client-side rendering
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Post } from "../types/apiTypes";
-import { usePosts } from "@/hooks/usePost";
-
-
+import { useTopMovies } from "@/hooks/useTopRate";
 
 const PostCard: React.FC = () => {
-  const { data, isLoading, error } = usePosts();
-
+  const { data, isLoading, error } = useTopMovies();
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  return data?.map((post) => (
-    <Card className=" mb-4 shadow-md w-1/2 mx-auto">
+  return data?.map((movie) => (
+    <Card className=" mb-4 shadow-md w-52 mx-auto" key={movie.id}>
       <CardHeader>
-        <CardTitle className="text-xl font-semibold">{post.title}</CardTitle>
+        <CardTitle className="text-xl font-semibold">{movie.title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p>{post.body}</p>
+        <img
+          className="object-cover"
+          src={process.env.NEXT_PUBLIC_IMAGE_URL + movie.poster_path}
+          alt="Movie Poster"
+        />
       </CardContent>
     </Card>
   ));
