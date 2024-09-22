@@ -25,7 +25,7 @@ const HomeCarousel: React.FC = () => {
             <CarouselItem key={index} className="w-full h-full relative rounded-lg">
               <img
                 className="object-cover w-full h-[80vh] rounded-lg" // Adjusted height to 80
-                src={process.env.NEXT_PUBLIC_IMAGE_URL + movie?.poster_path}
+                src={process.env.NEXT_PUBLIC_IMAGE_URL + movie?.backdrop_path}
                 alt={movie?.title || "Movie Poster"}
               />
               <div className="absolute inset-0 flex flex-col justify-center px-8">
