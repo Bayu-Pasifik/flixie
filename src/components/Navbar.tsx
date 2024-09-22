@@ -14,7 +14,7 @@ export default function Navbar() {
       <div className="text-lg font-bold">Flixie</div>
       <div className="flex items-center space-x-4">
         <Button variant="ghost" className="hover:bg-gray-700">
-          Home
+          <a href="/">Home</a>
         </Button>
         <Button variant="ghost" className="hover:bg-gray-700">
           Tv Shows

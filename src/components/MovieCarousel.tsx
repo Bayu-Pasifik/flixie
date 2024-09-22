@@ -1,5 +1,4 @@
-// src/components/MovieCarousel.tsx
-"use client";
+'use client';
 import {
   Carousel,
   CarouselContent,
@@ -31,7 +30,7 @@ const MovieCarousel: React.FC<MovieCarouselProps> = ({ title, movies }) => {
             >
               <div className="p-1">
                 <MovieCard
-                  key={movie.id}
+                  id={movie.id} // Pass the movie ID to MovieCard
                   title={movie.title}
                   overview={movie.overview}
                   posterPath={movie.poster_path}
