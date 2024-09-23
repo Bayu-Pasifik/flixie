@@ -1,5 +1,4 @@
-// src/app/HomePage.tsx
-"use client";
+'use client';
 import HomeCarousel from "@/components/Carousel";
 import MovieCarousel from "@/components/MovieCarousel";
 import { useCurrentlyAiring } from "@/hooks/useCurrentlyAiring";
@@ -39,13 +38,25 @@ export default function HomePage() {
       </div>
 
       {/* Currently Airing Section */}
-      <MovieCarousel title="Currently Airing" movies={currentlyAiringData!} />
+      <MovieCarousel 
+        title="Currently Airing" 
+        movies={currentlyAiringData!} 
+        viewMoreUrl="/movie/currently-airing" // Add viewMoreUrl for currently airing movies
+      />
 
       {/* Upcoming Movies Section */}
-      <MovieCarousel title="Upcoming Movies" movies={upcomingData!} />
+      <MovieCarousel 
+        title="Upcoming Movies" 
+        movies={upcomingData!} 
+        viewMoreUrl="/movie/upcoming" // Add viewMoreUrl for upcoming movies
+      />
 
       {/* Popular Movies Section */}
-      <MovieCarousel title="Popular Movies" movies={popularData!} />
+      <MovieCarousel 
+        title="Popular Movies" 
+        movies={popularData!} 
+        viewMoreUrl="/movie/popular" // Add viewMoreUrl for popular movies
+      />
     </div>
   );
 }

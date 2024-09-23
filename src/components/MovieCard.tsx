@@ -30,7 +30,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   return (
     <motion.div
       onClick={handleClick}
-      className="md:w-80 h-full lg:w-96 bg-neutral-800 text-white shadow-lg rounded-lg overflow-hidden cursor-pointer"
+      className="md:w-80 h-full lg:w-96 2xl:w-80 bg-neutral-800 text-white shadow-lg rounded-lg overflow-hidden cursor-pointer"
       initial={{ opacity: 0, y: 50 }} // Initial state (before animation)
       animate={{ opacity: 1, y: 0 }} // Final state (after animation)
       whileHover={{ scale: 1.05, y: -10 }} // Effect when hovering over the card
