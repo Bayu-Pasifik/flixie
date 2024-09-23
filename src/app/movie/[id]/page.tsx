@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link"; // Import Link for navigation
+import { useState } from "react";
 import SectionCarousel from "@/components/SectionCarousel";
 import { useDetailMovie } from "@/hooks/useDetailMovie";
 import { useCredits } from "@/hooks/useCredits";
@@ -9,11 +9,14 @@ import { useVideos } from "@/hooks/useVideo";
 import { useParams } from "next/navigation";
 import { useKeywords } from "@/hooks/useKeywords";
 import { useRecommendations } from "@/hooks/useRecomendations";
-import MovieCard from "@/components/MovieCard"; // Import MovieCard component
+import MovieCard from "@/components/MovieCard";
+import { ImageModal } from "@/components/ImageModal"; // Import modal component
+import { motion } from "framer-motion";
 
 export default function MovieDetailPage() {
   const { id } = useParams();
   const movieId = typeof id === "string" ? parseInt(id, 10) : 0;
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const {
     data: movie,
@@ -64,6 +67,16 @@ export default function MovieDetailPage() {
   const limitedCasts = casts?.slice(0, 10);
   const limitedVideos = videos?.slice(0, 10);
   const limitedRecommendations = recommendations?.slice(0, 10);
+
+  const handleImageClick = (imagePath: string) => {
+    setSelectedImage(
+      `${process.env.NEXT_PUBLIC_IMAGE_URL_ORIGINAL}${imagePath}`
+    );
+  };
+
+  const handleCloseModal = () => {
+    setSelectedImage(null);
+  };
 
   return (
     <div className="bg-slate-800 w-full h-full min-h-screen p-4">
@@ -139,32 +152,45 @@ export default function MovieDetailPage() {
         </div>
       </div>
 
-      {/* Images Carousel */}
+      {/* Images Carousel with Zoom Effect */}
       <SectionCarousel
         title="Movie Images"
         items={limitedImages!}
         viewMoreLink={`/movie/${movieId}/images`} // Link to full list
         renderItem={(image) => (
-          <Image
-            src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
-            alt="movie-image"
-            width={3840}
-            height={2160}
-            className="rounded-md"
-          />
+          <motion.div
+            whileHover={{ scale: 1.05 }} // Effect when hovering over the card
+            whileTap={{ scale: 0.95 }} // Effect when tapping or clicking on the card
+            transition={{
+              type: "Spring", // Add spring-like movement
+              stiffness: 200,
+              damping: 20,
+              duration: 0.3,
+            }} // Smooth transition betwe
+            onClick={() => handleImageClick(image.file_path)} // Open modal on click
+            className="cursor-pointer"
+          >
+            <Image
+              src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+              alt="Movie image"
+              width={3840}
+              height={2160}
+              className="rounded-md"
+            />
+          </motion.div>
         )}
       />
 
-      {/* Cast Carousel with MovieCard */}
+      {/* Cast Carousel */}
       <SectionCarousel
         title="Cast"
         items={limitedCasts!}
-        viewMoreLink={`/movie/${movieId}/cast`}
+        viewMoreLink={`/movie/${movieId}/credits`}
         renderItem={(cast) => (
           <MovieCard
-            id={cast.id} // Assuming `cast.id` is the ID for the cast's character or person
+            id={cast.id}
             title={cast.name}
-            overview={cast.character} // We can show the character they play in place of overview
+            overview={cast.character}
             posterPath={cast.profile_path}
           />
         )}
@@ -174,24 +200,24 @@ export default function MovieDetailPage() {
       <SectionCarousel
         title="Videos"
         items={limitedVideos!}
-        viewMoreLink={`/movie/${movieId}/videos`} // Link to full list
+        viewMoreLink={`/movie/${movieId}/videos`}
         renderItem={(video) => (
           <iframe
             src={`https://www.youtube.com/embed/${video.key}`}
-            title={video.name}
+            title="YouTube video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="rounded-lg w-full h-72 object-cover"
-          />
+              className="rounded-lg w-full h-72 object-cover"
+          ></iframe>
         )}
       />
 
-      {/* Recommendations Carousel with MovieCard */}
+      {/* Recommendations Carousel */}
       <SectionCarousel
         title="Recommendations"
         items={limitedRecommendations!}
-        viewMoreLink={`/movie/${movieId}/recommendations`} // Link to full list
+        viewMoreLink={`/movie/${movieId}/recommendations`}
         renderItem={(recommendation) => (
           <MovieCard
             id={recommendation.id}
@@ -200,6 +226,13 @@ export default function MovieDetailPage() {
             posterPath={recommendation.poster_path}
           />
         )}
+      />
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={!!selectedImage}
+        onClose={handleCloseModal}
+        imageUrl={selectedImage!}
       />
     </div>
   );
