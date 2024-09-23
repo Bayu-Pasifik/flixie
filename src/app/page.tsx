@@ -4,6 +4,7 @@ import MovieCarousel from "@/components/MovieCarousel";
 import { useCurrentlyAiring } from "@/hooks/useCurrentlyAiring";
 import { useUpcomingMovies } from "@/hooks/useUpcomingMovie";
 import { usePopularMovies } from "@/hooks/usePopularMovie";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 export default function HomePage() {
   const {
@@ -23,7 +24,7 @@ export default function HomePage() {
   } = usePopularMovies();
 
   if (isLoadingAiring || isLoadingUpcoming || isLoadingPopular)
-    return <div>Loading...</div>;
+    return <div><LoadingIndicator/></div>;
   if (airingError || upcomingError || popularError)
     return (
       <div>
