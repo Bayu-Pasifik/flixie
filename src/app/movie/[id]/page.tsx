@@ -7,6 +7,7 @@ import { useCredits } from "@/hooks/useCredits";
 import { useImages } from "@/hooks/useImages";
 import { useVideos } from "@/hooks/useVideo";
 import { useParams } from "next/navigation";
+import { useKeywords } from "@/hooks/useKeywords";
 
 export default function MovieDetailPage() {
   const { id } = useParams();
@@ -32,6 +33,12 @@ export default function MovieDetailPage() {
     isLoading: videosLoading,
     error: videosError,
   } = useVideos(movieId);
+
+  const {
+    data: keywords,
+    isLoading: keywordsLoading,
+    error: keywordsError,
+  } = useKeywords(movieId);
 
   if (movieLoading || castLoading || imagesLoading || videosLoading)
     return <div>Loading...</div>;
@@ -66,12 +73,36 @@ export default function MovieDetailPage() {
 
           <div className="mb-4">
             <strong>Genres:</strong>{" "}
-            {movie?.genres.map((genre) => genre.name).join(", ")}
+            {movie?.genres
+              .map((genre) => (
+                <span
+                  key={genre.id}
+                  className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
+                >
+                  {genre.name}
+                </span>
+              ))
+            }
           </div>
 
           <div className="mb-6">
             <strong>Overview:</strong>
             <p>{movie?.overview}</p>
+          </div>
+
+          {/* Keywords Chips */}
+          <div className="mb-4">
+            <strong>Keywords:</strong>
+            <div className="flex flex-wrap mt-2">
+              {keywords?.map((keyword) => (
+                <span
+                  key={keyword.id}
+                  className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
+                >
+                  {keyword.name}
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="flex space-x-4">
@@ -113,16 +144,17 @@ export default function MovieDetailPage() {
 
       {/* Cast Carousel */}
       <SectionCarousel
+      type="cast"
         title="Cast"
         items={limitedCasts!}
-        viewMoreLink={`/movie/${movieId}/cast`} 
+        viewMoreLink={`/movie/${movieId}/cast`}
         renderItem={(cast) => (
           <div className="flex flex-col items-center w-full h-full">
             <Image
               src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${cast.profile_path}`}
               alt={cast.name}
-              width={400}
-              height={300}
+              width={200}
+              height={200}
               className="rounded-md object-cover"
             />
             <p className="text-white mt-2">{cast.name}</p>

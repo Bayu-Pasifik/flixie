@@ -12,7 +12,8 @@ interface SectionCarouselProps<T> {
   title: string;
   items: T[];
   renderItem: (item: T) => JSX.Element;
-  viewMoreLink?: string; // Add a prop for the "View More" link
+  viewMoreLink?: string; 
+  type? : string
 }
 
 export default function SectionCarousel<T>({
@@ -20,6 +21,7 @@ export default function SectionCarousel<T>({
   items,
   renderItem,
   viewMoreLink,
+  type
 }: SectionCarouselProps<T>) {
   return (
     <div className="w-full max-w-full px-4 mb-8">
@@ -37,7 +39,7 @@ export default function SectionCarousel<T>({
           {items.map((item, index) => (
             <CarouselItem
               key={index}
-              className="basis-full md:basis-1/2 lg:basis-1/3 2xl:basis-1/4"
+              className= {type === "cast" ? "basis-1/2 md:basis-1/3 lg:basis-1/5 2xl:basis-1/6" :"basis-full md:basis-1/2 lg:basis-1/3 2xl:basis-1/4"}
             >
               {renderItem(item)}
             </CarouselItem>
