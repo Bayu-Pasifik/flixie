@@ -12,6 +12,7 @@ import { useRecommendations } from "@/hooks/useRecomendations";
 import MovieCard from "@/components/MovieCard";
 import { ImageModal } from "@/components/ImageModal"; // Import modal component
 import { motion } from "framer-motion";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 export default function MovieDetailPage() {
   const { id } = useParams();
@@ -58,7 +59,7 @@ export default function MovieDetailPage() {
     videosLoading ||
     keywordsLoading
   )
-    return <div>Loading...</div>;
+    return <LoadingIndicator />;
   if (movieError || castError || imagesError || videosError || keywordsError)
     return <div>Error loading data</div>;
 
