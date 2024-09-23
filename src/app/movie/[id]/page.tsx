@@ -10,7 +10,7 @@ import { useParams } from "next/navigation";
 import { useKeywords } from "@/hooks/useKeywords";
 import { useRecommendations } from "@/hooks/useRecomendations";
 import MovieCard from "@/components/MovieCard";
-import { ImageModal } from "@/components/ImageModal"; // Import modal component
+import { ImageModal } from "@/components/ImageModal";
 import { motion } from "framer-motion";
 import LoadingIndicator from "@/components/LoadingIndicator";
 
@@ -39,13 +39,11 @@ export default function MovieDetailPage() {
     isLoading: videosLoading,
     error: videosError,
   } = useVideos(movieId);
-
   const {
     data: keywords,
     isLoading: keywordsLoading,
     error: keywordsError,
   } = useKeywords(movieId);
-
   const {
     data: recommendations,
     isLoading: recommendationLoading,
@@ -60,10 +58,10 @@ export default function MovieDetailPage() {
     keywordsLoading
   )
     return <LoadingIndicator />;
+
   if (movieError || castError || imagesError || videosError || keywordsError)
     return <div>Error loading data</div>;
 
-  // Limit items to 10 for display in the carousel
   const limitedImages = images?.slice(0, 10);
   const limitedCasts = casts?.slice(0, 10);
   const limitedVideos = videos?.slice(0, 10);
@@ -82,7 +80,6 @@ export default function MovieDetailPage() {
   return (
     <div className="bg-slate-800 w-full h-full min-h-screen p-4">
       <div className="flex flex-col lg:flex-row items-center lg:items-start lg:space-x-8 p-4">
-        {/* Movie Poster and Info */}
         <Image
           src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${movie?.poster_path}`}
           alt={movie?.title!}
@@ -91,7 +88,6 @@ export default function MovieDetailPage() {
           className="rounded shadow-lg"
         />
 
-        {/* Movie Information */}
         <div className="mt-6 lg:mt-0 w-full">
           <h1 className="text-4xl font-bold mb-4">{movie?.title}</h1>
           <p className="italic mb-6">{movie?.tagline}</p>
@@ -117,19 +113,22 @@ export default function MovieDetailPage() {
             <p>{movie?.overview}</p>
           </div>
 
-          {/* Keywords Chips */}
           <div className="mb-4">
             <strong>Keywords:</strong>
-            <div className="flex flex-wrap mt-2">
-              {keywords?.map((keyword) => (
-                <span
-                  key={keyword.id}
-                  className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
-                >
-                  {keyword.name}
-                </span>
-              ))}
-            </div>
+            {keywords && keywords.length === 0 ? (
+              <p>No keywords available.</p>
+            ) : (
+              <div className="flex flex-wrap mt-2">
+                {keywords?.map((keyword) => (
+                  <span
+                    key={keyword.id}
+                    className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
+                  >
+                    {keyword.name}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex space-x-4">
@@ -153,83 +152,116 @@ export default function MovieDetailPage() {
         </div>
       </div>
 
-      {/* Images Carousel with Zoom Effect */}
-      <SectionCarousel
-        title="Movie Images"
-        items={limitedImages!}
-        viewMoreLink={`/movie/${movieId}/images`} // Link to full list
-        renderItem={(image) => (
-          <motion.div
-            whileHover={{ scale: 1.05 }} // Effect when hovering over the card
-            whileTap={{ scale: 0.95 }} // Effect when tapping or clicking on the card
-            transition={{
-              type: "Spring", // Add spring-like movement
-              stiffness: 200,
-              damping: 20,
-              duration: 0.3,
-            }} // Smooth transition betwe
-            onClick={() => handleImageClick(image.file_path)} // Open modal on click
-            className="cursor-pointer"
-          >
-            <Image
-              src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
-              alt="Movie image"
-              width={3840}
-              height={2160}
-              className="rounded-md"
+      {images?.length === 0 ? (
+        <div className="p-4 text-2xl font-semibold">
+          <div className="flex justify-between ">
+            <p>Movie Images</p>
+            <p>View More</p>
+          </div>
+          No Images
+        </div>
+      ) : (
+        <SectionCarousel
+          title="Movie Images"
+          items={limitedImages!}
+          viewMoreLink={`/movie/${movieId}/images`}
+          renderItem={(image) => (
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+                duration: 0.3,
+              }}
+              onClick={() => handleImageClick(image.file_path)}
+              className="cursor-pointer"
+            >
+              <Image
+                src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                alt="Movie image"
+                width={3840}
+                height={2160}
+                className="rounded-md"
+              />
+            </motion.div>
+          )}
+        />
+      )}
+      {casts?.length === 0 ? (
+        <div className="p-4 text-2xl font-semibold">
+          <div className="flex justify-between ">
+            <p>Movie Cast</p>
+            <p>View More</p>
+          </div>
+          No Cast
+        </div>
+      ) : (
+        <SectionCarousel
+          title="Cast"
+          items={limitedCasts!}
+          viewMoreLink={`/movie/${movieId}/credits`}
+          renderItem={(cast) => (
+            <MovieCard
+              id={cast.id}
+              title={cast.name}
+              overview={cast.character}
+              posterPath={cast.profile_path}
             />
-          </motion.div>
-        )}
-      />
+          )}
+        />
+      )}
 
-      {/* Cast Carousel */}
-      <SectionCarousel
-        title="Cast"
-        items={limitedCasts!}
-        viewMoreLink={`/movie/${movieId}/credits`}
-        renderItem={(cast) => (
-          <MovieCard
-            id={cast.id}
-            title={cast.name}
-            overview={cast.character}
-            posterPath={cast.profile_path}
-          />
-        )}
-      />
-
-      {/* Videos Carousel */}
-      <SectionCarousel
-        title="Videos"
-        items={limitedVideos!}
-        viewMoreLink={`/movie/${movieId}/videos`}
-        renderItem={(video) => (
-          <iframe
-            src={`https://www.youtube.com/embed/${video.key}`}
-            title="YouTube video player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
+      {videos?.length === 0 ? (
+        <div className="p-4 text-2xl font-semibold">
+          <div className="flex justify-between ">
+            <p>Movie Videos</p>
+            <p>View More</p>
+          </div>
+          No Videos
+        </div>
+      ) : (
+        <SectionCarousel
+          title="Videos"
+          items={limitedVideos!}
+          viewMoreLink={`/movie/${movieId}/videos`}
+          renderItem={(video) => (
+            <iframe
+              src={`https://www.youtube.com/embed/${video.key}`}
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
               className="rounded-lg w-full h-72 object-cover"
-          ></iframe>
-        )}
-      />
+            ></iframe>
+          )}
+        />
+      )}
+      {recommendations?.length === 0 ? (
+        <div className="p-4 text-2xl font-semibold">
+          <div className="flex justify-between ">
+            <p>Movie Recommendations</p>
+            <p>View More</p>
+          </div>
+          No Recommendations
+        </div>
+      ) : (
+        <SectionCarousel
+          title="Recommendations"
+          items={limitedRecommendations!}
+          viewMoreLink={`/movie/${movieId}/recommendations`}
+          renderItem={(recommendation) => (
+            <MovieCard
+              id={recommendation.id}
+              title={recommendation.title}
+              overview={recommendation.overview}
+              posterPath={recommendation.poster_path}
+            />
+          )}
+        />
+      )}
 
-      {/* Recommendations Carousel */}
-      <SectionCarousel
-        title="Recommendations"
-        items={limitedRecommendations!}
-        viewMoreLink={`/movie/${movieId}/recommendations`}
-        renderItem={(recommendation) => (
-          <MovieCard
-            id={recommendation.id}
-            title={recommendation.title}
-            overview={recommendation.overview}
-            posterPath={recommendation.poster_path}
-          />
-        )}
-      />
-
-      {/* Image Modal */}
       <ImageModal
         isOpen={!!selectedImage}
         onClose={handleCloseModal}
