@@ -9,7 +9,7 @@ interface MovieCardProps {
   title: string;
   overview: string;
   posterPath: string;
-  rating: number;
+  type?: string;
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
@@ -17,7 +17,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   title,
   overview,
   posterPath,
-  rating,
+  type,
 }) => {
   const router = useRouter(); // Initialize useRouter
 
@@ -32,10 +32,11 @@ const MovieCard: React.FC<MovieCardProps> = ({
       className="md:w-80 h-full lg:w-96 bg-neutral-800 text-white shadow-lg rounded-lg overflow-hidden cursor-pointer"
     >
       <div className="relative w-full h-60">
-        <img
+        <Image
           src={process.env.NEXT_PUBLIC_IMAGE_URL + posterPath}
           alt={title}
-          //   fill
+          fill
+          loading="lazy"
           className="object-cover w-full h-full"
         />
       </div>

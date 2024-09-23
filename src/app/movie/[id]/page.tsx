@@ -8,6 +8,8 @@ import { useImages } from "@/hooks/useImages";
 import { useVideos } from "@/hooks/useVideo";
 import { useParams } from "next/navigation";
 import { useKeywords } from "@/hooks/useKeywords";
+import { useRecommendations } from "@/hooks/useRecomendations";
+import MovieCard from "@/components/MovieCard"; // Import MovieCard component
 
 export default function MovieDetailPage() {
   const { id } = useParams();
@@ -40,15 +42,28 @@ export default function MovieDetailPage() {
     error: keywordsError,
   } = useKeywords(movieId);
 
-  if (movieLoading || castLoading || imagesLoading || videosLoading)
+  const {
+    data: recommendations,
+    isLoading: recommendationLoading,
+    error: recommendationError,
+  } = useRecommendations(movieId);
+
+  if (
+    movieLoading ||
+    castLoading ||
+    imagesLoading ||
+    videosLoading ||
+    keywordsLoading
+  )
     return <div>Loading...</div>;
-  if (movieError || castError || imagesError || videosError)
+  if (movieError || castError || imagesError || videosError || keywordsError)
     return <div>Error loading data</div>;
 
   // Limit items to 10 for display in the carousel
   const limitedImages = images?.slice(0, 10);
   const limitedCasts = casts?.slice(0, 10);
   const limitedVideos = videos?.slice(0, 10);
+  const limitedRecommendations = recommendations?.slice(0, 10);
 
   return (
     <div className="bg-slate-800 w-full h-full min-h-screen p-4">
@@ -73,16 +88,14 @@ export default function MovieDetailPage() {
 
           <div className="mb-4">
             <strong>Genres:</strong>{" "}
-            {movie?.genres
-              .map((genre) => (
-                <span
-                  key={genre.id}
-                  className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
-                >
-                  {genre.name}
-                </span>
-              ))
-            }
+            {movie?.genres.map((genre) => (
+              <span
+                key={genre.id}
+                className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
+              >
+                {genre.name}
+              </span>
+            ))}
           </div>
 
           <div className="mb-6">
@@ -142,24 +155,18 @@ export default function MovieDetailPage() {
         )}
       />
 
-      {/* Cast Carousel */}
+      {/* Cast Carousel with MovieCard */}
       <SectionCarousel
-      type="cast"
         title="Cast"
         items={limitedCasts!}
         viewMoreLink={`/movie/${movieId}/cast`}
         renderItem={(cast) => (
-          <div className="flex flex-col items-center w-full h-full">
-            <Image
-              src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${cast.profile_path}`}
-              alt={cast.name}
-              width={200}
-              height={200}
-              className="rounded-md object-cover"
-            />
-            <p className="text-white mt-2">{cast.name}</p>
-            <p className="text-gray-400 text-sm">{cast.character}</p>
-          </div>
+          <MovieCard
+            id={cast.id} // Assuming `cast.id` is the ID for the cast's character or person
+            title={cast.name}
+            overview={cast.character} // We can show the character they play in place of overview
+            posterPath={cast.profile_path}
+          />
         )}
       />
 
@@ -176,6 +183,21 @@ export default function MovieDetailPage() {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="rounded-lg w-full h-72 object-cover"
+          />
+        )}
+      />
+
+      {/* Recommendations Carousel with MovieCard */}
+      <SectionCarousel
+        title="Recommendations"
+        items={limitedRecommendations!}
+        viewMoreLink={`/movie/${movieId}/recommendations`} // Link to full list
+        renderItem={(recommendation) => (
+          <MovieCard
+            id={recommendation.id}
+            title={recommendation.title}
+            overview={recommendation.overview}
+            posterPath={recommendation.poster_path}
           />
         )}
       />
