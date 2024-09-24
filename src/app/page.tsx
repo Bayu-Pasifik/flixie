@@ -5,6 +5,7 @@ import { useCurrentlyAiring } from "@/hooks/useCurrentlyAiring";
 import { useUpcomingMovies } from "@/hooks/useUpcomingMovie";
 import { usePopularMovies } from "@/hooks/usePopularMovie";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { useTrendingMovie } from "@/hooks/useTrending";
 
 export default function HomePage() {
   const {
@@ -17,18 +18,19 @@ export default function HomePage() {
     isLoading: isLoadingUpcoming,
     error: upcomingError,
   } = useUpcomingMovies();
-  const {
-    data: popularData,
-    isLoading: isLoadingPopular,
-    error: popularError,
-  } = usePopularMovies();
 
-  if (isLoadingAiring || isLoadingUpcoming || isLoadingPopular)
+  const {
+    data: trendingData,
+    isLoading: isLoadingTrending,
+    error: trendingError,
+  } = useTrendingMovie("week");
+
+  if (isLoadingAiring || isLoadingUpcoming || isLoadingTrending)
     return <div><LoadingIndicator/></div>;
-  if (airingError || upcomingError || popularError)
+  if (airingError || upcomingError || trendingError)
     return (
       <div>
-        Error: {(airingError || upcomingError || popularError)?.message}
+        Error: {(airingError || upcomingError || trendingError)?.message}
       </div>
     );
 
@@ -47,17 +49,18 @@ export default function HomePage() {
 
       {/* Upcoming Movies Section */}
       <MovieCarousel 
+        title="Movie Trending This Weeks" 
+        movies={trendingData!} 
+        viewMoreUrl="/movie/trending" // Add viewMoreUrl for upcoming movies
+      />
+      {/* Upcoming Movies Section */}
+      <MovieCarousel 
         title="Upcoming Movies" 
         movies={upcomingData!} 
         viewMoreUrl="/movie/upcoming" // Add viewMoreUrl for upcoming movies
       />
 
-      {/* Popular Movies Section */}
-      <MovieCarousel 
-        title="Popular Movies" 
-        movies={popularData!} 
-        viewMoreUrl="/movie/popular" // Add viewMoreUrl for popular movies
-      />
+
     </div>
   );
 }
