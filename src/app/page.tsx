@@ -3,7 +3,6 @@ import HomeCarousel from "@/components/Carousel";
 import MovieCarousel from "@/components/MovieCarousel";
 import { useCurrentlyAiring } from "@/hooks/useCurrentlyAiring";
 import { useUpcomingMovies } from "@/hooks/useUpcomingMovie";
-import { usePopularMovies } from "@/hooks/usePopularMovie";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useTrendingMovie } from "@/hooks/useTrending";
 

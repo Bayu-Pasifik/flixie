@@ -39,6 +39,7 @@ const MovieCarousel: React.FC<MovieCarouselProps> = ({ title, movies, viewMoreUr
                   title={movie.title}
                   overview={movie.overview}
                   posterPath={movie.poster_path}
+                  type="carousel"
                 />
               </div>
             </CarouselItem>
