@@ -25,15 +25,18 @@ const MovieCard: React.FC<MovieCardProps> = ({
 
   // Handle card click to navigate to movie detail page
   const handleClick = () => {
-    router.push(`/movie/${id}`);
+    if (type === "tv") {
+      router.push(`/tv/${id}`);
+    } else {
+      router.push(`/movie/${id}`);
+    }
   };
 
   return (
     <motion.div
       onClick={handleClick}
-      className={`md:w-80 h-full lg:w-96 ${
-        type === "carousel" ? "2xl:w-96" : "2xl:w-80"
-      } bg-neutral-800 text-white shadow-lg rounded-lg overflow-hidden cursor-pointer`}
+      className={`md:w-64 h-full lg:w-72 "2xl:w-72"
+      bg-neutral-800 text-white shadow-lg rounded-lg overflow-hidden cursor-pointer`}
       initial={{ opacity: 0, y: 50 }} // Initial state (before animation)
       animate={{ opacity: 1, y: 0 }} // Final state (after animation)
       whileHover={{ scale: 1.05, y: -10 }} // Effect when hovering over the card

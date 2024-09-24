@@ -107,3 +107,44 @@ export const useInfinityAiringTV = () => {
     getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
   });
 };
+async function fetchInfinityOnAir({
+  pageParam = 1,
+}: { pageParam?: number }): Promise<{
+  tvShows: Tv[];  // Sesuaikan dengan tipe TV show Anda
+  currentPage: number | null;
+  nextPage: number | null;
+  prevPage: number | null;
+}> {
+  try {
+    // Simulasi delay untuk animasi (opsional)
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
+
+    // Lakukan request ke API dengan paginasi
+    const response = await axiosInstance.get("/tv/on_the_air", {
+      params: { page: pageParam },
+    });
+
+    return {
+      tvShows: response.data.results,
+      nextPage:
+        response.data.page < response.data.total_pages
+          ? response.data.page + 1
+          : null,
+      currentPage: response.data.page,
+      prevPage: response.data.page > 1 ? response.data.page - 1 : null,
+    };
+  } catch (error) {
+    console.error("Error fetching currently airing TV shows:", error);
+    throw error; // Rethrow error untuk React Query menangani
+  }
+}
+
+// Hook untuk infinite scroll pada TV shows
+export const useInfinityOnAir = () => {
+  return useInfiniteQuery({
+    queryKey: ["tvShows", "infinity_on_air"],
+    queryFn: fetchInfinityOnAir,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+  });
+};

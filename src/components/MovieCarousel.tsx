@@ -31,7 +31,7 @@ const MovieCarousel: React.FC<MovieCarouselProps> = ({ title, movies, viewMoreUr
           {movies?.map((movie) => (
             <CarouselItem
               key={movie.id}
-              className="basis-full md:basis-1/2 lg:basis-1/3 2xl:basis-1/4"
+              className="basis-full md:basis-1/2 lg:basis-1/3 2xl:basis-1/5"
             >
               <div className="p-1">
                 <MovieCard
