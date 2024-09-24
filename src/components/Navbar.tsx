@@ -7,30 +7,41 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 export default function Navbar() {
   return (
     <nav className="flex justify-between items-center px-8 py-4 bg-gray-800 text-white drop-shadow-sm">
-      <div className="text-lg font-bold">Flixie</div>
+      <div className="text-lg font-bold">
+        <Link href={"/"}>Flixie</Link>
+      </div>
       <div className="flex items-center space-x-4">
-        <Button variant="ghost" className="hover:bg-gray-700">
-          <a href="/">Home</a>
-        </Button>
-        <Button variant="ghost" className="hover:bg-gray-700">
-          Tv Shows
-        </Button>
-        <Button variant="ghost" className="hover:bg-gray-700">
-          People
-        </Button>
-        <Button variant="ghost" className="hover:bg-gray-700">
-          Search
-        </Button>
+        <Link href="/">
+          <Button variant="ghost" className="hover:bg-gray-700">
+            Home
+          </Button>
+        </Link>
+        <Link href="/tv">
+          <Button variant="ghost" className="hover:bg-gray-700">
+            Tv Shows
+          </Button>
+        </Link>
+        <Link href={"/people"}>
+          <Button variant="ghost" className="hover:bg-gray-700">
+            People
+          </Button>
+        </Link>
+        <Link href={"/search"}>
+          <Button variant="ghost" className="hover:bg-gray-700">
+            Search
+          </Button>
+        </Link>
 
         {/* Dropdown Menu for Profile */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="hover:bg-gray-700">
-              Profile
+              About Us
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
