@@ -1,5 +1,4 @@
 "use client";
-import { useInfinityUpcomingMovies } from "@/hooks/useUpcomingMovie";
 import { useInView } from "react-intersection-observer";
 import MovieCard from "@/components/MovieCard";
 import MovieListCard from "@/components/MovieListCard"; // Import versi list panjang
@@ -8,12 +7,16 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Movie } from "@/types/movieType";
 import LoadingIndicator from "@/components/LoadingIndicator";
-import ViewToggle from "@/components/ToogleView";
 import React from "react";
 import { useInfinityTrendingMovie } from "@/hooks/useTrending";
+import TimeToggle from "@/components/ToggleTime";
+import ViewToggle from "@/components/ToogleView";
+import { time } from "console";
 
 const TrendingPage = () => {
-
+  const { ref, inView } = useInView();
+  const [viewMode, setViewMode] = useState("card");
+  const [timeMode, setTimeMode] = useState("day");
   const {
     data,
     error,
@@ -21,13 +24,14 @@ const TrendingPage = () => {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-  } = useInfinityTrendingMovie('week');
-
-  const { ref, inView } = useInView();
-  const [viewMode, setViewMode] = useState("card");
+  } = useInfinityTrendingMovie(timeMode);
 
   const handleViewChange = (view: string) => {
     setViewMode(view);
+  };
+
+  const handleTimeChange = (time: string) => {
+    setTimeMode(time);
   };
 
   useEffect(() => {
@@ -55,11 +59,14 @@ const TrendingPage = () => {
   return (
     <div className="bg-slate-800 min-h-screen p-4">
       <div>
-        <div className="flex justify-between p-1">
+        <div className="flex justify-between p-1 mb-4">
           <h1 className="text-3xl font-bold">Trending Movie Movies</h1>
           <ViewToggle selectedView={viewMode} onViewChange={handleViewChange} />
         </div>
 
+        <div className="flex justify-center p-1 mb-4">
+          <TimeToggle selectedView={timeMode} onViewChange={handleTimeChange} />
+        </div>
         {/* Render seluruh data film yang telah dimuat dengan animasi */}
         <div className={`grid ${viewMode === "card" ? styleCard : styleList}`}>
           {data?.pages?.map((page, pageIndex) => (
