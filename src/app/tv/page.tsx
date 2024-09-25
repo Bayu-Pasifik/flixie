@@ -3,6 +3,7 @@
 import LoadingIndicator from "@/components/LoadingIndicator";
 import MovieCard from "@/components/MovieCard";
 import NewDataLoading from "@/components/NewDataLoading";
+import TimeToggle from "@/components/ToggleTime";
 import { Button } from "@/components/ui/button";
 import {
   useInfinityAiring,
@@ -10,14 +11,19 @@ import {
   useInfinityOnAir,
 } from "@/hooks/useCurrentlyAiring";
 import { useInfinityTopRateTv, useTopMovies } from "@/hooks/useTopRate";
-import { useInfinityPopular } from "@/hooks/useTrending";
+import { useInfinityTrendingTv } from "@/hooks/useTrending";
 import { Tv } from "@/types/movieType";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer"; // Import Intersection Observer
 
 export default function TvPage() {
-  const chosenCategories = ["airing today", "popular", "top rated"];
+  const chosenCategories = ["airing today", "trending", "top rated"];
   const [currentCategory, setCurrentCategory] = useState("airing today");
+  const [viewMode, setViewMode] = useState("card");
+  const [timeMode, setTimeMode] = useState("day");
+  const handleTimeChange = (time: string) => {
+    setTimeMode(time);
+  };
 
   // Define states and data for each category
   const { data, isLoading, error, fetchNextPage, isFetchingNextPage } =
@@ -25,7 +31,7 @@ export default function TvPage() {
       ? useInfinityAiringTV()
       : currentCategory === "top rated"
       ? useInfinityTopRateTv()
-      : useInfinityPopular();
+      : useInfinityTrendingTv(timeMode);
 
   const { ref, inView } = useInView({});
 
@@ -60,6 +66,11 @@ export default function TvPage() {
           </Button>
         ))}
       </div>
+      {currentCategory === "trending" && (
+        <div className="flex justify-center p-1 mb-4">
+          <TimeToggle selectedView={timeMode} onViewChange={handleTimeChange} />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
         {data?.pages.map((page) =>

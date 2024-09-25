@@ -66,7 +66,8 @@ async function fetchInfinityTrendingMovie(
       staleTime: 1000 * 60 * 5, // 5 minutes
     });
   };
-async function fetchInfinityPopular(
+async function fetchInfinityTrendingTv(
+    time: string,
     { pageParam = 1 }: { pageParam?: number }
   ): Promise<{
     tvShows: Tv[];
@@ -78,7 +79,7 @@ async function fetchInfinityPopular(
       // Simulate delay to show animations
       await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
   
-      const response = await axiosInstance.get(`/tv/popular`, {
+      const response = await axiosInstance.get(`/trending/tv/${time}`, {
         params: { page: pageParam },
       });
   
@@ -98,13 +99,13 @@ async function fetchInfinityPopular(
   }
   
   // Hook untuk useInfiniteQuery
-  export const useInfinityPopular = () => {
+  export const useInfinityTrendingTv = (time: string) => {
     return useInfiniteQuery({
-      queryKey: ['tv/infinity_popular'],
-      queryFn: ({ pageParam = 1 }) => fetchInfinityPopular({ pageParam }),
+      queryKey: ['tv/infinity_trending', time],
+      queryFn: ({ pageParam = 1 }) => fetchInfinityTrendingTv(time, { pageParam }),
       initialPageParam: 1,
       getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
       staleTime: 1000 * 60 * 5, // 5 minutes
     });
   };
-  
+
