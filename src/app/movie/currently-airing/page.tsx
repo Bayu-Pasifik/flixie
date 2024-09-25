@@ -7,6 +7,7 @@ import { useInView } from "react-intersection-observer";
 import MovieCard from "@/components/MovieCard";
 import NewDataLoading from "@/components/NewDataLoading";
 import { motion } from "framer-motion";
+import { LayoutTemplate } from "@/components/LayoutTemplate";
 
 const CurrentlyAiringPage = () => {
   const {
@@ -42,12 +43,11 @@ const CurrentlyAiringPage = () => {
         <h1 className="text-3xl font-bold mb-4 p-3">Currently Airing</h1>
 
         {/* Render seluruh data film yang telah dimuat dengan animasi */}
-        <div
-          className="grid grid-cols-3 gap-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-        >
+        <LayoutTemplate layout="card">
+          
           {data?.pages?.map((page, pageIndex) => (
             <React.Fragment key={pageIndex}>
-              {page.movies.map((movie: Movie,index) => (
+              {page.movies.map((movie: Movie, index) => (
                 <motion.div
                   key={index}
                   className="p-3"
@@ -65,8 +65,7 @@ const CurrentlyAiringPage = () => {
               ))}
             </React.Fragment>
           ))}
-        </div>
-
+        </LayoutTemplate>
         {/* Fetch more data when the user scrolls */}
         {isFetchingNextPage && (
           <div className="text-center mt-4">

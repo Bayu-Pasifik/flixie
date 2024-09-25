@@ -11,7 +11,7 @@ import React from "react";
 import { useInfinityTrendingMovie } from "@/hooks/useTrending";
 import TimeToggle from "@/components/ToggleTime";
 import ViewToggle from "@/components/ToogleView";
-import { time } from "console";
+import { LayoutTemplate } from "@/components/LayoutTemplate"; // Import LayoutTemplate
 
 const TrendingPage = () => {
   const { ref, inView } = useInView();
@@ -50,25 +50,20 @@ const TrendingPage = () => {
     );
   }
 
-  // Define styles for card and list view modes
-  const styleCard =
-    "grid-cols-3 gap-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4";
-  const styleList =
-    "grid-cols-1 gap-1 md:grid-cols-1 lg:grid-cols-1 2xl:grid-cols-1";
-
   return (
     <div className="bg-slate-800 min-h-screen p-4">
       <div>
         <div className="flex justify-between p-1 mb-4">
-          <h1 className="text-3xl font-bold">Trending Movie Movies</h1>
+          <h1 className="text-3xl font-bold">Trending Movies</h1>
           <ViewToggle selectedView={viewMode} onViewChange={handleViewChange} />
         </div>
 
         <div className="flex justify-center p-1 mb-4">
           <TimeToggle selectedView={timeMode} onViewChange={handleTimeChange} />
         </div>
-        {/* Render seluruh data film yang telah dimuat dengan animasi */}
-        <div className={`grid ${viewMode === "card" ? styleCard : styleList}`}>
+
+        {/* LayoutTemplate is applied here */}
+        <LayoutTemplate layout={viewMode}>
           {data?.pages?.map((page, pageIndex) => (
             <React.Fragment key={pageIndex}>
               {page.movies.map((movie: Movie, index) => (
@@ -98,7 +93,7 @@ const TrendingPage = () => {
               ))}
             </React.Fragment>
           ))}
-        </div>
+        </LayoutTemplate>
 
         {/* Fetch more data when the user scrolls */}
         {isFetchingNextPage && (
