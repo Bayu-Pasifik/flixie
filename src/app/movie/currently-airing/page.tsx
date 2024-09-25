@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Movie } from "@/types/movieType";
 import { useInfinityAiring } from "@/hooks/useCurrentlyAiring";
 import LoadingIndicator from "@/components/LoadingIndicator";
@@ -8,6 +8,8 @@ import MovieCard from "@/components/MovieCard";
 import NewDataLoading from "@/components/NewDataLoading";
 import { motion } from "framer-motion";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
+import ViewToggle from "@/components/ToogleView";
+import MovieListCard from "@/components/MovieListCard";
 
 const CurrentlyAiringPage = () => {
   const {
@@ -20,6 +22,11 @@ const CurrentlyAiringPage = () => {
   } = useInfinityAiring();
 
   const { ref, inView } = useInView();
+  const [viewMode, setViewMode] = useState("card");
+
+  const handleViewChange = (view: string) => {
+    setViewMode(view);
+  };
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -40,11 +47,12 @@ const CurrentlyAiringPage = () => {
   return (
     <div className="bg-slate-800 min-h-screen p-4">
       <div>
-        <h1 className="text-3xl font-bold mb-4 p-3">Currently Airing</h1>
-
+        <div className="flex justify-between p-1">
+          <h1 className="text-3xl font-bold mb-4 p-3">Currently Airing</h1>
+          <ViewToggle onViewChange={handleViewChange} selectedView={viewMode} />
+        </div>
         {/* Render seluruh data film yang telah dimuat dengan animasi */}
-        <LayoutTemplate layout="card">
-          
+        <LayoutTemplate layout={viewMode}>
           {data?.pages?.map((page, pageIndex) => (
             <React.Fragment key={pageIndex}>
               {page.movies.map((movie: Movie, index) => (
@@ -55,12 +63,21 @@ const CurrentlyAiringPage = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: index * 0.2 }}
                 >
-                  <MovieCard
-                    id={movie.id}
-                    title={movie.title}
-                    overview={movie.overview}
-                    posterPath={movie.poster_path}
-                  />
+                  {viewMode === "card" ? (
+                    <MovieCard
+                      id={movie.id}
+                      title={movie.title}
+                      overview={movie.overview}
+                      posterPath={movie.poster_path}
+                    />
+                  ) : (
+                    <MovieListCard
+                      id={movie.id}
+                      title={movie.title}
+                      overview={movie.overview}
+                      posterPath={movie.poster_path}
+                    />
+                  )}
                 </motion.div>
               ))}
             </React.Fragment>

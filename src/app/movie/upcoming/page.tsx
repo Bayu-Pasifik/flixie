@@ -10,6 +10,7 @@ import { Movie } from "@/types/movieType";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import ViewToggle from "@/components/ToogleView";
 import React from "react";
+import { LayoutTemplate } from "@/components/LayoutTemplate";
 
 const UpcomingPage = () => {
   const {
@@ -44,10 +45,6 @@ const UpcomingPage = () => {
     );
   }
 
-  // Define styles for card and list view modes
-  const styleCard = "grid-cols-3 gap-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4";
-  const styleList = "grid-cols-1 gap-1 md:grid-cols-1 lg:grid-cols-1 2xl:grid-cols-1";
-
   return (
     <div className="bg-slate-800 min-h-screen p-4">
       <div>
@@ -57,7 +54,7 @@ const UpcomingPage = () => {
         </div>
 
         {/* Render seluruh data film yang telah dimuat dengan animasi */}
-        <div className={`grid ${viewMode === "card" ? styleCard : styleList}`}>
+        <LayoutTemplate layout={viewMode}>
           {data?.pages?.map((page, pageIndex) => (
             <React.Fragment key={pageIndex}>
               {page.movies.map((movie: Movie, index) => (
@@ -87,7 +84,7 @@ const UpcomingPage = () => {
               ))}
             </React.Fragment>
           ))}
-        </div>
+        </LayoutTemplate>
 
         {/* Fetch more data when the user scrolls */}
         {isFetchingNextPage && (
