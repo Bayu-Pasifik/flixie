@@ -9,24 +9,22 @@ import {
   useInfinityAiringTV,
   useInfinityOnAir,
 } from "@/hooks/useCurrentlyAiring";
-import { useTopMovies } from "@/hooks/useTopRate";
+import { useInfinityTopRateTv, useTopMovies } from "@/hooks/useTopRate";
 import { useInfinityPopular } from "@/hooks/useTrending";
 import { Tv } from "@/types/movieType";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer"; // Import Intersection Observer
 
 export default function TvPage() {
-  const chosenCategories = [
-    "airing today",
-    "popular",
-    "top rated",
-  ];
+  const chosenCategories = ["airing today", "popular", "top rated"];
   const [currentCategory, setCurrentCategory] = useState("airing today");
 
   // Define states and data for each category
   const { data, isLoading, error, fetchNextPage, isFetchingNextPage } =
     currentCategory === "airing today"
       ? useInfinityAiringTV()
+      : currentCategory === "top rated"
+      ? useInfinityTopRateTv()
       : useInfinityPopular();
 
   const { ref, inView } = useInView({});
@@ -51,7 +49,9 @@ export default function TvPage() {
         {chosenCategories.map((category) => (
           <Button
             className={`bg-blue-600 text-white rounded-lg px-3 py-6 mr-2 mb-2 text-sm uppercase ${
-              currentCategory === category ? "bg-orange-700 border border-double" : ""
+              currentCategory === category
+                ? "bg-orange-700 border border-double"
+                : ""
             }`}
             key={category}
             onClick={() => handleCategoryChange(category)}
