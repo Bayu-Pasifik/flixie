@@ -10,17 +10,25 @@ interface ModalProps {
 export const ImageModal = ({ isOpen, onClose, imageUrl }: ModalProps) => {
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden"; // Disable scrolling when modal is open
+      // Disable scrolling when the modal is open
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "auto"; // Enable scrolling when modal is closed
+      // Re-enable scrolling when the modal is closed
+      document.body.style.overflow = "auto";
     }
+
+    // Cleanup effect to ensure scrolling is restored when component unmounts
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50 cursor-zoom-out"
-          onClick={onClose} // Close the modal when the background is clicked
+          onClick={onClose} // Close modal when background is clicked
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -34,6 +42,7 @@ export const ImageModal = ({ isOpen, onClose, imageUrl }: ModalProps) => {
             exit={{ scale: 0.5 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             style={{ maxWidth: '100%', maxHeight: '100vh' }} // Maintain aspect ratio and fit within the viewport
+            onClick={(e) => e.stopPropagation()} // Prevent modal from closing when image is clicked
           />
         </motion.div>
       )}
