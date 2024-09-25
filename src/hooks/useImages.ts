@@ -4,21 +4,25 @@ import { Detailmovie } from '@/types/detailMovieType';
 import { Images } from '@/types/imageType';
 
 // Mengambil detail movie berdasarkan ID
-async function fetchImages(id: number): Promise<Images[]> {
+async function fetchImages(id: number): Promise<{ backdrops: Images[]; posters: Images[]; logos: Images[] }> {
   try {
     const response = await axiosInstance.get(`/movie/${id}/images`);
-    return response.data.backdrops; // Asumsi response data berupa object Detailmovie
+    return {
+      backdrops: response.data.backdrops,
+      posters: response.data.posters,
+      logos: response.data.logos,
+    }; 
   } catch (error) {
-    console.error('Error fetching movie detail:', error);
+    console.error('Error fetching movie images:', error);
     throw error;
   }
 }
 
 // Hook untuk menggunakan React Query
 export const useImages = (id: number) => {
-  return useQuery<Images[], Error>({
+  return useQuery<{ backdrops: Images[]; posters: Images[]; logos: Images[] }, Error>({
     queryKey: ['movie/images', id],
     queryFn: () => fetchImages(id),
-    staleTime: 1000 * 60 * 5, // 5 menit
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };

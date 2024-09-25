@@ -62,11 +62,6 @@ export default function MovieDetailPage() {
   if (movieError || castError || imagesError || videosError || keywordsError)
     return <div>Error loading data</div>;
 
-  const limitedImages = images?.slice(0, 10);
-  const limitedCasts = casts?.slice(0, 10);
-  const limitedVideos = videos?.slice(0, 10);
-  const limitedRecommendations = recommendations?.slice(0, 10);
-
   const handleImageClick = (imagePath: string) => {
     setSelectedImage(
       `${process.env.NEXT_PUBLIC_IMAGE_URL_ORIGINAL}${imagePath}`
@@ -79,6 +74,7 @@ export default function MovieDetailPage() {
 
   return (
     <div className="bg-slate-800 w-full h-full min-h-screen p-4">
+      {/* Movie Details */}
       <div className="flex flex-col lg:flex-row items-center lg:items-start lg:space-x-8 p-4">
         <Image
           src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${movie?.poster_path}`}
@@ -152,46 +148,109 @@ export default function MovieDetailPage() {
         </div>
       </div>
 
-      {images?.length === 0 ? (
+      {/* Movie Images */}
+      {images?.backdrops.length === 0 &&
+      images?.posters.length === 0 &&
+      images?.logos.length === 0 ? (
         <div className="p-4 text-2xl font-semibold">
-          <div className="flex justify-between ">
+          <div className="flex justify-between">
             <p>Movie Images</p>
             <p>View More</p>
           </div>
           No Images
         </div>
       ) : (
-        <SectionCarousel
-          title="Movie Images"
-          items={limitedImages!}
-          viewMoreLink={`/movie/${movieId}/images`}
-          renderItem={(image) => (
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{
-                type: "spring",
-                stiffness: 200,
-                damping: 20,
-                duration: 0.3,
-              }}
-              onClick={() => handleImageClick(image.file_path)}
-              className="cursor-pointer"
-            >
-              <Image
-                src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
-                alt="Movie image"
-                width={3840}
-                height={2160}
-                className="rounded-md"
-              />
-            </motion.div>
-          )}
-        />
+        <>
+          <SectionCarousel
+            title="Backdrops"
+            items={images!.backdrops.slice(0, 10)}
+            viewMoreLink={`/movie/${movieId}/images`}
+            renderItem={(image) => (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  duration: 0.3,
+                }}
+                onClick={() => handleImageClick(image.file_path)}
+                className="cursor-pointer"
+              >
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                  alt="Movie image"
+                  width={3840}
+                  height={2160}
+                  className="rounded-md"
+                />
+              </motion.div>
+            )}
+          />
+
+          <SectionCarousel
+            title="Posters"
+            items={images!.posters.slice(0, 10)}
+            viewMoreLink={`/movie/${movieId}/images`}
+            renderItem={(image) => (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  duration: 0.3,
+                }}
+                onClick={() => handleImageClick(image.file_path)}
+                className="cursor-pointer"
+              >
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                  alt="Movie image"
+                  width={300}
+                  height={450}
+                  className="rounded-md"
+                />
+              </motion.div>
+            )}
+          />
+
+          <SectionCarousel
+            title="Logos"
+            items={images!.logos.slice(0, 10)}
+            viewMoreLink={`/movie/${movieId}/images`}
+            renderItem={(image) => (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  duration: 0.3,
+                }}
+                onClick={() => handleImageClick(image.file_path)}
+                className="cursor-pointer"
+              >
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                  alt="Movie logo"
+                  width={500}
+                  height={300}
+                  className="rounded-md"
+                />
+              </motion.div>
+            )}
+          />
+        </>
       )}
+
+      {/* Casts */}
       {casts?.length === 0 ? (
         <div className="p-4 text-2xl font-semibold">
-          <div className="flex justify-between ">
+          <div className="flex justify-between">
             <p>Movie Cast</p>
             <p>View More</p>
           </div>
@@ -200,7 +259,7 @@ export default function MovieDetailPage() {
       ) : (
         <SectionCarousel
           title="Cast"
-          items={limitedCasts!}
+          items={casts!.slice(0, 10)}
           viewMoreLink={`/movie/${movieId}/credits`}
           renderItem={(cast) => (
             <MovieCard
@@ -213,9 +272,10 @@ export default function MovieDetailPage() {
         />
       )}
 
+      {/* Videos */}
       {videos?.length === 0 ? (
         <div className="p-4 text-2xl font-semibold">
-          <div className="flex justify-between ">
+          <div className="flex justify-between">
             <p>Movie Videos</p>
             <p>View More</p>
           </div>
@@ -224,24 +284,26 @@ export default function MovieDetailPage() {
       ) : (
         <SectionCarousel
           title="Videos"
-          items={limitedVideos!}
+          items={videos!.slice(0, 10)}
           viewMoreLink={`/movie/${movieId}/videos`}
           renderItem={(video) => (
             <iframe
               src={`https://www.youtube.com/embed/${video.key}`}
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              title="YouTube video"
+              width="100%"
+              height="auto"
               allowFullScreen
-              className="rounded-lg w-full h-72 object-cover"
-            ></iframe>
+              className="rounded-md"
+            />
           )}
         />
       )}
+
+      {/* Recommendations */}
       {recommendations?.length === 0 ? (
         <div className="p-4 text-2xl font-semibold">
-          <div className="flex justify-between ">
-            <p>Movie Recommendations</p>
+          <div className="flex justify-between">
+            <p>Recommendations</p>
             <p>View More</p>
           </div>
           No Recommendations
@@ -249,7 +311,7 @@ export default function MovieDetailPage() {
       ) : (
         <SectionCarousel
           title="Recommendations"
-          items={limitedRecommendations!}
+          items={recommendations!.slice(0, 10)}
           viewMoreLink={`/movie/${movieId}/recommendations`}
           renderItem={(recommendation) => (
             <MovieCard
@@ -262,11 +324,14 @@ export default function MovieDetailPage() {
         />
       )}
 
-      <ImageModal
-        isOpen={!!selectedImage}
-        onClose={handleCloseModal}
-        imageUrl={selectedImage!}
-      />
+      {/* Image Modal */}
+      {selectedImage && (
+        <ImageModal
+          imageUrl={selectedImage}
+          onClose={handleCloseModal}
+          isOpen={!!selectedImage}
+        />
+      )}
     </div>
   );
 }
