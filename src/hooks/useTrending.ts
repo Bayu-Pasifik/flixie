@@ -3,7 +3,7 @@
 // src/hooks/usePosts.ts
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import axiosInstance from '../lib/axios';
-import { Movie } from '@/types/movieType';
+import { Movie, Tv } from '@/types/movieType';
 
 async function fetchTrendingMovie(time: string): Promise<Movie[]> {
   try {
@@ -61,6 +61,47 @@ async function fetchInfinityTrendingMovie(
     return useInfiniteQuery({
       queryKey: ['movies/infinity_trending_movie', time],
       queryFn: ({ pageParam = 1 }) => fetchInfinityTrendingMovie(time, { pageParam }),
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+  };
+async function fetchInfinityPopular(
+    { pageParam = 1 }: { pageParam?: number }
+  ): Promise<{
+    tvShows: Tv[];
+    currentPage: number | null;
+    nextPage: number | null;
+    prevPage: number | null;
+  }> {
+    try {
+      // Simulate delay to show animations
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
+  
+      const response = await axiosInstance.get(`/tv/popular`, {
+        params: { page: pageParam },
+      });
+  
+      return {
+        tvShows: response.data.results,
+        nextPage:
+          response.data.page < response.data.total_pages
+            ? response.data.page + 1
+            : null,
+        currentPage: response.data.page,
+        prevPage: response.data.page > 1 ? response.data.page - 1 : null,
+      };
+    } catch (error) {
+      console.error('Error fetching trending movies:', error);
+      throw error; // Re-throw the error for useQuery handling
+    }
+  }
+  
+  // Hook untuk useInfiniteQuery
+  export const useInfinityPopular = () => {
+    return useInfiniteQuery({
+      queryKey: ['tv/infinity_popular'],
+      queryFn: ({ pageParam = 1 }) => fetchInfinityPopular({ pageParam }),
       initialPageParam: 1,
       getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
       staleTime: 1000 * 60 * 5, // 5 minutes

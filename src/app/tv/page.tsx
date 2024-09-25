@@ -10,6 +10,7 @@ import {
   useInfinityOnAir,
 } from "@/hooks/useCurrentlyAiring";
 import { useTopMovies } from "@/hooks/useTopRate";
+import { useInfinityPopular } from "@/hooks/useTrending";
 import { Tv } from "@/types/movieType";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer"; // Import Intersection Observer
@@ -17,7 +18,6 @@ import { useInView } from "react-intersection-observer"; // Import Intersection 
 export default function TvPage() {
   const chosenCategories = [
     "airing today",
-    "on the air",
     "popular",
     "top rated",
   ];
@@ -27,7 +27,7 @@ export default function TvPage() {
   const { data, isLoading, error, fetchNextPage, isFetchingNextPage } =
     currentCategory === "airing today"
       ? useInfinityAiringTV()
-      : useInfinityOnAir();
+      : useInfinityPopular();
 
   const { ref, inView } = useInView({});
 
