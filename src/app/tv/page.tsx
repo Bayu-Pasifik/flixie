@@ -1,28 +1,33 @@
 "use client";
 
+import { LayoutTemplate } from "@/components/LayoutTemplate";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import MovieCard from "@/components/MovieCard";
+import MovieListCard from "@/components/MovieListCard";
 import NewDataLoading from "@/components/NewDataLoading";
 import TimeToggle from "@/components/ToggleTime";
+import ViewToggle from "@/components/ToogleView";
 import { Button } from "@/components/ui/button";
-import {
-  useInfinityAiring,
-  useInfinityAiringTV,
-  useInfinityOnAir,
-} from "@/hooks/useCurrentlyAiring";
-import { useInfinityTopRateTv, useTopMovies } from "@/hooks/useTopRate";
+import { useInfinityAiringTV } from "@/hooks/useCurrentlyAiring";
+import { useInfinityTopRateTv } from "@/hooks/useTopRate";
 import { useInfinityTrendingTv } from "@/hooks/useTrending";
 import { Tv } from "@/types/movieType";
 import { useEffect, useState } from "react";
-import { useInView } from "react-intersection-observer"; // Import Intersection Observer
+import { useInView } from "react-intersection-observer";
+import { motion } from "framer-motion";
 
 export default function TvPage() {
   const chosenCategories = ["airing today", "trending", "top rated"];
   const [currentCategory, setCurrentCategory] = useState("airing today");
   const [viewMode, setViewMode] = useState("card");
   const [timeMode, setTimeMode] = useState("day");
+
   const handleTimeChange = (time: string) => {
     setTimeMode(time);
+  };
+
+  const handleViewChange = (view: string) => {
+    setViewMode(view);
   };
 
   // Define states and data for each category
@@ -51,46 +56,72 @@ export default function TvPage() {
 
   return (
     <div className="bg-slate-800 w-full h-full min-h-screen p-4">
-      <div className="flex flex-row mb-4">
-        {chosenCategories.map((category) => (
-          <Button
-            className={`bg-blue-600 text-white rounded-lg px-3 py-6 mr-2 mb-2 text-sm uppercase ${
-              currentCategory === category
-                ? "bg-orange-700 border border-double"
-                : ""
-            }`}
-            key={category}
-            onClick={() => handleCategoryChange(category)}
-          >
-            {category}
-          </Button>
-        ))}
+      <div className="flex flex-row justify-between mb-7">
+        <div className="flex flex-row">
+          {chosenCategories.map((category) => (
+            <Button
+              className={`bg-blue-600 text-white rounded-lg px-3 py-6 mr-2 mb-2 text-sm uppercase ${
+                currentCategory === category
+                  ? "bg-orange-700 border border-double"
+                  : ""
+              }`}
+              key={category}
+              onClick={() => handleCategoryChange(category)}
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+        <ViewToggle selectedView={viewMode} onViewChange={handleViewChange} />
       </div>
+
       {currentCategory === "trending" && (
         <div className="flex justify-center p-1 mb-4">
           <TimeToggle selectedView={timeMode} onViewChange={handleTimeChange} />
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
+      {/* Apply LayoutTemplate here with the chosen viewMode */}
+      <LayoutTemplate layout={viewMode}>
         {data?.pages.map((page) =>
-          page.tvShows.map((tv: Tv) => (
-            <MovieCard
-              type="tv"
-              key={tv.id}
-              id={tv.id}
-              title={tv.name}
-              overview={tv.overview || "No overview"}
-              posterPath={tv.poster_path}
-            />
+          page.tvShows.map((tv: Tv,index) => (
+            <motion.div
+              key={index}
+              className="p-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: index * 0.2 }}
+            >
+              <div key={tv.id}>
+                {viewMode === "card" ? (
+                  <MovieCard
+                    type="tv"
+                    id={tv.id}
+                    title={tv.name}
+                    overview={tv.overview || "No overview"}
+                    posterPath={tv.poster_path}
+                  />
+                ) : (
+                  <MovieListCard
+                    type="tv"
+                    id={tv.id}
+                    title={tv.name}
+                    overview={tv.overview || "No overview"}
+                    posterPath={tv.poster_path}
+                  />
+                )}
+              </div>
+            </motion.div>
           ))
         )}
-      </div>
+      </LayoutTemplate>
+
       {isFetchingNextPage && (
         <div className="text-center mt-4">
           <NewDataLoading />
         </div>
       )}
+
       <div ref={ref}></div>
     </div>
   );
