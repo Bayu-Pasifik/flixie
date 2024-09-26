@@ -11,6 +11,7 @@ import { useImagesTv } from "@/hooks/useImages";
 import SectionCarousel from "@/components/SectionCarousel";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { ImageModal } from "@/components/ImageModal";
 
 export default function DetailTV() {
   const { id } = useParams();
@@ -20,6 +21,9 @@ export default function DetailTV() {
     setSelectedImage(
       `${process.env.NEXT_PUBLIC_IMAGE_URL_ORIGINAL}${imagePath}`
     );
+  };
+  const handleCloseModal = () => {
+    setSelectedImage(null);
   };
   const {
     data: tv,
@@ -217,7 +221,7 @@ export default function DetailTV() {
                   src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
                   alt="Movie image"
                   width={300}
-                  height={450}
+                  height={200}
                   className="rounded-md"
                 />
               </motion.div>
@@ -252,6 +256,14 @@ export default function DetailTV() {
             )}
           />
         </>
+      )}
+      {/* Image Modal */}
+      {selectedImage && (
+        <ImageModal
+          imageUrl={selectedImage}
+          onClose={handleCloseModal}
+          isOpen={!!selectedImage}
+        />
       )}
     </div>
   );
