@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation"; // Import useRouter for navigation
 import Image from "next/image";
 
 interface MovieListCardProps {
-  id: number; // Add movie ID to props
+  id: number;
   title: string;
   overview: string;
-  posterPath: string;
+  posterPath: string;  // Bisa kosong atau null
   type?: string;
 }
 
@@ -45,7 +45,11 @@ const MovieListCard: React.FC<MovieListCardProps> = ({
       {/* Poster Image */}
       <div className="relative w-40 h-60">
         <Image
-          src={process.env.NEXT_PUBLIC_IMAGE_URL + posterPath}
+          src={
+            posterPath && posterPath !== "" // Cek apakah posterPath valid
+              ? `${process.env.NEXT_PUBLIC_IMAGE_URL + posterPath}`
+              : "/no_images.jpg"  // Default gambar jika tidak ada poster
+          }
           alt={title}
           layout="fill"
           objectFit="cover"

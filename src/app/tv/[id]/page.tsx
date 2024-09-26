@@ -17,6 +17,8 @@ import { useCreditsTv } from "@/hooks/useCredits";
 import MovieCard from "@/components/MovieCard";
 import { useVideosTv } from "@/hooks/useVideo";
 import { useRecommendationsTv } from "@/hooks/useRecomendations";
+import { useReviewsTv } from "@/hooks/useReviews";
+import MovieListCard from "@/components/MovieListCard";
 
 export default function DetailTV() {
   const { id } = useParams();
@@ -65,13 +67,20 @@ export default function DetailTV() {
     error: recommendationError,
   } = useRecommendationsTv(TvId);
 
+  const {
+    data: reviews,
+    isLoading: reviewLoading,
+    error: reviewError,
+  } = useReviewsTv(TvId);
+
   if (
     detailLoading ||
     keywordsLoading ||
     imagesLoading ||
     castLoading ||
     videosLoading ||
-    recommendationLoading
+    recommendationLoading ||
+    reviewLoading
   )
     return <LoadingIndicator />;
   if (
@@ -80,7 +89,8 @@ export default function DetailTV() {
     imagesError ||
     castError ||
     videosError ||
-    recommendationError
+    recommendationError ||
+    reviewError
   )
     return (
       <div>
@@ -90,7 +100,8 @@ export default function DetailTV() {
           imagesError?.message ||
           castError?.message ||
           videosError?.message ||
-          recommendationError?.message}
+          recommendationError?.message ||
+          reviewError?.message}
       </div>
     );
 
@@ -382,6 +393,46 @@ export default function DetailTV() {
           )}
         />
       )}
+
+      {/* reviews */}
+      {reviews?.length === 0 ? (
+        <div className="p-4 text-2xl font-semibold text-center">
+          <div className="flex justify-between">
+            <p>Reviews</p>
+            <p>View More</p>
+          </div>
+          No Reviews
+        </div>
+      ) : (
+        <div className="mt-4 p-6">
+          <div className="flex justify-between mb-4">
+            <p className="text-2xl font-bold">Reviews</p>
+            <Link
+              href={`/tv/${TvId}/reviews`}
+              className="hover:text-blue-500 hover:underline text-2xl font-semibold mb-4"
+            >
+              View More
+            </Link>
+          </div>
+          <LayoutTemplate layout="list">
+            {reviews!.map(
+              (review, index) => (
+                console.log(review.author_details.avatar_path),
+                (
+                  <MovieListCard
+                    key={index}
+                    id={index}
+                    posterPath={review.author_details.avatar_path ?? ""} // Berikan path avatar atau "" jika null
+                    title={review.author}
+                    overview={review.content}
+                  />
+                )
+              )
+            )}
+          </LayoutTemplate>
+        </div>
+      )}
+
       {/* Image Modal */}
       {selectedImage && (
         <ImageModal
