@@ -16,6 +16,7 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 import { useCreditsTv } from "@/hooks/useCredits";
 import MovieCard from "@/components/MovieCard";
 import { useVideosTv } from "@/hooks/useVideo";
+import { useRecommendationsTv } from "@/hooks/useRecomendations";
 
 export default function DetailTV() {
   const { id } = useParams();
@@ -58,15 +59,29 @@ export default function DetailTV() {
     error: videosError,
   } = useVideosTv(TvId);
 
+  const {
+    data: recommendations,
+    isLoading: recommendationLoading,
+    error: recommendationError,
+  } = useRecommendationsTv(TvId);
+
   if (
     detailLoading ||
     keywordsLoading ||
     imagesLoading ||
     castLoading ||
-    videosLoading
+    videosLoading ||
+    recommendationLoading
   )
     return <LoadingIndicator />;
-  if (detailError || keywordsError || imagesError || castError || videosError)
+  if (
+    detailError ||
+    keywordsError ||
+    imagesError ||
+    castError ||
+    videosError ||
+    recommendationError
+  )
     return (
       <div>
         Error:{" "}
@@ -74,7 +89,8 @@ export default function DetailTV() {
           keywordsError?.message ||
           imagesError?.message ||
           castError?.message ||
-          videosError?.message}
+          videosError?.message ||
+          recommendationError?.message}
       </div>
     );
 
@@ -207,7 +223,7 @@ export default function DetailTV() {
           <SectionCarousel
             title="Backdrops"
             items={images!.backdrops.slice(0, 10)}
-            viewMoreLink={`/movie/${TvId}/images`}
+            viewMoreLink={`/tv/${TvId}/images`}
             renderItem={(image) => (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -235,7 +251,7 @@ export default function DetailTV() {
           <SectionCarousel
             title="Posters"
             items={images!.posters.slice(0, 10)}
-            viewMoreLink={`/movie/${TvId}/images`}
+            viewMoreLink={`/tv/${TvId}/images`}
             renderItem={(image) => (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -263,7 +279,7 @@ export default function DetailTV() {
           <SectionCarousel
             title="Logos"
             items={images!.logos.slice(0, 10)}
-            viewMoreLink={`/movie/${TvId}/images`}
+            viewMoreLink={`/tv/${TvId}/images`}
             renderItem={(image) => (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -302,9 +318,11 @@ export default function DetailTV() {
         <SectionCarousel
           title="Cast"
           items={casts!.slice(0, 10)}
-          viewMoreLink={`/movie/${TvId}/credits`}
+          viewMoreLink={`/tv/${TvId}/credits`}
           renderItem={(cast) => (
             <MovieCard
+              type="person"
+              key={cast.id}
               id={cast.id}
               title={cast.name}
               overview={cast.character}
@@ -326,7 +344,7 @@ export default function DetailTV() {
         <SectionCarousel
           title="Videos"
           items={videos!.slice(0, 10)}
-          viewMoreLink={`/movie/${TvId}/videos`}
+          viewMoreLink={`/tv/${TvId}/videos`}
           renderItem={(video) => (
             <iframe
               src={`https://www.youtube.com/embed/${video.key}`}
@@ -335,6 +353,31 @@ export default function DetailTV() {
               height="auto"
               allowFullScreen
               className="rounded-md"
+            />
+          )}
+        />
+      )}
+      {/* Recommendations */}
+      {recommendations?.length === 0 ? (
+        <div className="p-4 text-2xl font-semibold text-center">
+          <div className="flex justify-between">
+            <p>Recommendations</p>
+            <p>View More</p>
+          </div>
+          No Recommendations
+        </div>
+      ) : (
+        <SectionCarousel
+          title="Recommendations"
+          items={recommendations!.slice(0, 10)}
+          viewMoreLink={`/tv/${TvId}/recommendations`}
+          renderItem={(recommendation) => (
+            <MovieCard
+              type="tv"
+              id={recommendation.id}
+              title={recommendation.title}
+              overview={recommendation.overview}
+              posterPath={recommendation.poster_path}
             />
           )}
         />

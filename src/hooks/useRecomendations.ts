@@ -23,3 +23,21 @@ export const useRecommendations = (id: number) => {
     staleTime: 1000 * 60 * 5, // 5 menit
   });
 };
+async function fetchRecommendationsTv(id: number): Promise<Recomendation[]> {
+  try {
+    const response = await axiosInstance.get(`/tv/${id}/recommendations`);
+    return response.data.results; // Asumsi response data berupa object Detailmovie
+  } catch (error) {
+    console.error('Error fetching movie detail:', error);
+    throw error;
+  }
+}
+
+// Hook untuk menggunakan React Query
+export const useRecommendationsTv = (id: number) => {
+  return useQuery<Recomendation[], Error>({
+    queryKey: ['tv/recommendations', id],
+    queryFn: () => fetchRecommendationsTv(id),
+    staleTime: 1000 * 60 * 5, // 5 menit
+  });
+};

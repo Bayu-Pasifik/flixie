@@ -27,7 +27,10 @@ const MovieCard: React.FC<MovieCardProps> = ({
   const handleClick = () => {
     if (type === "tv") {
       router.push(`/tv/${id}`);
-    } else {
+    } else if(type === "person") {
+      router.push(`/person/${id}`);
+    }
+    else {
       router.push(`/movie/${id}`);
     }
   };
