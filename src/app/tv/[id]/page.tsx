@@ -1,9 +1,10 @@
-'use client'
+"use client";
 import { useDetailTV } from "@/hooks/useDetailMovie";
 import { useKeywordsTv } from "@/hooks/useKeywords";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import MiniCard from "@/components/MiniCard";
+import { LayoutTemplate } from "@/components/LayoutTemplate";
 
 export default function DetailTV() {
   const { id } = useParams();
@@ -27,7 +28,7 @@ export default function DetailTV() {
     <div>
       <div className="flex flex-col lg:flex-row items-center lg:items-start lg:space-x-8 p-4">
         <Image
-          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${tv?.poster_path}`}
+          src={`${process.env.NEXT_PUBLIC_IMAGE_URL_ORIGINAL}${tv?.poster_path}`}
           alt={tv?.name!}
           width={300}
           height={450}
@@ -35,11 +36,22 @@ export default function DetailTV() {
         />
 
         <div className="mt-6 lg:mt-0 w-full">
-          <h1 className="text-4xl font-bold mb-4">{tv?.name}</h1>
-          <p className="italic mb-6">{tv?.tagline}</p>
+          <div className="flex flex-row flex-wrap">
+            <h1 className="text-4xl font-bold mb-4">{tv?.name} / </h1>
+            <h1 className="text-4xl font-bold mb-4 ml-4 italic">
+              {tv?.original_name}
+            </h1>
+          </div>
+          <p className="italic mb-6">{tv?.tagline || "No tagline available"}</p>
 
           <div className="mb-4">
             <strong>Rating:</strong> {tv?.vote_average}/10
+          </div>
+          <div className="mb-4">
+            <strong>Total Episodes:</strong> {tv?.number_of_episodes}
+          </div>
+          <div className="mb-4">
+            <strong>Total Seasons:</strong> {tv?.number_of_seasons}
           </div>
 
           <div className="mb-4">
@@ -78,16 +90,36 @@ export default function DetailTV() {
           </div>
 
           <div>
-            <strong>Airing Company</strong>
-            <div className="my-2 flex flex-wrap gap-4">
+            <p className="mb-4 font-bold">Airing Company</p>
+            <LayoutTemplate layout="mini">
               {tv?.networks.map((company) => (
                 <MiniCard
                   key={company.id}
-                  imagePath={`${process.env.NEXT_PUBLIC_IMAGE_URL}${company.logo_path}`}
+                  imagePath={
+                    company.logo_path === null
+                      ? "/no_images.jpg"
+                      : `${process.env.NEXT_PUBLIC_IMAGE_URL}${company.logo_path}`
+                  }
                   name={company.name}
                 />
               ))}
-            </div>
+            </LayoutTemplate>
+          </div>
+          <div className="mt-4">
+            <p className="mb-4 font-bold">Production Company</p>
+            <LayoutTemplate layout="mini">
+              {tv?.production_companies.map((company) => (
+                <MiniCard
+                  key={company.id}
+                  imagePath={
+                    company.logo_path === null
+                      ? "/no_images.jpg"
+                      : `${process.env.NEXT_PUBLIC_IMAGE_URL}${company.logo_path}`
+                  }
+                  name={company.name}
+                />
+              ))}
+            </LayoutTemplate>
           </div>
         </div>
       </div>
