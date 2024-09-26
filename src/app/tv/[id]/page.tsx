@@ -12,6 +12,9 @@ import SectionCarousel from "@/components/SectionCarousel";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { ImageModal } from "@/components/ImageModal";
+import LoadingIndicator from "@/components/LoadingIndicator";
+import { useCreditsTv } from "@/hooks/useCredits";
+import MovieCard from "@/components/MovieCard";
 
 export default function DetailTV() {
   const { id } = useParams();
@@ -42,9 +45,15 @@ export default function DetailTV() {
     error: imagesError,
   } = useImagesTv(TvId);
 
-  if (detailLoading || keywordsLoading) return <div>Loading...</div>;
-  if (detailError || keywordsError)
-    return <div>Error: {detailError?.message || keywordsError?.message}</div>;
+  const {
+    data: casts,
+    isLoading: castLoading,
+    error: castError,
+  } = useCreditsTv(TvId);
+
+  if (detailLoading || keywordsLoading || imagesLoading || castLoading) return <LoadingIndicator/>;
+  if (detailError || keywordsError || imagesError || castError)
+    return <div>Error: {detailError?.message || keywordsError?.message || imagesError?.message || castError?.message}</div>;
 
   return (
     <div>
@@ -256,6 +265,30 @@ export default function DetailTV() {
             )}
           />
         </>
+      )}
+      {/* Casts */}
+      {casts?.length === 0 ? (
+        <div className="p-4 text-2xl font-semibold">
+          <div className="flex justify-between">
+            <p>Movie Cast</p>
+            <p>View More</p>
+          </div>
+          No Cast
+        </div>
+      ) : (
+        <SectionCarousel
+          title="Cast"
+          items={casts!.slice(0, 10)}
+          viewMoreLink={`/movie/${TvId}/credits`}
+          renderItem={(cast) => (
+            <MovieCard
+              id={cast.id}
+              title={cast.name}
+              overview={cast.character}
+              posterPath={cast.profile_path}
+            />
+          )}
+        />
       )}
       {/* Image Modal */}
       {selectedImage && (
