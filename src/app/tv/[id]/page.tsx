@@ -117,14 +117,35 @@ export default function DetailTV() {
         />
 
         <div className="mt-6 lg:mt-0 w-full">
-          <div className="flex flex-row flex-wrap">
-            <h1 className="text-4xl font-bold mb-4">{tv?.name} / </h1>
-            <h1 className="text-4xl font-bold mb-4 ml-4 italic">
-              {tv?.original_name}
-            </h1>
-          </div>
-          <p className="italic mb-6">{tv?.tagline || "No tagline available"}</p>
+          {/* Flex container untuk judul dan ikon FaGlobe */}
+          <div className="flex flex-row items-center justify-between mb-4">
+            <div className="flex flex-col">
+              <div className="flex flex-wrap items-center">
+                <h1 className="text-4xl font-bold">{tv?.name}</h1>
+                <h1 className="text-4xl font-bold ml-4 italic">
+                  {tv?.original_name}
+                </h1>
+              </div>
+              <p className="italic mb-6">
+                {tv?.tagline || "No tagline available"}
+              </p>
+            </div>
 
+            {/* Ikon FaGlobe di sebelah kanan judul */}
+            {tv?.homepage && tv.homepage !== "" ? (
+              <Link href={tv.homepage} target="_blank">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 cursor-pointer">
+                  <FaGlobe className="w-full h-full text-blue-500" />
+                </div>
+              </Link>
+            ) : (
+              <div className="w-10 h-10 lg:w-12 lg:h-12">
+                <FaGlobe className="w-full h-full text-gray-500" />
+              </div>
+            )}
+          </div>
+
+          {/* Detail lainnya */}
           <div className="mb-4">
             <strong>Rating:</strong> {tv?.vote_average}/10
           </div>
@@ -138,6 +159,7 @@ export default function DetailTV() {
             <strong>Status:</strong> {tv?.status}
           </div>
 
+          {/* Genres */}
           <div className="mb-4">
             <strong>Genres:</strong>{" "}
             {tv?.genres.map((genre) => (
@@ -150,11 +172,13 @@ export default function DetailTV() {
             ))}
           </div>
 
+          {/* Overview */}
           <div className="mb-6">
             <strong>Overview:</strong>
             <p>{tv?.overview}</p>
           </div>
 
+          {/* Keywords */}
           <div className="mb-4">
             <strong>Keywords:</strong>
             {keywords && keywords.length === 0 ? (
@@ -173,6 +197,7 @@ export default function DetailTV() {
             )}
           </div>
 
+          {/* Airing Company */}
           <div>
             <p className="mb-4 font-bold">Airing Company</p>
             <LayoutTemplate layout="mini">
@@ -189,6 +214,8 @@ export default function DetailTV() {
               ))}
             </LayoutTemplate>
           </div>
+
+          {/* Production Company */}
           <div className="mt-4">
             <p className="mb-4 font-bold">Production Company</p>
             <LayoutTemplate layout="mini">
@@ -206,17 +233,6 @@ export default function DetailTV() {
             </LayoutTemplate>
           </div>
         </div>
-        {tv?.homepage && tv.homepage !== "" ? (
-          <Link href={tv.homepage} target="_blank">
-            <div className="w-12 h-12 cursor-pointer">
-              <FaGlobe className="w-full h-full" />
-            </div>
-          </Link>
-        ) : (
-          <div className="w-12 h-12">
-            <FaGlobe className="w-full h-full" />
-          </div>
-        )}
       </div>
       {/* Movie Images */}
       {images?.backdrops.length === 0 &&
@@ -234,7 +250,9 @@ export default function DetailTV() {
           <SectionCarousel
             title="Backdrops"
             items={images!.backdrops.slice(0, 10)}
-            viewMoreLink={`/tv/${TvId}/images`}
+            viewMoreLink={
+              images!.backdrops.length > 10 ? `/tv/${TvId}/images` : undefined
+            }
             renderItem={(image) => (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -262,7 +280,9 @@ export default function DetailTV() {
           <SectionCarousel
             title="Posters"
             items={images!.posters.slice(0, 10)}
-            viewMoreLink={`/tv/${TvId}/images`}
+            viewMoreLink={
+              images!.posters.length > 10 ? `/tv/${TvId}/images` : undefined
+            }
             renderItem={(image) => (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -290,7 +310,9 @@ export default function DetailTV() {
           <SectionCarousel
             title="Logos"
             items={images!.logos.slice(0, 10)}
-            viewMoreLink={`/tv/${TvId}/images`}
+            viewMoreLink={
+              images!.logos.length > 0 ? `/tv/${TvId}/images` : undefined
+            }
             renderItem={(image) => (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -328,8 +350,8 @@ export default function DetailTV() {
       ) : (
         <SectionCarousel
           title="Cast"
-          items={casts!.slice(0, 10)}
-          viewMoreLink={`/tv/${TvId}/credits`}
+          items={casts!.slice(0, 10)} // Menampilkan maksimal 10 cast
+          viewMoreLink={casts!.length > 10 ? `/tv/${TvId}/credits` : undefined} // Tampilkan tautan View More hanya jika cast lebih dari 10
           renderItem={(cast) => (
             <MovieCard
               type="person"
@@ -342,6 +364,7 @@ export default function DetailTV() {
           )}
         />
       )}
+
       {/* Videos */}
       {videos?.length === 0 ? (
         <div className="p-4 text-2xl font-semibold">
@@ -407,32 +430,33 @@ export default function DetailTV() {
         <div className="mt-4 p-6">
           <div className="flex justify-between mb-4">
             <p className="text-2xl font-bold">Reviews</p>
-            <Link
-              href={`/tv/${TvId}/reviews`}
-              className="hover:text-blue-500 hover:underline text-2xl font-semibold mb-4"
-            >
-              View More
-            </Link>
-          </div>
-          <LayoutTemplate layout="list">
-            {reviews!.map(
-              (review, index) => (
-                console.log(review.author_details.avatar_path),
-                (
-                  <MovieListCard
-                    key={index}
-                    id={index}
-                    posterPath={review.author_details.avatar_path ?? ""} // Berikan path avatar atau "" jika null
-                    title={review.author}
-                    overview={review.content}
-                  />
-                )
-              )
+
+            {/* Conditional rendering: Jika reviews lebih dari 1, tampilkan tautan. Jika tidak, tampilkan teks biasa */}
+            {reviews!.length > 1 ? (
+              <Link
+                href={`/tv/${TvId}/reviews`}
+                className="hover:text-blue-500 hover:underline text-2xl font-semibold mb-4"
+              >
+                View More
+              </Link>
+            ) : (
+              <div></div>
             )}
+          </div>
+
+          <LayoutTemplate layout="list">
+            {reviews!.map((review, index) => (
+              <MovieListCard
+                key={index}
+                id={index}
+                posterPath={review.author_details.avatar_path ?? ""} // Berikan path avatar atau "" jika null
+                title={review.author}
+                overview={review.content}
+              />
+            ))}
           </LayoutTemplate>
         </div>
       )}
-
       {/* Image Modal */}
       {selectedImage && (
         <ImageModal
