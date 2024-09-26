@@ -23,3 +23,21 @@ export const useKeywords = (id: number) => {
     staleTime: 1000 * 60 * 5, // 5 menit
   });
 };
+async function fetchKeywordsTv(id: number): Promise<Keywords[]> {
+  try {
+    const response = await axiosInstance.get(`tv/${id}/keywords`);
+    return response.data.results; 
+  } catch (error) {
+    console.error('Error fetching keywords:', error);
+    throw error;
+  }
+}
+
+// Hook untuk menggunakan React Query
+export const useKeywordsTv = (id: number) => {
+  return useQuery<Keywords[], Error>({
+    queryKey: ['tv/keywords', id],
+    queryFn: () => fetchKeywordsTv(id),
+    staleTime: 1000 * 60 * 5, // 5 menit
+  });
+};

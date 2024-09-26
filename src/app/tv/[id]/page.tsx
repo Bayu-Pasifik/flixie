@@ -1,16 +1,28 @@
-'use client';
+"use client";
 import { useDetailTV } from "@/hooks/useDetailMovie";
+import { useKeywordsTv } from "@/hooks/useKeywords";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 
 export default function DetailTV() {
-    const { id } = useParams();
-    const TvId = typeof id === "string" ? parseInt(id, 10) : 0;
-    const { data: tv } = useDetailTV(TvId);
+  const { id } = useParams();
+  const TvId = typeof id === "string" ? parseInt(id, 10) : 0;
+  const {
+    data: tv,
+    isLoading: detailLoading,
+    error: detailError,
+  } = useDetailTV(TvId);
+  const {
+    data: keywords,
+    isLoading: keywordsLoading,
+    error: keywordsError,
+  } = useKeywordsTv(TvId);
+  if (detailLoading || keywordsLoading) return <div>Loading...</div>;
+  if (detailError || keywordsError)
+    return <div>Error: {detailError?.message || keywordsError?.message}</div>;
 
   return (
     <div>
-      {/* tv Details */}
       <div className="flex flex-col lg:flex-row items-center lg:items-start lg:space-x-8 p-4">
         <Image
           src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${tv?.poster_path}`}
@@ -45,7 +57,7 @@ export default function DetailTV() {
             <p>{tv?.overview}</p>
           </div>
 
-          {/* <div className="mb-4">
+          <div className="mb-4">
             <strong>Keywords:</strong>
             {keywords && keywords.length === 0 ? (
               <p>No keywords available.</p>
@@ -61,7 +73,7 @@ export default function DetailTV() {
                 ))}
               </div>
             )}
-          </div> */}
+          </div>
 
           {/* <div className="flex space-x-4">
             <a
