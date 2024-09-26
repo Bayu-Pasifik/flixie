@@ -15,6 +15,7 @@ import { ImageModal } from "@/components/ImageModal";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useCreditsTv } from "@/hooks/useCredits";
 import MovieCard from "@/components/MovieCard";
+import { useVideosTv } from "@/hooks/useVideo";
 
 export default function DetailTV() {
   const { id } = useParams();
@@ -51,9 +52,31 @@ export default function DetailTV() {
     error: castError,
   } = useCreditsTv(TvId);
 
-  if (detailLoading || keywordsLoading || imagesLoading || castLoading) return <LoadingIndicator/>;
-  if (detailError || keywordsError || imagesError || castError)
-    return <div>Error: {detailError?.message || keywordsError?.message || imagesError?.message || castError?.message}</div>;
+  const {
+    data: videos,
+    isLoading: videosLoading,
+    error: videosError,
+  } = useVideosTv(TvId);
+
+  if (
+    detailLoading ||
+    keywordsLoading ||
+    imagesLoading ||
+    castLoading ||
+    videosLoading
+  )
+    return <LoadingIndicator />;
+  if (detailError || keywordsError || imagesError || castError || videosError)
+    return (
+      <div>
+        Error:{" "}
+        {detailError?.message ||
+          keywordsError?.message ||
+          imagesError?.message ||
+          castError?.message ||
+          videosError?.message}
+      </div>
+    );
 
   return (
     <div>
@@ -286,6 +309,32 @@ export default function DetailTV() {
               title={cast.name}
               overview={cast.character}
               posterPath={cast.profile_path}
+            />
+          )}
+        />
+      )}
+      {/* Videos */}
+      {videos?.length === 0 ? (
+        <div className="p-4 text-2xl font-semibold">
+          <div className="flex justify-between">
+            <p>Movie Videos</p>
+            <p>View More</p>
+          </div>
+          No Videos
+        </div>
+      ) : (
+        <SectionCarousel
+          title="Videos"
+          items={videos!.slice(0, 10)}
+          viewMoreLink={`/movie/${TvId}/videos`}
+          renderItem={(video) => (
+            <iframe
+              src={`https://www.youtube.com/embed/${video.key}`}
+              title="YouTube video"
+              width="100%"
+              height="auto"
+              allowFullScreen
+              className="rounded-md"
             />
           )}
         />

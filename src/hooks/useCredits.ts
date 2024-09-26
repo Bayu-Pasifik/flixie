@@ -35,7 +35,7 @@ async function fetchTvCredits(id: number): Promise<TvCredit[]> {
 // Hook untuk menggunakan React Query
 export const useCreditsTv = (id: number) => {
   return useQuery<TvCredit[], Error>({
-    queryKey: ['movies/credits', id],
+    queryKey: ['tv/credits', id],
     queryFn: () => fetchTvCredits(id),
     staleTime: 1000 * 60 * 5, // 5 menit
   });
