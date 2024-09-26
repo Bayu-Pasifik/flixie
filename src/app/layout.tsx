@@ -7,6 +7,10 @@ import Navbar from "@/components/Navbar";
 export const metadata = {
   title: "Flixie",
   description: "A Next.js app with TypeScript, React Query, and shadcn/ui",
+
+  icons: {
+    icon: "/icons.svg",
+  },
 };
 
 export default function RootLayout({
