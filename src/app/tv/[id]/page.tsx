@@ -1,8 +1,9 @@
-"use client";
+'use client'
 import { useDetailTV } from "@/hooks/useDetailMovie";
 import { useKeywordsTv } from "@/hooks/useKeywords";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import MiniCard from "@/components/MiniCard";
 
 export default function DetailTV() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function DetailTV() {
     isLoading: keywordsLoading,
     error: keywordsError,
   } = useKeywordsTv(TvId);
+
   if (detailLoading || keywordsLoading) return <div>Loading...</div>;
   if (detailError || keywordsError)
     return <div>Error: {detailError?.message || keywordsError?.message}</div>;
@@ -75,24 +77,18 @@ export default function DetailTV() {
             )}
           </div>
 
-          {/* <div className="flex space-x-4">
-            <a
-              href={tv?.homepage}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              Official Website
-            </a>
-            <a
-              href={`https://www.imdb.com/title/${tv?.imdb_id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-yellow-500 hover:underline"
-            >
-              IMDb
-            </a>
-          </div> */}
+          <div>
+            <strong>Airing Company</strong>
+            <div className="my-2 flex flex-wrap gap-4">
+              {tv?.networks.map((company) => (
+                <MiniCard
+                  key={company.id}
+                  imagePath={`${process.env.NEXT_PUBLIC_IMAGE_URL}${company.logo_path}`}
+                  name={company.name}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
