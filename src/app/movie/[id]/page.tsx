@@ -301,7 +301,7 @@ export default function MovieDetailPage() {
 
       {/* Recommendations */}
       {recommendations?.length === 0 ? (
-        <div className="p-4 text-2xl font-semibold">
+        <div className="p-4 text-2xl font-semibold text-center">
           <div className="flex justify-between">
             <p>Recommendations</p>
             <p>View More</p>
