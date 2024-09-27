@@ -13,6 +13,8 @@ import MovieCard from "@/components/MovieCard";
 import { ImageModal } from "@/components/ImageModal";
 import { motion } from "framer-motion";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import { LayoutTemplate } from "@/components/LayoutTemplate";
+import MiniCard from "@/components/MiniCard";
 
 export default function MovieDetailPage() {
   const { id } = useParams();
@@ -55,11 +57,19 @@ export default function MovieDetailPage() {
     castLoading ||
     imagesLoading ||
     videosLoading ||
-    keywordsLoading
+    keywordsLoading ||
+    recommendationLoading
   )
     return <LoadingIndicator />;
 
-  if (movieError || castError || imagesError || videosError || keywordsError)
+  if (
+    movieError ||
+    castError ||
+    imagesError ||
+    videosError ||
+    keywordsError ||
+    recommendationError
+  )
     return <div>Error loading data</div>;
 
   const handleImageClick = (imagePath: string) => {
@@ -85,11 +95,30 @@ export default function MovieDetailPage() {
         />
 
         <div className="mt-6 lg:mt-0 w-full">
-          <h1 className="text-4xl font-bold mb-4">{movie?.title}</h1>
-          <p className="italic mb-6">{movie?.tagline}</p>
+          <div className="flex flex-col">
+            <div className="flex flex-wrap items-center">
+              <h1 className="text-4xl font-bold">{movie?.title} / </h1>
+              <h1 className="text-4xl font-bold ml-4 italic">
+                {movie?.original_title}
+              </h1>
+            </div>
+            <p className="italic mb-6">
+              {movie?.tagline || "No tagline available"}
+            </p>
+          </div>
 
           <div className="mb-4">
             <strong>Rating:</strong> {movie?.vote_average}/10
+          </div>
+          <div className="mb-4">
+            <strong>Run Time : </strong> {movie?.runtime} minutes
+          </div>
+          <div className="mb-4 flex flex-row">
+            <strong>Language : </strong>
+            <p className="ml-2 uppercase">{movie?.original_language}</p>
+          </div>
+          <div className="mb-4">
+            <strong>Status : </strong> {movie?.status}
           </div>
 
           <div className="mb-4">
@@ -147,7 +176,31 @@ export default function MovieDetailPage() {
           </div>
         </div>
       </div>
+      {/* End of movie details */}
 
+      {/* Company production */}
+      <div className="p-4 text-2xl font-semibold">
+        <div className="flex justify-between">
+          <p>Production Companies</p>
+        </div>
+        {movie?.production_companies.length === 0 ? (
+          <p>No production companies available.</p>
+        ) : (
+          <LayoutTemplate layout="mini">
+            {movie?.production_companies.map((company) => (
+              <MiniCard
+                key={company.id}
+                imagePath={
+                  company.logo_path === null
+                    ? "/no_images.jpg"
+                    : `${process.env.NEXT_PUBLIC_IMAGE_URL}${company.logo_path}`
+                }
+                name={company.name}
+              />
+            ))}
+          </LayoutTemplate>
+        )}
+      </div>
       {/* Movie Images */}
       {images?.backdrops.length === 0 &&
       images?.posters.length === 0 &&
@@ -164,7 +217,11 @@ export default function MovieDetailPage() {
           <SectionCarousel
             title="Backdrops"
             items={images!.backdrops.slice(0, 10)}
-            viewMoreLink={`/movie/${movieId}/images`}
+            viewMoreLink={
+              images!.backdrops.length > 10
+                ? `/movie/${movieId}/images`
+                : undefined
+            }
             renderItem={(image) => (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -179,7 +236,11 @@ export default function MovieDetailPage() {
                 className="cursor-pointer"
               >
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                  src={
+                    image.file_path === null
+                      ? "/no_images.jpg"
+                      : `${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`
+                  }
                   alt="Movie image"
                   width={3840}
                   height={2160}
@@ -189,10 +250,16 @@ export default function MovieDetailPage() {
             )}
           />
 
+          {/* posters */}
+
           <SectionCarousel
             title="Posters"
             items={images!.posters.slice(0, 10)}
-            viewMoreLink={`/movie/${movieId}/images`}
+            viewMoreLink={
+              images!.posters.length > 10
+                ? `/movie/${movieId}/images`
+                : undefined
+            }
             renderItem={(image) => (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -207,7 +274,11 @@ export default function MovieDetailPage() {
                 className="cursor-pointer"
               >
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                  src={
+                    image.file_path === null
+                      ? "/no_images.jpg"
+                      : `${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`
+                  }
                   alt="Movie image"
                   width={300}
                   height={450}
@@ -217,10 +288,14 @@ export default function MovieDetailPage() {
             )}
           />
 
+          {/* Logos */}
+
           <SectionCarousel
             title="Logos"
             items={images!.logos.slice(0, 10)}
-            viewMoreLink={`/movie/${movieId}/images`}
+            viewMoreLink={
+              images!.logos.length > 10 ? `/movie/${movieId}/images` : undefined
+            }
             renderItem={(image) => (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -235,7 +310,11 @@ export default function MovieDetailPage() {
                 className="cursor-pointer"
               >
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                  src={
+                    image.file_path === null
+                      ? "/no_images.jpg"
+                      : `${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`
+                  }
                   alt="Movie logo"
                   width={500}
                   height={300}
@@ -260,7 +339,9 @@ export default function MovieDetailPage() {
         <SectionCarousel
           title="Cast"
           items={casts!.slice(0, 10)}
-          viewMoreLink={`/movie/${movieId}/credits`}
+          viewMoreLink={
+            casts!.length > 10 ? `/movie/${movieId}/credits` : undefined
+          }
           renderItem={(cast) => (
             <MovieCard
               id={cast.id}
@@ -285,7 +366,9 @@ export default function MovieDetailPage() {
         <SectionCarousel
           title="Videos"
           items={videos!.slice(0, 10)}
-          viewMoreLink={`/movie/${movieId}/videos`}
+          viewMoreLink={
+            videos!.length > 10 ? `/movie/${movieId}/videos` : undefined
+          }
           renderItem={(video) => (
             <iframe
               src={`https://www.youtube.com/embed/${video.key}`}
@@ -312,7 +395,11 @@ export default function MovieDetailPage() {
         <SectionCarousel
           title="Recommendations"
           items={recommendations!.slice(0, 10)}
-          viewMoreLink={`/movie/${movieId}/recommendations`}
+          viewMoreLink={
+            recommendations!.length > 10
+              ? `/movie/${movieId}/recommendations`
+              : undefined
+          }
           renderItem={(recommendation) => (
             <MovieCard
               id={recommendation.id}

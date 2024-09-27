@@ -44,8 +44,8 @@ export default function Navbar() {
     <nav className="relative w-full bg-gray-800 text-white drop-shadow-sm z-50">
       {/* Top Bar */}
       <div className="flex justify-between items-center px-8 py-4">
-        <div className="text-lg font-bold">
-          <Link href={"/"}>Moov</Link>
+        <div className="text-lg font-bold  uppercase">
+          <Link href={"/"}>Flixie</Link>
         </div>
 
         {/* Desktop Menu */}
@@ -97,7 +97,7 @@ export default function Navbar() {
               </svg>
             </Button>
           </Link>
-          <Link href="/notifications">
+          {/* <Link href="/notifications">
             <Button variant="ghost" className="hover:bg-gray-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +114,7 @@ export default function Navbar() {
                 />
               </svg>
             </Button>
-          </Link>
+          </Link> */}
 
           {/* Dropdown Menu for Profile */}
           <DropdownMenu>
