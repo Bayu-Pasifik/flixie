@@ -230,7 +230,7 @@ export default function MovieDetailPage() {
             items={images!.backdrops.slice(0, 10)}
             viewMoreLink={
               images!.backdrops.length > 10
-                ? `/movie/${movieId}/images`
+                ? `/movie/${movieId}/backdrops`
                 : undefined
             }
             renderItem={(image) => (
@@ -268,7 +268,7 @@ export default function MovieDetailPage() {
             items={images!.posters.slice(0, 10)}
             viewMoreLink={
               images!.posters.length > 10
-                ? `/movie/${movieId}/images`
+                ? `/movie/${movieId}/posters`
                 : undefined
             }
             renderItem={(image) => (
@@ -305,7 +305,9 @@ export default function MovieDetailPage() {
             title="Logos"
             items={images!.logos.slice(0, 10)}
             viewMoreLink={
-              images!.logos.length > 10 ? `/movie/${movieId}/images` : undefined
+              images!.logos.length > 10
+                ? `/movie/${movieId}/logos`
+                : undefined
             }
             renderItem={(image) => (
               <motion.div
