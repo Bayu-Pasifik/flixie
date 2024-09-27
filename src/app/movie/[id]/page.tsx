@@ -15,6 +15,9 @@ import { motion } from "framer-motion";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MiniCard from "@/components/MiniCard";
+import { useReviews } from "@/hooks/useReviews";
+import { Link } from "lucide-react";
+import MovieListCard from "@/components/MovieListCard";
 
 export default function MovieDetailPage() {
   const { id } = useParams();
@@ -52,13 +55,20 @@ export default function MovieDetailPage() {
     error: recommendationError,
   } = useRecommendations(movieId);
 
+  const {
+    data: reviews,
+    isLoading: reviewsLoading,
+    error: reviewsError,
+  } = useReviews(movieId);
+
   if (
     movieLoading ||
     castLoading ||
     imagesLoading ||
     videosLoading ||
     keywordsLoading ||
-    recommendationLoading
+    recommendationLoading ||
+    reviewsLoading
   )
     return <LoadingIndicator />;
 
@@ -68,7 +78,8 @@ export default function MovieDetailPage() {
     imagesError ||
     videosError ||
     keywordsError ||
-    recommendationError
+    recommendationError ||
+    reviewsError
   )
     return <div>Error loading data</div>;
 
@@ -410,7 +421,44 @@ export default function MovieDetailPage() {
           )}
         />
       )}
+      {/* reviews */}
+      {reviews?.length === 0 ? (
+        <div className="p-4 text-2xl font-semibold text-center">
+          <div className="flex justify-between">
+            <p>Reviews</p>
+            <p>View More</p>
+          </div>
+          No Reviews
+        </div>
+      ) : (
+        <div className="mt-4 p-6">
+          <div className="flex justify-between mb-4">
+            <p className="text-2xl font-bold">Reviews</p>
+            {reviews!.length > 1 ? (
+              <Link
+                href={`/movie/${movieId}/reviews`}
+                className="hover:text-blue-500 hover:underline text-2xl font-semibold mb-4"
+              >
+                View More
+              </Link>
+            ) : (
+              <div></div>
+            )}
+          </div>
 
+          <LayoutTemplate layout="list">
+            {reviews!.map((review, index) => (
+              <MovieListCard
+                key={index}
+                id={index}
+                posterPath={review.author_details.avatar_path ?? ""} // Berikan path avatar atau "" jika null
+                title={review.author}
+                overview={review.content}
+              />
+            ))}
+          </LayoutTemplate>
+        </div>
+      )}
       {/* Image Modal */}
       {selectedImage && (
         <ImageModal

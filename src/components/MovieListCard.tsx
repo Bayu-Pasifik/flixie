@@ -30,7 +30,7 @@ const MovieListCard: React.FC<MovieListCardProps> = ({
   return (
     <motion.div
       onClick={handleClick}
-      className="flex w-full bg-neutral-800 text-white shadow-lg rounded-lg overflow-hidden cursor-pointer"
+      className="flex w-full bg-neutral-800 text-white shadow-lg rounded-lg overflow-hidden cursor-pointer mb-4"
       initial={{ opacity: 0, x: -50 }} // Initial state (before animation)
       animate={{ opacity: 1, x: 0 }} // Final state (after animation)
       whileHover={{ scale: 1.02, x: -5 }} // Effect when hovering over the card
