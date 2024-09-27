@@ -353,7 +353,7 @@ export default function MovieDetailPage() {
           title="Cast"
           items={casts!.slice(0, 10)}
           viewMoreLink={
-            casts!.length > 10 ? `/movie/${movieId}/credits` : undefined
+            casts!.length > 10 ? `/movie/${movieId}/casts` : undefined
           }
           renderItem={(cast) => (
             <MovieCard
