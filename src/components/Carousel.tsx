@@ -23,9 +23,9 @@ const HomeCarousel: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full h-screen bg-[#0c111b] text-white rounded-xl">
+    <div className="relative w-full h-screen bg-[#0c111b] text-white">
       {/* Backdrop Section */}
-      <div className="absolute inset-0 overflow-hidden rounded-xl">
+      <div className="absolute inset-0 overflow-hidden">
         <img
           className="object-cover w-full h-full opacity-80"
           src={
@@ -52,7 +52,7 @@ const HomeCarousel: React.FC = () => {
               {data?.[activeMovieIndex]?.release_date.toString()}
             </span>
           </div>
-          <p className="max-w-xl text-sm md:text-base mb-4 md:mb-6">
+          <p className="max-w-xl text-sm md:text-base mb-4 md:mb-6 line-clamp-4">
             {data?.[activeMovieIndex]?.overview}
           </p>
           <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">

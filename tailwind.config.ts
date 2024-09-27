@@ -53,13 +53,27 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+			    // Custom colors
+				custom: {
+					background: '#E3F2FD', // Light Blue Background
+					foreground: '#0D47A1', // Dark Blue Text
+					accent: '#2196F3', // Primary Blue
+					secondary: '#03A9F4', // Light Blue
+					muted: '#B3E5FC', // Muted Light Blue
+					cardForeground: '#FFFFFF', // White for Cards
+					border: '#90CAF9', // Light Blue Border
+					textPrimary: '#0D47A1', // Same as foreground (for headings)
+					textSecondary: '#1976D2', // Medium Blue for Subheadings
+					textMuted: '#64B5F6', // Lighter Blue for Muted/Hint Text
+				}
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+
   	}
   },
   // plugins: [require("shadcn-ui/plugin"), require("tailwindcss-animate")],

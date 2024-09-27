@@ -34,7 +34,7 @@ export default function HomePage() {
     );
 
   return (
-    <div className="bg-slate-800 min-h-screen p-4">
+    <div className="bg-slate-800 min-h-screen h-full">
       <div className="mb-8">
         <HomeCarousel />
       </div>

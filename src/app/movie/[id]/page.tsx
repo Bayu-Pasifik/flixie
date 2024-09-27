@@ -426,28 +426,25 @@ export default function MovieDetailPage() {
         <div className="p-4 text-2xl font-semibold text-center">
           <div className="flex justify-between">
             <p>Reviews</p>
-            <p>View More</p>
+            <p>No Reviews</p>
           </div>
-          No Reviews
         </div>
       ) : (
         <div className="mt-4 p-6">
           <div className="flex justify-between mb-4">
             <p className="text-2xl font-bold">Reviews</p>
-            {reviews!.length > 1 ? (
-              <Link
-                href={`/movie/${movieId}/reviews`}
-                className="hover:text-blue-500 hover:underline text-2xl font-semibold mb-4"
-              >
-                View More
-              </Link>
-            ) : (
-              <div></div>
-            )}
+            <a
+              className="hover:text-blue-500 hover:underline text-2xl font-semibold"
+              href={
+                reviews!.length > 1 ? `/movie/${movieId}/reviews` : undefined
+              }
+            >
+              View More
+            </a>
           </div>
 
           <LayoutTemplate layout="list">
-            {reviews!.map((review, index) => (
+            {reviews!.slice(0, 1).map((review, index) => (
               <MovieListCard
                 key={index}
                 id={index}
@@ -459,6 +456,7 @@ export default function MovieDetailPage() {
           </LayoutTemplate>
         </div>
       )}
+
       {/* Image Modal */}
       {selectedImage && (
         <ImageModal
