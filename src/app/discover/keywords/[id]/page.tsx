@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import MovieCard from "@/components/MovieCard";
@@ -15,16 +15,18 @@ import { LayoutTemplate } from "@/components/LayoutTemplate";
 import { Movie, Tv } from "@/types/movieType";
 import NewDataLoading from "@/components/NewDataLoading";
 import MovieListCard from "@/components/MovieListCard";
+import { useDetailKeywords } from "@/hooks/useKeywords";
 
 export default function KeywordsPage() {
   const params = useParams(); 
-  const searchParams = useSearchParams();
-
   const keywordId = params.id;
-  const keywordName = searchParams.get("name");
   const movieId = typeof keywordId === "string" ? parseInt(keywordId, 10) : 0;
   const [viewMode, setViewMode] = useState("card");
   const [category, setCategory] = useState("Movie");
+
+ const {
+  data: keywords
+ } = useDetailKeywords(movieId);
 
   const handleViewChange = (view: string) => {
     setViewMode(view);
@@ -71,8 +73,7 @@ export default function KeywordsPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-        Result Keyword: {""}
-        <span className="text-blue-500 uppercase">{keywordName}</span>
+        Result Keyword: <span className="text-blue-500 uppercase">{keywords?.name}</span>
       </h1>
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
@@ -114,11 +115,12 @@ export default function KeywordsPage() {
                     />
                   )}
                 </motion.div>
-              ))}
+              ))} 
             </React.Fragment>
           ))}
         </LayoutTemplate>
       )}
+
       {category === "TV" && (
         <LayoutTemplate layout={viewMode}>
           {tv?.pages?.map((page, pageIndex) => (
@@ -152,7 +154,6 @@ export default function KeywordsPage() {
         </LayoutTemplate>
       )}
 
-      {/* Fetch more data when the user scrolls */}
       {isFetchingNextPageMovie && category === "Movie" && (
         <div className="text-center mt-4">
           <NewDataLoading />
@@ -165,7 +166,6 @@ export default function KeywordsPage() {
         </div>
       )}
 
-      {/* Intersection observer trigger */}
       <div ref={ref} className="h-1"></div>
       <div className="text-center text-2xl font-bold my-4">
         {!hasNextPageMovie && category === "Movie" && "Congrats, you've reached the end!"}

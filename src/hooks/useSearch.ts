@@ -55,6 +55,29 @@ async function fetchTvByKeywords(
   };
 }
 
+async function fetchMovieByGenre(
+  id: number,
+  { pageParam = 1 }: { pageParam?: number }
+): Promise<{
+  movies: Movie[];
+  currentPage: number | null;
+  nextPage: number | null;
+  prevPage: number | null;
+}> {
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
+  const response = await axiosInstance.get(`/discover/movie?with_genres=${id}`, {
+    params: { page: pageParam },
+  });
+  return {
+    movies: response.data.results,
+    nextPage:
+      response.data.page < response.data.total_pages
+        ? response.data.page + 1
+        : null,
+    currentPage: response.data.page,
+    prevPage: response.data.page > 1 ? response.data.page - 1 : null,
+  };
+}
 
 // Hook to handle infinite fetching for Movies
 export const useInfiniteMovieByKeywords = (id: number) => {
@@ -71,6 +94,15 @@ export const useInfiniteTvByKeywords = (id: number) => {
   return useInfiniteQuery({
     queryKey: ["tv/keyword", id],
     queryFn: ({ pageParam = 1 }) => fetchTvByKeywords(id, { pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+  });
+};
+
+export const useInfiniteMovieByGenres = (id: number) => {
+  return useInfiniteQuery({
+    queryKey: ["movies/genre", id],
+    queryFn: ({ pageParam = 1 }) => fetchMovieByGenre(id, { pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
   });

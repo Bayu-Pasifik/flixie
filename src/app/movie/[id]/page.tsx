@@ -135,14 +135,11 @@ export default function MovieDetailPage() {
 
           <div className="mb-4">
             <strong>Genres:</strong>{" "}
-            {movie?.genres.map((genre) => (
-              <span
-                key={genre.id}
-                className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
-              >
-                {genre.name}
-              </span>
-            ))}
+            {movie?.genres.length === 0 ? (
+              <p>No genres available.</p>
+            ) : (
+              <Chips items={movie?.genres!} to="genres" />
+            )}
           </div>
 
           <div className="mb-6">
@@ -155,11 +152,7 @@ export default function MovieDetailPage() {
             {keywords && keywords.length === 0 ? (
               <p>No keywords available.</p>
             ) : (
-              <Chips
-              items={keywords!}
-              to="keywords"
-              
-              />
+              <Chips items={keywords!} to="keywords" />
             )}
           </div>
 
