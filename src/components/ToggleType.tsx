@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const timeModes = ["Tv", "Movie"];
+const timeModes = ["Movie", "TV"];
 
 interface ToogleTypeProps {
   selectedView: string;
@@ -18,7 +18,7 @@ const ToggleType: React.FC<ToogleTypeProps> = ({
     <div className="relative w-auto h-20 bg-slate-600 rounded-lg flex items-center p-1">
       {/* Toggle animation slider */}
       <motion.div
-        className="absolute w-48 h-16 bg-blue-600 rounded-lg"
+        className="absolute w-40 md:w-48 h-16 bg-blue-600 rounded-lg"
         layout
         initial={{ x: 0 }}
         animate={{ x: selectedIndex * 190 }} // Adjust slider position based on selected view
@@ -33,7 +33,7 @@ const ToggleType: React.FC<ToogleTypeProps> = ({
           onClick={() => onViewChange(viewMode)}
         >
           <div className="text-3xl text-white">
-            {viewMode === "Tv" ? "Tv" : "Movie"}
+            {viewMode}
           </div>
         </div>
       ))}
