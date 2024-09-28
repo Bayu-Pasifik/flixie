@@ -18,6 +18,7 @@ import MiniCard from "@/components/MiniCard";
 import { useReviews } from "@/hooks/useReviews";
 import { Link } from "lucide-react";
 import MovieListCard from "@/components/MovieListCard";
+import Chips from "@/components/Chips";
 
 export default function MovieDetailPage() {
   const { id } = useParams();
@@ -154,16 +155,11 @@ export default function MovieDetailPage() {
             {keywords && keywords.length === 0 ? (
               <p>No keywords available.</p>
             ) : (
-              <div className="flex flex-wrap mt-2">
-                {keywords?.map((keyword) => (
-                  <span
-                    key={keyword.id}
-                    className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
-                  >
-                    {keyword.name}
-                  </span>
-                ))}
-              </div>
+              <Chips
+              items={keywords!}
+              to="keywords"
+              
+              />
             )}
           </div>
 

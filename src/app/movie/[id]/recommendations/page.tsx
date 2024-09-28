@@ -1,10 +1,7 @@
 "use client";
-import { useImages } from "@/hooks/useImages";
 import { useParams } from "next/navigation";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import LoadingIndicator from "@/components/LoadingIndicator";
-import { useState } from "react";
-import { useCredits } from "@/hooks/useCredits";
 import MovieCard from "@/components/MovieCard";
 import { motion } from "framer-motion";
 import { useRecommendations } from "@/hooks/useRecomendations";
@@ -25,7 +22,7 @@ export default function RecommendationPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">All Casting</h1>
+      <h1 className="text-2xl font-bold mb-4">All Recommedations</h1>
 
       <LayoutTemplate layout="card">
         {recommendation?.map((image, index) => {
