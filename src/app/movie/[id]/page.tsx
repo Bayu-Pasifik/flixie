@@ -305,9 +305,7 @@ export default function MovieDetailPage() {
             title="Logos"
             items={images!.logos.slice(0, 10)}
             viewMoreLink={
-              images!.logos.length > 10
-                ? `/movie/${movieId}/logos`
-                : undefined
+              images!.logos.length > 10 ? `/movie/${movieId}/logos` : undefined
             }
             renderItem={(image) => (
               <motion.div
@@ -360,7 +358,7 @@ export default function MovieDetailPage() {
               id={cast.id}
               title={cast.name}
               overview={cast.character}
-              posterPath={cast.profile_path}
+              posterPath={cast.profile_path === null ? "" : cast.profile_path}
             />
           )}
         />
@@ -428,21 +426,21 @@ export default function MovieDetailPage() {
         <div className="p-4 text-2xl font-semibold text-center">
           <div className="flex justify-between">
             <p>Reviews</p>
-            <p>No Reviews</p>
           </div>
+          No Reviews
         </div>
       ) : (
         <div className="mt-4 p-6">
           <div className="flex justify-between mb-4">
             <p className="text-2xl font-bold">Reviews</p>
-            <a
-              className="hover:text-blue-500 hover:underline text-2xl font-semibold"
-              href={
-                reviews!.length > 1 ? `/movie/${movieId}/reviews` : undefined
-              }
-            >
-              View More
-            </a>
+            {reviews!.length > 1 && (
+              <a
+                href={`/movie/${movieId}/reviews`}
+                className="hover:text-blue-500 hover:underline text-2xl font-semibold"
+              >
+                View More
+              </a>
+            )}
           </div>
 
           <LayoutTemplate layout="list">

@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation"; // Import useRouter for navigation
 import Image from "next/image";
 
 interface MovieListCardProps {
-  id: number;
+  id?: number;
   title: string;
   overview: string;
-  posterPath: string;  // Bisa kosong atau null
+  posterPath: string; // Bisa kosong atau null
   type?: string;
 }
 
@@ -27,14 +27,19 @@ const MovieListCard: React.FC<MovieListCardProps> = ({
     router.push(`/movie/${id}`);
   };
 
+  // Kondisi untuk menentukan apakah onClick diaktifkan atau tidak
+  const isClickable = type !== "reviews"; // Jika type === "reviews", onClick tidak diaktifkan
+
   return (
     <motion.div
-      onClick={handleClick}
-      className="flex w-full bg-neutral-800 text-white shadow-lg rounded-lg overflow-hidden cursor-pointer mb-4"
+      onClick={isClickable ? handleClick : undefined} 
+      className={`flex w-full bg-neutral-800 text-white shadow-lg rounded-lg overflow-hidden ${
+        isClickable ? "cursor-pointer" : "cursor-default"
+      } mb-4`} // Jika tidak clickable, hilangkan cursor pointer
       initial={{ opacity: 0, x: -50 }} // Initial state (before animation)
       animate={{ opacity: 1, x: 0 }} // Final state (after animation)
-      whileHover={{ scale: 1.02, x: -5 }} // Effect when hovering over the card
-      whileTap={{ scale: 0.98 }} // Effect when tapping or clicking on the card
+      whileHover={{ scale: 1.02, x: -5 } } // Hanya aktif jika isClickable true
+      whileTap={isClickable ? { scale: 0.98 } : {}} // Hanya aktif jika isClickable true
       transition={{
         type: "spring", // Add spring-like movement
         stiffness: 400,
@@ -48,7 +53,7 @@ const MovieListCard: React.FC<MovieListCardProps> = ({
           src={
             posterPath && posterPath !== "" // Cek apakah posterPath valid
               ? `${process.env.NEXT_PUBLIC_IMAGE_URL + posterPath}`
-              : "/no_images.jpg"  // Default gambar jika tidak ada poster
+              : "/no_images.jpg" // Default gambar jika tidak ada poster
           }
           alt={title}
           layout="fill"

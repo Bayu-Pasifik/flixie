@@ -27,10 +27,9 @@ const MovieCard: React.FC<MovieCardProps> = ({
   const handleClick = () => {
     if (type === "tv") {
       router.push(`/tv/${id}`);
-    } else if(type === "person") {
+    } else if (type === "person") {
       router.push(`/person/${id}`);
-    }
-    else {
+    } else {
       router.push(`/movie/${id}`);
     }
   };
@@ -54,7 +53,11 @@ const MovieCard: React.FC<MovieCardProps> = ({
       {/* Image section */}
       <div className="relative w-full h-60">
         <Image
-          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${posterPath}`}
+          src={
+            posterPath === ""
+              ? "/no_images.jpg"
+              : `${process.env.NEXT_PUBLIC_IMAGE_URL}${posterPath}`
+          }
           alt={title}
           layout="fill"
           objectFit="cover" // Next.js optimized image
