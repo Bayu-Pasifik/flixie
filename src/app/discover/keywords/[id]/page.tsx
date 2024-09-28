@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import MovieCard from "@/components/MovieCard";
@@ -11,6 +11,7 @@ import { useInView } from "react-intersection-observer"; // Import the Intersect
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import { Movie } from "@/types/movieType";
 import NewDataLoading from "@/components/NewDataLoading";
+import MovieListCard from "@/components/MovieListCard";
 
 export default function KeywordsPage() {
   const params = useParams(); // Mengambil id dari URL dinamis
@@ -19,6 +20,11 @@ export default function KeywordsPage() {
   const keywordId = params.id; // Ambil id dari params
   const keywordName = searchParams.get("name"); // Ambil nama dari query string
   const movieId = typeof keywordId === "string" ? parseInt(keywordId, 10) : 0;
+  const [viewMode, setViewMode] = useState("card");
+
+  const handleViewChange = (view: string) => {
+    setViewMode(view);
+  };
 
   const {
     data,
@@ -45,7 +51,8 @@ export default function KeywordsPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-        Result Keyword: {keywordId} - {keywordName}
+        Result Keyword:{" "}
+        <span className="text-blue-500 uppercase">{keywordName}</span>
       </h1>
 
       {/* Flex container to align the elements */}
@@ -54,12 +61,12 @@ export default function KeywordsPage() {
           <ToggleType selectedView="Tv" onViewChange={() => {}} />
         </div>
         <div className="flex flex-row justify-end">
-          <ViewToggle selectedView="card" onViewChange={() => {}} />
+          <ViewToggle selectedView={viewMode} onViewChange={handleViewChange} />
         </div>
       </div>
 
       {/* Layout for displaying Movie Cards */}
-      <LayoutTemplate layout="card">
+      <LayoutTemplate layout={viewMode}>
         {data?.pages?.map((page, pageIndex) => (
           <React.Fragment key={pageIndex}>
             {page.movies.map((movie: Movie, index) => (
@@ -69,12 +76,21 @@ export default function KeywordsPage() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: index * 0.2 }}
               >
-                <MovieCard
+                {viewMode === "card" ? (
+                  <MovieCard
                   id={movie.id}
                   title={movie.title}
-                  overview={movie.overview}
+                  overview={movie.overview || "No overview available"}
                   posterPath={movie.poster_path || ""}
                 />
+                ) : (
+                  <MovieListCard
+                    id={movie.id}
+                    title={movie.title}
+                    overview={movie.overview || "No overview available"}
+                    posterPath={movie.poster_path || ""}
+                  />
+                )}
               </motion.div>
             ))}
           </React.Fragment>
@@ -89,7 +105,7 @@ export default function KeywordsPage() {
 
       {/* Intersection observer trigger */}
       <div ref={ref} className="h-1"></div>
-      <div className="text-center text-2xl font-bold">
+      <div className="text-center text-2xl font-bold my-4">
         {!hasNextPage && "Congrats, you've reached the end!"}
       </div>
     </div>
