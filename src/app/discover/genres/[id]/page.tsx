@@ -9,6 +9,9 @@ import ToggleType from "@/components/ToggleType";
 import ViewToggle from "@/components/ToogleView";
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
+import MovieListCard from "@/components/MovieListCard";
+import { motion } from "framer-motion";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 export default function GenresPage() {
   const {
@@ -45,7 +48,7 @@ export default function GenresPage() {
   }, [inView, hasNextPageMovie, fetchNextPageMovie]);
 
   // Handle loading and error states
-  if (genreLoading || movieLoading) return <p>Loading...</p>;
+  if (genreLoading || movieLoading) return <LoadingIndicator />;
   if (genreError || movieError)
     return <p>{genreError?.message || movieError?.message}</p>;
 
@@ -69,15 +72,32 @@ export default function GenresPage() {
       <LayoutTemplate layout={viewMode}>
         {movie?.pages.map((page, pageIndex) => (
           <React.Fragment key={pageIndex}>
-            {page.movies.map((movie) => (
-              <MovieCard
-                id={movie.id}
-                key={movie.id}
-                title={movie.title}
-                overview={movie.overview}
-                posterPath={movie.poster_path}
-                type="movie"
-              />
+            {page.movies.map((movie, index) => (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.2 }}
+              >
+                {viewMode === "card" ? (
+                  <MovieCard
+                    id={movie.id}
+                    key={movie.id}
+                    title={movie.title}
+                    overview={movie.overview}
+                    posterPath={movie.poster_path}
+                    type="movie"
+                  />
+                ) : (
+                  <MovieListCard
+                    id={movie.id}
+                    key={movie.id}
+                    title={movie.title}
+                    overview={movie.overview}
+                    posterPath={movie.poster_path}
+                    type="movie"
+                  />
+                )}
+              </motion.div>
             ))}
           </React.Fragment>
         ))}
