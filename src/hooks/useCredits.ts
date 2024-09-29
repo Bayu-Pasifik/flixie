@@ -1,7 +1,7 @@
 'use client'
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import axiosInstance from '../lib/axios';
-import {Credit, TvCredit} from '@/types/personType'
+import {Credit, Person, TvCredit} from '@/types/personType'
 
 // Mengambil detail movie berdasarkan ID
 async function fetchCredits(id: number): Promise<Credit[]> {
@@ -38,5 +38,46 @@ export const useCreditsTv = (id: number) => {
     queryKey: ['tv/credits', id],
     queryFn: () => fetchTvCredits(id),
     staleTime: 1000 * 60 * 5, // 5 menit
+  });
+};
+async function fetchInfinityPopularPerson({
+  pageParam = 1,
+}: { pageParam?: number }): Promise<{
+  persons: Person[];  // Sesuaikan dengan tipe TV show Anda
+  currentPage: number | null;
+  nextPage: number | null;
+  prevPage: number | null;
+}> {
+  try {
+    // Simulasi delay untuk animasi (opsional)
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
+
+    // Lakukan request ke API dengan paginasi
+    const response = await axiosInstance.get("/person/popular", {
+      params: { page: pageParam },
+    });
+
+    return {
+      persons: response.data.results,
+      nextPage:
+        response.data.page < response.data.total_pages
+          ? response.data.page + 1
+          : null,
+      currentPage: response.data.page,
+      prevPage: response.data.page > 1 ? response.data.page - 1 : null,
+    };
+  } catch (error) {
+    console.error("Error fetching currently airing TV shows:", error);
+    throw error; // Rethrow error untuk React Query menangani
+  }
+}
+
+// Hook untuk infinite scroll pada TV shows
+export const useInfinityPopularPerson = () => {
+  return useInfiniteQuery({
+    queryKey: ["person/popular"],
+    queryFn: fetchInfinityPopularPerson,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
   });
 };

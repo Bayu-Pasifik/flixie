@@ -60,7 +60,7 @@ export default function Navbar() {
               TV Series
             </Button>
           </Link>
-          <Link href="/peoples">
+          <Link href="/person">
             <Button variant="ghost" className="hover:bg-gray-700">
               Peoples
             </Button>
@@ -187,7 +187,7 @@ export default function Navbar() {
                   TV Series
                 </Button>
               </Link>
-              <Link href="/peoples">
+              <Link href="/person">
                 <Button
                   variant="ghost"
                   className="text-xl hover:bg-gray-700"
