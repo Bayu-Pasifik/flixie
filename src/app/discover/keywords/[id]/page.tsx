@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import MovieCard from "@/components/MovieCard";
@@ -9,8 +9,8 @@ import {
   useInfiniteMovieByKeywords,
   useInfiniteTvByKeywords,
 } from "@/hooks/useSearch";
-import { useParams, useSearchParams } from "next/navigation";
-import { useInView } from "react-intersection-observer"; 
+import { useParams } from "next/navigation";
+import { useInView } from "react-intersection-observer";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import { Movie, Tv } from "@/types/movieType";
 import NewDataLoading from "@/components/NewDataLoading";
@@ -18,15 +18,13 @@ import MovieListCard from "@/components/MovieListCard";
 import { useDetailKeywords } from "@/hooks/useKeywords";
 
 export default function KeywordsPage() {
-  const params = useParams(); 
+  const params = useParams();
   const keywordId = params.id;
   const movieId = typeof keywordId === "string" ? parseInt(keywordId, 10) : 0;
   const [viewMode, setViewMode] = useState("card");
   const [category, setCategory] = useState("Movie");
 
- const {
-  data: keywords
- } = useDetailKeywords(movieId);
+  const { data: keywords } = useDetailKeywords(movieId);
 
   const handleViewChange = (view: string) => {
     setViewMode(view);
@@ -66,6 +64,12 @@ export default function KeywordsPage() {
     }
   }, [inView, fetchNextPageMovie, fetchNextPageTv, category]);
 
+  // Validasi isEmpty untuk Movie dan TV
+  const isMovieEmpty =
+    category === "Movie" && (!movies || movies.pages[0]?.movies.length === 0);
+  const isTvEmpty =
+    category === "TV" && (!tv || tv.pages[0]?.tvShows.length === 0);
+
   if (loadingMovies || loadingTv) return <LoadingIndicator />;
   if (errorMovies || errorTv)
     return <div>{errorMovies!.message || errorTv!.message}</div>;
@@ -73,7 +77,8 @@ export default function KeywordsPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-        Result Keyword: <span className="text-blue-500 uppercase">{keywords?.name}</span>
+        Result Keyword:{" "}
+        <span className="text-blue-500 uppercase">{keywords?.name}</span>
       </h1>
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
@@ -88,70 +93,88 @@ export default function KeywordsPage() {
         </div>
       </div>
 
+      {/* Tampilan Movie */}
       {category === "Movie" && (
-        <LayoutTemplate layout={viewMode}>
-          {movies?.pages?.map((page, pageIndex) => (
-            <React.Fragment key={pageIndex}>
-              {page.movies.map((movie: Movie, index) => (
-                <motion.div
-                  key={movie.id} 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.2 }}
-                >
-                  {viewMode === "card" ? (
-                    <MovieCard
-                      id={movie.id}
-                      title={movie.title}
-                      overview={movie.overview || "No overview available"}
-                      posterPath={movie.poster_path || ""}
-                    />
-                  ) : (
-                    <MovieListCard
-                      id={movie.id}
-                      title={movie.title}
-                      overview={movie.overview || "No overview available"}
-                      posterPath={movie.poster_path || ""}
-                    />
-                  )}
-                </motion.div>
-              ))} 
-            </React.Fragment>
-          ))}
-        </LayoutTemplate>
+        <>
+          {isMovieEmpty ? (
+            <div className="text-center text-2xl font-bold my-4">
+              No data movie available.
+            </div>
+          ) : (
+            <LayoutTemplate layout={viewMode}>
+              {movies?.pages?.map((page, pageIndex) => (
+                <React.Fragment key={pageIndex}>
+                  {page.movies.map((movie: Movie, index) => (
+                    <motion.div
+                      key={movie.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: index * 0.2 }}
+                    >
+                      {viewMode === "card" ? (
+                        <MovieCard
+                          id={movie.id}
+                          title={movie.title}
+                          overview={movie.overview || "No overview available"}
+                          posterPath={movie.poster_path || ""}
+                        />
+                      ) : (
+                        <MovieListCard
+                          id={movie.id}
+                          title={movie.title}
+                          overview={movie.overview || "No overview available"}
+                          posterPath={movie.poster_path || ""}
+                        />
+                      )}
+                    </motion.div>
+                  ))}
+                </React.Fragment>
+              ))}
+            </LayoutTemplate>
+          )}
+        </>
       )}
 
+      {/* Tampilan TV */}
       {category === "TV" && (
-        <LayoutTemplate layout={viewMode}>
-          {tv?.pages?.map((page, pageIndex) => (
-            <React.Fragment key={pageIndex}>
-              {page.tvShows?.map((tvShow: Tv, index) => (
-                <motion.div
-                  key={tvShow.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.2 }}
-                >
-                  {viewMode === "card" ? (
-                    <MovieCard
-                      id={tvShow.id}
-                      title={tvShow.name}
-                      overview={tvShow.overview || "No overview available"}
-                      posterPath={tvShow.poster_path || ""}
-                    />
-                  ) : (
-                    <MovieListCard
-                      id={tvShow.id}
-                      title={tvShow.name}
-                      overview={tvShow.overview || "No overview available"}
-                      posterPath={tvShow.poster_path || ""}
-                    />
-                  )}
-                </motion.div>
+        <>
+          {isTvEmpty ? (
+            <div className="text-center text-2xl font-bold my-4">
+              No data TV available.
+            </div>
+          ) : (
+            <LayoutTemplate layout={viewMode}>
+              {tv?.pages?.map((page, pageIndex) => (
+                <React.Fragment key={pageIndex}>
+                  {page.tvShows?.map((tvShow: Tv, index) => (
+                    <motion.div
+                      key={tvShow.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: index * 0.2 }}
+                    >
+                      {viewMode === "card" ? (
+                        <MovieCard
+                          id={tvShow.id}
+                          title={tvShow.name}
+                          overview={tvShow.overview || "No overview available"}
+                          posterPath={tvShow.poster_path || ""}
+                        />
+                      ) : (
+                        <MovieListCard
+                          id={tvShow.id}
+                          title={tvShow.name}
+                          overview={tvShow.overview || "No overview available"}
+                          posterPath={tvShow.poster_path || ""}
+                        />
+                      )}
+                    </motion.div>
+                  ))}
+                </React.Fragment>
               ))}
-            </React.Fragment>
-          ))}
-        </LayoutTemplate>
+            </LayoutTemplate>
+          )}
+        </>
       )}
 
       {isFetchingNextPageMovie && category === "Movie" && (
@@ -168,8 +191,12 @@ export default function KeywordsPage() {
 
       <div ref={ref} className="h-1"></div>
       <div className="text-center text-2xl font-bold my-4">
-        {!hasNextPageMovie && category === "Movie" && "Congrats, you've reached the end!"}
-        {!hasNextPageTv && category === "TV" && "Congrats, you've reached the end!"}
+        {!hasNextPageMovie &&
+          category === "Movie" &&
+          "Congrats, you've reached the end!"}
+        {!hasNextPageTv &&
+          category === "TV" &&
+          "Congrats, you've reached the end!"}
       </div>
     </div>
   );

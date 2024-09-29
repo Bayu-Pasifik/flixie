@@ -55,11 +55,6 @@ export default function Navbar() {
               Home
             </Button>
           </Link>
-          <Link href="/movies">
-            <Button variant="ghost" className="hover:bg-gray-700">
-              Movies
-            </Button>
-          </Link>
           <Link href="/tv">
             <Button variant="ghost" className="hover:bg-gray-700">
               TV Series
@@ -181,15 +176,6 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)} // Close menu when clicked
                 >
                   Home
-                </Button>
-              </Link>
-              <Link href="/movies">
-                <Button
-                  variant="ghost"
-                  className="text-xl hover:bg-gray-700"
-                  onClick={() => setIsOpen(false)} // Close menu when clicked
-                >
-                  Movies
                 </Button>
               </Link>
               <Link href="/tv">
