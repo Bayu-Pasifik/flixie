@@ -1,4 +1,3 @@
-// src/components/Navbar.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { motion } from "framer-motion";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState("/"); // State untuk menyimpan menu aktif
 
   // Lock scrolling when menu is open
   useEffect(() => {
@@ -44,29 +44,45 @@ export default function Navbar() {
     <nav className="relative w-full bg-gray-800 text-white drop-shadow-sm z-50">
       {/* Top Bar */}
       <div className="flex justify-between items-center px-8 py-4">
-        <div className="text-lg font-bold  uppercase">
+        <div className="text-lg font-bold uppercase">
           <Link href={"/"}>Flixie</Link>
         </div>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-4">
-          <Link href="/">
-            <Button variant="ghost" className="hover:bg-gray-700">
+          <Link href="/" passHref>
+            <Button
+              variant="ghost"
+              className={`hover:bg-gray-700 ${activeMenu === "/" ? "bg-gray-700" : ""}`} // Active background
+              onClick={() => setActiveMenu("/")} // Update active menu
+            >
               Home
             </Button>
           </Link>
-          <Link href="/tv">
-            <Button variant="ghost" className="hover:bg-gray-700">
+          <Link href="/tv" passHref>
+            <Button
+              variant="ghost"
+              className={`hover:bg-gray-700 ${activeMenu === "/tv" ? "bg-gray-700" : ""}`} // Active background
+              onClick={() => setActiveMenu("/tv")} // Update active menu
+            >
               TV Series
             </Button>
           </Link>
-          <Link href="/person">
-            <Button variant="ghost" className="hover:bg-gray-700">
+          <Link href="/person" passHref>
+            <Button
+              variant="ghost"
+              className={`hover:bg-gray-700 ${activeMenu === "/person" ? "bg-gray-700" : ""}`} // Active background
+              onClick={() => setActiveMenu("/person")} // Update active menu
+            >
               Peoples
             </Button>
           </Link>
-          <Link href="/companies">
-            <Button variant="ghost" className="hover:bg-gray-700">
+          <Link href="/companies" passHref>
+            <Button
+              variant="ghost"
+              className={`hover:bg-gray-700 ${activeMenu === "/companies" ? "bg-gray-700" : ""}`} // Active background
+              onClick={() => setActiveMenu("/companies")} // Update active menu
+            >
               Companies
             </Button>
           </Link>
@@ -92,25 +108,6 @@ export default function Navbar() {
               </svg>
             </Button>
           </Link>
-          {/* <Link href="/notifications">
-            <Button variant="ghost" className="hover:bg-gray-700">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-9-5.197V5a1 1 0 01-1 1H7a1 1 0 01-1-1v-.197A6 6 0 00-2 11v3.158a2.032 2.032 0 01-.595 1.437L-4 17h5m0 0a3.502 3.502 0 01-7 0m7 0H4"
-                />
-              </svg>
-            </Button>
-          </Link> */}
-
           {/* Dropdown Menu for Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -169,38 +166,50 @@ export default function Navbar() {
             </div>
 
             <div className="flex flex-col items-start space-y-4">
-              <Link href="/">
+              <Link href="/" passHref>
                 <Button
                   variant="ghost"
-                  className="text-xl hover:bg-gray-700"
-                  onClick={() => setIsOpen(false)} // Close menu when clicked
+                  className={`text-xl hover:bg-gray-700 ${activeMenu === "/" ? "bg-gray-700" : ""}`} // Active background
+                  onClick={() => { 
+                    setActiveMenu("/"); 
+                    setIsOpen(false); // Close menu when clicked
+                  }}
                 >
                   Home
                 </Button>
               </Link>
-              <Link href="/tv">
+              <Link href="/tv" passHref>
                 <Button
                   variant="ghost"
-                  className="text-xl hover:bg-gray-700"
-                  onClick={() => setIsOpen(false)} // Close menu when clicked
+                  className={`text-xl hover:bg-gray-700 ${activeMenu === "/tv" ? "bg-gray-700" : ""}`} // Active background
+                  onClick={() => { 
+                    setActiveMenu("/tv"); 
+                    setIsOpen(false); // Close menu when clicked
+                  }}
                 >
                   TV Series
                 </Button>
               </Link>
-              <Link href="/person">
+              <Link href="/person" passHref>
                 <Button
                   variant="ghost"
-                  className="text-xl hover:bg-gray-700"
-                  onClick={() => setIsOpen(false)} // Close menu when clicked
+                  className={`text-xl hover:bg-gray-700 ${activeMenu === "/person" ? "bg-gray-700" : ""}`} // Active background
+                  onClick={() => { 
+                    setActiveMenu("/person"); 
+                    setIsOpen(false); // Close menu when clicked
+                  }}
                 >
                   Peoples
                 </Button>
               </Link>
-              <Link href="/companies">
+              <Link href="/companies" passHref>
                 <Button
                   variant="ghost"
-                  className="text-xl hover:bg-gray-700"
-                  onClick={() => setIsOpen(false)} // Close menu when clicked
+                  className={`text-xl hover:bg-gray-700 ${activeMenu === "/companies" ? "bg-gray-700" : ""}`} // Active background
+                  onClick={() => { 
+                    setActiveMenu("/companies"); 
+                    setIsOpen(false); // Close menu when clicked
+                  }}
                 >
                   Companies
                 </Button>
