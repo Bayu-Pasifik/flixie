@@ -91,7 +91,7 @@ export default function Navbar() {
         {/* Icons on the right */}
         <div className="hidden md:flex items-center space-x-4">
           <Link href="/search">
-            <Button variant="ghost" className="hover:bg-gray-700">
+            <Button variant="ghost" className= {`hover:bg-gray-700 ${activeMenu === "/search" ? "bg-white" : ""}`}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
