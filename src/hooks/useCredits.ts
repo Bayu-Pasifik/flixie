@@ -81,3 +81,44 @@ export const useInfinityPopularPerson = () => {
     getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
   });
 };
+async function fetchSearchPersons(query: string,{
+  pageParam = 1,
+}: { pageParam?: number }): Promise<{
+  persons: Person[];  // Sesuaikan dengan tipe TV show Anda
+  currentPage: number | null;
+  nextPage: number | null;
+  prevPage: number | null;
+}> {
+  try {
+    // Simulasi delay untuk animasi (opsional)
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
+
+    // Lakukan request ke API dengan paginasi
+    const response = await axiosInstance.get(`/search/person?query=${query}&include_adult=false`, {
+      params: { page: pageParam },
+    });
+    console.log(response.data.results);
+    return {
+      persons: response.data.results,
+      nextPage:
+        response.data.page < response.data.total_pages
+          ? response.data.page + 1
+          : null,
+      currentPage: response.data.page,
+      prevPage: response.data.page > 1 ? response.data.page - 1 : null,
+    };
+  } catch (error) {
+    console.error("Error fetching currently airing TV shows:", error);
+    throw error; // Rethrow error untuk React Query menangani
+  }
+}
+
+// Hook untuk infinite scroll pada TV shows
+export const useInfinitySearchPerson = (query: string) => {
+  return useInfiniteQuery({
+    queryKey: ["person/search"],
+    queryFn: ({ pageParam = 1}) => fetchSearchPersons(query, { pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+  });
+};
