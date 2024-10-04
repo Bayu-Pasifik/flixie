@@ -29,6 +29,8 @@ const MovieCard: React.FC<MovieCardProps> = ({
       router.push(`/tv/${id}`);
     } else if (type === "person") {
       router.push(`/person/${id}`);
+    } else if (type === "company") {
+      router.push(`/company/${id}`);
     } else {
       router.push(`/movie/${id}`);
     }

@@ -5,6 +5,9 @@ import { useInfinityCompany } from "@/hooks/useCompany";
 import MovieCard from "@/components/MovieCard";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import { Button } from "@/components/ui/button";
+import LoadingIndicator from "@/components/LoadingIndicator";
+import { useInView } from "react-intersection-observer";
+import NewDataLoading from "@/components/NewDataLoading";
 
 export default function CompanyPage() {
   const {
@@ -21,7 +24,14 @@ export default function CompanyPage() {
     data: searchData,
     isLoading: searchLoading,
     isError: searchError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
   } = useInfinityCompany(searchQuery); // Menggunakan searchQuery untuk mengambil data
+
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 1.0,
+  });
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,9 +45,15 @@ export default function CompanyPage() {
     }
   };
 
+  // Memanggil fetchNextPage saat elemen terpapar
+  React.useEffect(() => {
+    if (inView && hasNextPage && !searchLoading) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, searchLoading, fetchNextPage]);
+
   return (
     <div className="p-4">
-
       {/* Search Bar */}
       <form
         onSubmit={handleSearch}
@@ -65,7 +81,7 @@ export default function CompanyPage() {
         {/* Jika search bar kosong, tampilkan data dari company.json */}
         {searchQuery.trim() === "" ? (
           <div>
-            {companyLoading && <p>Loading local company data...</p>}
+            {companyLoading && <LoadingIndicator />}
             {companyError && (
               <p>Error loading local company data: {companyError}</p>
             )}
@@ -86,7 +102,7 @@ export default function CompanyPage() {
           </div>
         ) : (
           <div>
-            {searchLoading && <p>Loading search results...</p>}
+            {searchLoading && <LoadingIndicator />}
             {searchError && <p>Error fetching search results.</p>}
             {searchData && (
               <LayoutTemplate layout="card">
@@ -106,6 +122,18 @@ export default function CompanyPage() {
                 ))}
               </LayoutTemplate>
             )}
+            {isFetchingNextPage && (
+              <div className="text-center mt-4 ">
+                <NewDataLoading />
+              </div>
+            )}
+            {!hasNextPage && (
+              <div className="text-center mt-4 font-bold text-2xl">
+                <p>No more results.</p>
+              </div>
+            )}
+            {/* Loading More Indicator */}
+            <div ref={loadMoreRef}></div>
           </div>
         )}
       </div>
