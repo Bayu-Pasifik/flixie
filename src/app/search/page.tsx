@@ -7,15 +7,17 @@ import ToggleType from "@/components/ToggleType";
 import { useInfinitySearchMovie, useInfinitySearchTV } from "@/hooks/useSearch";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
+import MovieListCard from "@/components/MovieListCard"; // Import MovieListCard
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
+import ViewToggle from "@/components/ToogleView";
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState(""); // Store the search term
   const [query, setQuery] = useState("");
   const [advancedOpen, setAdvancedOpen] = useState(false); // Control the collapse of Advanced Search
   const [category, setCategory] = useState("Movie"); // Toggle between Movie and TV search
-
+  const [view, setView] = useState("card"); // State to toggle between views (card or list)
   const { ref, inView } = useInView(); // Observer for infinite scroll
 
   // Choose the appropriate search hook based on the selected category
@@ -54,6 +56,14 @@ export default function SearchPage() {
     }
   }, [inView, category]);
 
+  const handleCategoryChange = (category: string) => {
+    setCategory(category);
+  };
+
+  const handleViewChange = (view: string) => {
+    setView(view);
+  };
+
   const IsEmptyTv = tvData?.pages?.[0]?.tvShows?.length === 0;
   const IsEmptyMovie = movieData?.pages?.[0]?.movies?.length === 0;
 
@@ -86,7 +96,10 @@ export default function SearchPage() {
       {/* Toggle between Movie and TV */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
         <div className="w-full sm:w-auto">
-          <ToggleType selectedView={category} onViewChange={setCategory} />
+          <ToggleType selectedView={category} onViewChange={handleCategoryChange} />
+        </div>
+        <div className="flex flex-row justify-end">
+          <ViewToggle selectedView={view} onViewChange={handleViewChange} />
         </div>
       </div>
 
@@ -111,18 +124,30 @@ export default function SearchPage() {
               </p>
             </div>
           ) : (
-            <LayoutTemplate layout="card">
+            <LayoutTemplate layout={view}>
               {movieData?.pages.map((page, pageIndex) => (
                 <React.Fragment key={pageIndex}>
                   {page.movies.map((movie, index) => (
-                    <MovieCard
-                      key={index}
-                      id={movie.id}
-                      title={movie.title}
-                      overview={movie.overview || "No Overview"}
-                      posterPath={movie.poster_path || ""}
-                      type="movie"
-                    />
+                    // Tampilkan MovieCard jika view === "card", jika tidak tampilkan MovieListCard
+                    view === "card" ? (
+                      <MovieCard
+                        key={index}
+                        id={movie.id}
+                        title={movie.title}
+                        overview={movie.overview || "No Overview"}
+                        posterPath={movie.poster_path || ""}
+                        type="movie"
+                      />
+                    ) : (
+                      <MovieListCard
+                        key={index}
+                        id={movie.id}
+                        title={movie.title}
+                        overview={movie.overview || "No Overview"}
+                        posterPath={movie.poster_path || ""}
+                        type="movie"
+                      />
+                    )
                   ))}
                 </React.Fragment>
               ))}
@@ -138,18 +163,30 @@ export default function SearchPage() {
               </p>
             </div>
           ) : (
-            <LayoutTemplate layout="card">
+            <LayoutTemplate layout={view}>
               {tvData?.pages.map((page, pageIndex) => (
                 <React.Fragment key={pageIndex}>
                   {page.tvShows.map((tv, index) => (
-                    <MovieCard
-                      key={index}
-                      id={tv.id}
-                      title={tv.name}
-                      overview={tv.overview || "No Overview"}
-                      posterPath={tv.poster_path || ""}
-                      type="tv"
-                    />
+                    // Tampilkan MovieCard jika view === "card", jika tidak tampilkan MovieListCard
+                    view === "card" ? (
+                      <MovieCard
+                        key={index}
+                        id={tv.id}
+                        title={tv.name}
+                        overview={tv.overview || "No Overview"}
+                        posterPath={tv.poster_path || ""}
+                        type="tv"
+                      />
+                    ) : (
+                      <MovieListCard
+                        key={index}
+                        id={tv.id}
+                        title={tv.name}
+                        overview={tv.overview || "No Overview"}
+                        posterPath={tv.poster_path || ""}
+                        type="tv"
+                      />
+                    )
                   ))}
                 </React.Fragment>
               ))}
