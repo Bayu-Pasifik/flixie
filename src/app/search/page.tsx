@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Collapse } from "@kunukn/react-collapse";
 import ToggleType from "@/components/ToggleType";
-import { useInfinitySearchMovie } from "@/hooks/useSearch";
+import { useInfinitySearchMovie, useInfinitySearchTV } from "@/hooks/useSearch";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
 import { useInView } from "react-intersection-observer";
@@ -16,36 +16,43 @@ export default function SearchPage() {
   const [advancedOpen, setAdvancedOpen] = useState(false); // Control the collapse of Advanced Search
   const [category, setCategory] = useState("Movie"); // Toggle between Movie and TV search
 
-  const { ref, inView } = useInView();
+  const { ref, inView } = useInView(); // Observer for infinite scroll
 
-  // Using the custom hook to fetch search movies
+  // Choose the appropriate search hook based on the selected category
   const {
-    data,
-    isLoading,
-    isError,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    data: movieData,
+    isLoading: isMovieLoading,
+    isError: isMovieError,
+    error: movieError,
+    fetchNextPage: fetchMovieNextPage,
+    hasNextPage: hasMovieNextPage,
+    isFetchingNextPage: isFetchingMovieNextPage,
   } = useInfinitySearchMovie(searchQuery);
+
+  const {
+    data: tvData,
+    isLoading: isTVLoading,
+    isError: isTVError,
+    error: tvError,
+    fetchNextPage: fetchTVNextPage,
+    hasNextPage: hasTVNextPage,
+    isFetchingNextPage: isFetchingTVNextPage,
+  } = useInfinitySearchTV(searchQuery);
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle search logic
-    if (query.trim() === "") {
-      console.log("Search bar is empty, displaying local companies.");
-      setSearchQuery(""); // Reset searchQuery jika kosong
-    } else {
-      console.log(`Searching for companies with name: ${query}`);
-      setSearchQuery(query); // Set searchQuery ke query yang dimasukkan
-    }
+    setSearchQuery(query); // Set searchQuery ke query yang dimasukkan
   };
 
   useEffect(() => {
     if (inView) {
-      fetchNextPage();
+      if (category === "Movie") {
+        fetchMovieNextPage();
+      } else {
+        fetchTVNextPage();
+      }
     }
-  }, [inView]);
+  }, [inView, category]);
 
   return (
     <div className="p-4">
@@ -81,32 +88,73 @@ export default function SearchPage() {
       </div>
 
       {/* Show loading indicator when fetching data */}
-      {isLoading && <p className="text-white">Loading...</p>}
-      {isError && <p className="text-red-500">Error: {error?.message}</p>}
+      {isMovieLoading || isTVLoading ? (
+        <p className="text-white">Loading...</p>
+      ) : null}
+      {isMovieError ? (
+        <p className="text-red-500">Error: {movieError?.message}</p>
+      ) : null}
+      {isTVError ? (
+        <p className="text-red-500">Error: {tvError?.message}</p>
+      ) : null}
 
-      {/* Show search results */}
-      <div className="mt-6">
-        <LayoutTemplate layout="card">
-          {data?.pages.map((page, pageIndex) => (
-            <React.Fragment key={pageIndex}>
-              {page.movies.map((movie, index) => (
-                <MovieCard
-                  key={index}
-                  id={movie.id}
-                  title={movie.title}
-                  overview={movie.overview || "No Overview"}
-                  posterPath={movie.poster_path || ""}
-                  type={category}
-                />
-              ))}
-            </React.Fragment>
-          ))}
-        </LayoutTemplate>
-      </div>
-      {isFetchingNextPage && <NewDataLoading />}
-      {isFetchingNextPage && !hasNextPage && (
-        <p className="text-white">No more {category} to load</p>
+      {/* Show search results based on category */}
+      {category === "Movie" ? (
+        <div className="mt-6">
+          <LayoutTemplate layout="card">
+            {movieData?.pages.map((page, pageIndex) => (
+              <React.Fragment key={pageIndex}>
+                {page.movies.map((movie, index) => (
+                  <MovieCard
+                    key={index}
+                    id={movie.id}
+                    title={movie.title}
+                    overview={movie.overview || "No Overview"}
+                    posterPath={movie.poster_path || ""}
+                    type="movie"
+                  />
+                ))}
+              </React.Fragment>
+            ))}
+          </LayoutTemplate>
+        </div>
+      ) : (
+        <div className="mt-6">
+          <LayoutTemplate layout="card">
+            {tvData?.pages.map((page, pageIndex) => (
+              <React.Fragment key={pageIndex}>
+                {page.tvShows.map((tv, index) => (
+                  <MovieCard
+                    key={index}
+                    id={tv.id}
+                    title={tv.name}
+                    overview={tv.overview || "No Overview"}
+                    posterPath={tv.poster_path || ""}
+                    type="tv"
+                  />
+                ))}
+              </React.Fragment>
+            ))}
+          </LayoutTemplate>
+        </div>
       )}
+
+      {query === "" && (
+        <div className="flex justify-center items-center h-screen">
+          <p className="text-white text-center text-2xl font-bold">Enter a search query</p>
+        </div>
+      )}
+
+      {/* Infinite Scroll Loading Indicator */}
+      {(isFetchingMovieNextPage || isFetchingTVNextPage) && <NewDataLoading />}
+      {!hasMovieNextPage && category === "Movie" && query !== "" && (
+        <p className="text-white text-center">No more Movies to load</p>
+      )}
+      {!hasTVNextPage && category === "TV" && query !== "" && (
+        <p className="text-white text-center">No more TV shows to load</p>
+      )}
+
+      {/* Infinite Scroll Trigger Element */}
       <div ref={ref} className="h-1"></div>
     </div>
   );
