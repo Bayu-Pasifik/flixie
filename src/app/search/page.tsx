@@ -23,6 +23,7 @@ export default function SearchPage() {
   useEffect(() => {
     const storedQuery = sessionStorage.getItem("searchQuery");
     const storedCategory = sessionStorage.getItem("category");
+    const storedView = sessionStorage.getItem("view");
 
     if (storedQuery) {
       setQuery(storedQuery);
@@ -31,6 +32,10 @@ export default function SearchPage() {
 
     if (storedCategory) {
       setCategory(storedCategory);
+    }
+
+    if (storedView) {
+      setView(storedView);
     }
   }, []);
 
@@ -81,8 +86,10 @@ export default function SearchPage() {
     sessionStorage.setItem("category", newCategory); // Save selected category in sessionStorage
   };
 
+
   const handleViewChange = (newView: string) => {
     setView(newView);
+    sessionStorage.setItem("view", newView);
   };
 
   const IsEmptyTv = tvData?.pages?.[0]?.tvShows?.length === 0;
