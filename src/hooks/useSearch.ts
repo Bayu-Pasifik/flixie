@@ -198,5 +198,6 @@ export const useInfinitySearchTV = (query: string) => {
     queryFn: ({ pageParam = 1 }) => fetachSearchTv(query, { pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+    placeholderData : (prevData) => prevData,
   });
 };

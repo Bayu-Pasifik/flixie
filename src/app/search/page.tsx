@@ -2,25 +2,38 @@
 import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Collapse } from "@kunukn/react-collapse";
 import ToggleType from "@/components/ToggleType";
 import { useInfinitySearchMovie, useInfinitySearchTV } from "@/hooks/useSearch";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
-import MovieListCard from "@/components/MovieListCard"; // Import MovieListCard
+import MovieListCard from "@/components/MovieListCard";
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
 import ViewToggle from "@/components/ToogleView";
+import { useQueryClient } from "@tanstack/react-query"; // Import queryClient
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState(""); // Store the search term
   const [query, setQuery] = useState("");
-  const [advancedOpen, setAdvancedOpen] = useState(false); // Control the collapse of Advanced Search
-  const [category, setCategory] = useState("Movie"); // Toggle between Movie and TV search
-  const [view, setView] = useState("card"); // State to toggle between views (card or list)
-  const { ref, inView } = useInView(); // Observer for infinite scroll
+  const [category, setCategory] = useState("Movie");
+  const [view, setView] = useState("card");
+  const { ref, inView } = useInView();
 
-  // Choose the appropriate search hook based on the selected category
+  // Get query and category from session storage when the component mounts
+  useEffect(() => {
+    const storedQuery = sessionStorage.getItem("searchQuery");
+    const storedCategory = sessionStorage.getItem("category");
+
+    if (storedQuery) {
+      setQuery(storedQuery);
+      setSearchQuery(storedQuery);
+    }
+
+    if (storedCategory) {
+      setCategory(storedCategory);
+    }
+  }, []);
+
   const {
     data: movieData,
     isLoading: isMovieLoading,
@@ -43,7 +56,14 @@ export default function SearchPage() {
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSearchQuery(query); // Set searchQuery ke query yang dimasukkan
+    setSearchQuery(query);
+
+    // Update session storage and URL
+    sessionStorage.setItem("searchQuery", query);
+
+    // Update URL with the new query
+    const newUrl = `?query=${encodeURIComponent(query)}`;
+    window.history.pushState(null, "", newUrl);
   };
 
   useEffect(() => {
@@ -56,12 +76,13 @@ export default function SearchPage() {
     }
   }, [inView, category]);
 
-  const handleCategoryChange = (category: string) => {
-    setCategory(category);
+  const handleCategoryChange = (newCategory: string) => {
+    setCategory(newCategory);
+    sessionStorage.setItem("category", newCategory); // Save selected category in sessionStorage
   };
 
-  const handleViewChange = (view: string) => {
-    setView(view);
+  const handleViewChange = (newView: string) => {
+    setView(newView);
   };
 
   const IsEmptyTv = tvData?.pages?.[0]?.tvShows?.length === 0;
@@ -96,7 +117,10 @@ export default function SearchPage() {
       {/* Toggle between Movie and TV */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
         <div className="w-full sm:w-auto">
-          <ToggleType selectedView={category} onViewChange={handleCategoryChange} />
+          <ToggleType
+            selectedView={category}
+            onViewChange={handleCategoryChange}
+          />
         </div>
         <div className="flex flex-row justify-end">
           <ViewToggle selectedView={view} onViewChange={handleViewChange} />
@@ -127,8 +151,7 @@ export default function SearchPage() {
             <LayoutTemplate layout={view}>
               {movieData?.pages.map((page, pageIndex) => (
                 <React.Fragment key={pageIndex}>
-                  {page.movies.map((movie, index) => (
-                    // Tampilkan MovieCard jika view === "card", jika tidak tampilkan MovieListCard
+                  {page.movies.map((movie, index) =>
                     view === "card" ? (
                       <MovieCard
                         key={index}
@@ -148,7 +171,7 @@ export default function SearchPage() {
                         type="movie"
                       />
                     )
-                  ))}
+                  )}
                 </React.Fragment>
               ))}
             </LayoutTemplate>
@@ -166,8 +189,7 @@ export default function SearchPage() {
             <LayoutTemplate layout={view}>
               {tvData?.pages.map((page, pageIndex) => (
                 <React.Fragment key={pageIndex}>
-                  {page.tvShows.map((tv, index) => (
-                    // Tampilkan MovieCard jika view === "card", jika tidak tampilkan MovieListCard
+                  {page.tvShows.map((tv, index) =>
                     view === "card" ? (
                       <MovieCard
                         key={index}
@@ -187,7 +209,7 @@ export default function SearchPage() {
                         type="tv"
                       />
                     )
-                  ))}
+                  )}
                 </React.Fragment>
               ))}
             </LayoutTemplate>
@@ -195,7 +217,7 @@ export default function SearchPage() {
         </div>
       )}
 
-      {query === "" && (
+      {query === "" && !isMovieLoading && !isTVLoading && (
         <div className="flex justify-center items-center h-screen">
           <p className="text-white text-center text-2xl font-bold">
             Enter a search query
