@@ -54,6 +54,9 @@ export default function SearchPage() {
     }
   }, [inView, category]);
 
+  const IsEmptyTv = tvData?.pages?.[0]?.tvShows?.length === 0;
+  const IsEmptyMovie = movieData?.pages?.[0]?.movies?.length === 0;
+
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold text-white mb-4">Search {category}</h1>
@@ -101,58 +104,84 @@ export default function SearchPage() {
       {/* Show search results based on category */}
       {category === "Movie" ? (
         <div className="mt-6">
-          <LayoutTemplate layout="card">
-            {movieData?.pages.map((page, pageIndex) => (
-              <React.Fragment key={pageIndex}>
-                {page.movies.map((movie, index) => (
-                  <MovieCard
-                    key={index}
-                    id={movie.id}
-                    title={movie.title}
-                    overview={movie.overview || "No Overview"}
-                    posterPath={movie.poster_path || ""}
-                    type="movie"
-                  />
-                ))}
-              </React.Fragment>
-            ))}
-          </LayoutTemplate>
+          {IsEmptyMovie && searchQuery !== "" ? (
+            <div className="flex justify-center items-center h-screen">
+              <p className="text-white text-center text-2xl font-bold">
+                No results found for "{searchQuery}"
+              </p>
+            </div>
+          ) : (
+            <LayoutTemplate layout="card">
+              {movieData?.pages.map((page, pageIndex) => (
+                <React.Fragment key={pageIndex}>
+                  {page.movies.map((movie, index) => (
+                    <MovieCard
+                      key={index}
+                      id={movie.id}
+                      title={movie.title}
+                      overview={movie.overview || "No Overview"}
+                      posterPath={movie.poster_path || ""}
+                      type="movie"
+                    />
+                  ))}
+                </React.Fragment>
+              ))}
+            </LayoutTemplate>
+          )}
         </div>
       ) : (
         <div className="mt-6">
-          <LayoutTemplate layout="card">
-            {tvData?.pages.map((page, pageIndex) => (
-              <React.Fragment key={pageIndex}>
-                {page.tvShows.map((tv, index) => (
-                  <MovieCard
-                    key={index}
-                    id={tv.id}
-                    title={tv.name}
-                    overview={tv.overview || "No Overview"}
-                    posterPath={tv.poster_path || ""}
-                    type="tv"
-                  />
-                ))}
-              </React.Fragment>
-            ))}
-          </LayoutTemplate>
+          {IsEmptyTv && searchQuery !== "" ? (
+            <div className="flex justify-center items-center h-screen">
+              <p className="text-white text-center text-2xl font-bold">
+                No results found for "{searchQuery}"
+              </p>
+            </div>
+          ) : (
+            <LayoutTemplate layout="card">
+              {tvData?.pages.map((page, pageIndex) => (
+                <React.Fragment key={pageIndex}>
+                  {page.tvShows.map((tv, index) => (
+                    <MovieCard
+                      key={index}
+                      id={tv.id}
+                      title={tv.name}
+                      overview={tv.overview || "No Overview"}
+                      posterPath={tv.poster_path || ""}
+                      type="tv"
+                    />
+                  ))}
+                </React.Fragment>
+              ))}
+            </LayoutTemplate>
+          )}
         </div>
       )}
 
       {query === "" && (
         <div className="flex justify-center items-center h-screen">
-          <p className="text-white text-center text-2xl font-bold">Enter a search query</p>
+          <p className="text-white text-center text-2xl font-bold">
+            Enter a search query
+          </p>
         </div>
       )}
 
       {/* Infinite Scroll Loading Indicator */}
       {(isFetchingMovieNextPage || isFetchingTVNextPage) && <NewDataLoading />}
-      {!hasMovieNextPage && category === "Movie" && query !== "" && (
-        <p className="text-white text-center">No more Movies to load</p>
-      )}
-      {!hasTVNextPage && category === "TV" && query !== "" && (
-        <p className="text-white text-center">No more TV shows to load</p>
-      )}
+      {!hasMovieNextPage &&
+        category === "Movie" &&
+        query !== "" &&
+        !IsEmptyMovie &&
+        !isMovieLoading && (
+          <p className="text-white text-center">No more Movies to load</p>
+        )}
+      {!hasTVNextPage &&
+        category === "TV" &&
+        query !== "" &&
+        !IsEmptyTv &&
+        !isTVLoading && (
+          <p className="text-white text-center">No more TV shows to load</p>
+        )}
 
       {/* Infinite Scroll Trigger Element */}
       <div ref={ref} className="h-1"></div>
