@@ -34,7 +34,7 @@ async function fetchPersonImages(id: number): Promise<Images[]> {
   // Hook untuk menggunakan React Query
   export const usePersonImages = (id: number) => {
     return useQuery<Images[], Error>({
-      queryKey: ['person/detail', id],
+      queryKey: ['person/detail/images', id],
       queryFn: () => fetchPersonImages(id),
     });
   };
@@ -76,7 +76,7 @@ async function fetchPersonImages(id: number): Promise<Images[]> {
   // Hook untuk menggunakan React Query
   export const usePersonTvCredits = (id: number) => {
     return useQuery<{ cast: TvCast[]; crew: TvCrew[] }, Error>({
-      queryKey: ['person/movie_credits', id],
+      queryKey: ['person/tv_credits', id],
       queryFn: () => fetchTvCredits(id),
     });
   };

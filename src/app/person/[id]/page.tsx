@@ -1,111 +1,147 @@
-
 "use client";
-import React from "react";
-import { motion } from "framer-motion"; 
-import Image from "next/image";
+import { useState } from "react";
+import { useParams } from "next/navigation";
+import {
+  useDetailPerson,
+  usePersonImages,
+  usePersonMovieCredits,
+  usePersonTvCredits,
+} from "@/hooks/usePerson";
+import { motion } from "framer-motion";
+import MovieList from "@/components/MovieListCard";
 
-const PersonDetailPage = () => {
-  const person = {
-    "adult": false,
-    "also_known_as": [
-      "스칼릿 조핸슨",
-      "Σκάρλετ Τζοχάνσον",
-      "Scarlett Ingrid Johansson",
-      "اسکارلت جوهانسن",
-      "สการ์เลตต์ อิงกริด โจแฮนส์สัน"
-    ],
-    "biography": "Scarlett Ingrid Johansson (born November 22, 1984) is an American actress. The world's highest-paid actress in 2018 and 2019, she has featured multiple times on the Forbes Celebrity 100 list. Her films have grossed over $14.3 billion worldwide, making Johansson the ninth-highest-grossing box office star of all time. She has received various accolades, including a Tony Award and a British Academy Film Award, in addition to nominations for two Academy Awards and five Golden Globe Awards.",
-    "birthday": "1984-11-22",
-    "gender": 1,
-    "id": 1245,
-    "known_for_department": "Acting",
-    "name": "Scarlett Johansson",
-    "place_of_birth": "New York City, New York, USA",
-    "popularity": 100.199,
-    "profile_path": "/6NsMbJXRlDZuDzatN2akFdGuTvx.jpg"
-  };
+const DetailPersonPage = () => {
+  const params = useParams();
+  const id = typeof params.id === "string" ? parseInt(params.id, 10) : 0;
+  const [showFullBio, setShowFullBio] = useState(false);
+  const [showMoreMovies, setShowMoreMovies] = useState(false);
+  const [showMoreTV, setShowMoreTV] = useState(false);
+  const initialDisplayCount = 5; // Jumlah item yang ditampilkan secara default
+
+  // Hooks for data fetching
+  const { data: person, isLoading: loadingPerson } = useDetailPerson(id);
+  const { data: profiles, isLoading: loadingImages } = usePersonImages(id);
+  const { data: movieCredits, isLoading: loadingMovies } =
+    usePersonMovieCredits(id);
+  const { data: tvCredits, isLoading: loadingTv } = usePersonTvCredits(id);
+
+  if (loadingPerson || loadingImages || loadingMovies || loadingTv)
+    return <div className="text-white">Loading...</div>;
+
+  // Trim biography and add "See More" functionality
+  const biography = person?.biography || "";
+  const trimmedBio =
+    biography.length > 300 ? biography.substring(0, 300) + "..." : biography;
+
+  // Movie and TV shows display logic
+  const displayedMovies = showMoreMovies ? movieCredits?.cast : movieCredits?.cast.slice(0, initialDisplayCount);
+  const displayedTVShows = showMoreTV ? tvCredits?.cast : tvCredits?.cast.slice(0, initialDisplayCount);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      {/* Container utama */}
-      <motion.div
-        className="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto"
-        initial={{ opacity: 0, y: 50 }}
+    <div className="portfolio p-8 max-w-7xl mx-auto text-white">
+      {/* Header Section */}
+      <motion.header
+        initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="header text-center mb-8"
       >
-        {/* Gambar profil */}
-        <motion.div
-          className="flex-shrink-0 rounded-lg overflow-hidden"
-          whileHover={{ scale: 1.05 }}
-        >
-          <Image
-            src={`https://image.tmdb.org/t/p/w500${person.profile_path}`}
-            alt={person.name}
-            width={300}
-            height={450}
-            className="rounded-lg shadow-lg"
-          />
-        </motion.div>
+        <h1 className="text-4xl font-bold mb-2">{person?.name}</h1>
+        <p className="text-lg text-gray-400">{person?.known_for_department}</p>
+      </motion.header>
 
-        {/* Informasi utama */}
-        <motion.div
-          className="flex-1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-        >
-          <h1 className="text-4xl font-bold mb-4">
-            {person.name}
-          </h1>
-          <p className="text-lg mb-2">
-            <strong>Known for:</strong> {person.known_for_department}
-          </p>
-          <p className="text-lg mb-2">
-            <strong>Birthday:</strong> {new Date(person.birthday).toLocaleDateString()}
-          </p>
-          <p className="text-lg mb-2">
-            <strong>Place of Birth:</strong> {person.place_of_birth}
-          </p>
-
-          {/* Alias (also known as) */}
-          <motion.div
-            className="mt-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          >
-            <h3 className="text-2xl font-semibold mb-2">Also Known As:</h3>
-            <ul className="list-disc pl-4">
-              {person.also_known_as.map((alias, index) => (
-                <motion.li
-                  key={index}
-                  whileHover={{ x: 10, color: "#FFD700" }}
-                  transition={{ type: "spring", stiffness: 100 }}
-                  className="text-lg"
-                >
-                  {alias}
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
-        </motion.div>
-      </motion.div>
-
-      {/* Biografi */}
-      <motion.div
-        className="mt-12 max-w-4xl mx-auto"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.8 }}
+      {/* Biography Section */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 0.5 }}
+        className="bio mb-8"
       >
-        <h2 className="text-3xl font-bold mb-4">Biography</h2>
-        <p className="text-lg leading-7">
-          {person.biography}
+        <h2 className="text-3xl font-semibold mb-4">Biography</h2>
+        <p className="text-gray-300">
+          {showFullBio ? biography : trimmedBio}
+          {biography.length > 300 && (
+            <button
+              onClick={() => setShowFullBio(!showFullBio)}
+              className="text-blue-500 hover:underline ml-2"
+            >
+              {showFullBio ? "See Less" : "See More"}
+            </button>
+          )}
         </p>
-      </motion.div>
+      </motion.section>
+
+      {/* Gallery Section */}
+      <motion.section className="gallery mb-8">
+        <h2 className="text-3xl font-semibold mb-4">Gallery</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {profiles?.map((profile, index) => (
+            <motion.img
+              key={profile.file_path}
+              src={`https://image.tmdb.org/t/p/w500${profile.file_path}`}
+              alt="profile"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: index * 0.2, duration: 1, ease: "easeOut" }}
+              className="rounded-lg hover:scale-105 transition-transform duration-300"
+            />
+          ))}
+        </div>
+      </motion.section>
+
+      {/* Movie Credits Section */}
+      <section className="movie-credits mb-8">
+        <h2 className="text-3xl font-semibold mb-4">Movie Credits</h2>
+        {displayedMovies?.length === 0 && (
+          <p className="text-gray-300 text-center font-bold text-2xl">No movies found.</p>
+        )}
+        {displayedMovies?.map((cast) => (
+          <MovieList
+            key={cast.id}
+            id={cast.id}
+            title={`${cast.title} (${cast.character})`} // Menambahkan karakter di sini
+            overview={cast.overview}
+            posterPath={cast.poster_path}
+            type="movie"
+          />
+        ))}
+        {movieCredits!.cast.length > initialDisplayCount && (
+          <button
+            onClick={() => setShowMoreMovies(!showMoreMovies)}
+            className="text-blue-500 hover:underline mt-2"
+          >
+            {showMoreMovies ? "Show Less" : "Show More"}
+          </button>
+        )}
+      </section>
+
+      {/* TV Credits Section */}
+      <section className="tv-credits mb-8">
+        <h2 className="text-3xl font-semibold mb-4">TV Credits</h2>
+        {displayedTVShows?.length === 0 && (
+          <p className="text-gray-300 text-center font-bold text-2xl">No TV shows found.</p>
+        )}
+        {displayedTVShows?.map((cast) => (
+          <MovieList
+            key={cast.id}
+            id={cast.id}
+            title={`${cast.name} (${cast.character})`} // Menambahkan karakter di sini
+            overview={cast.overview}
+            posterPath={cast.poster_path}
+            type="tv"
+          />
+        ))}
+        {tvCredits!.cast.length > initialDisplayCount && (
+          <button
+            onClick={() => setShowMoreTV(!showMoreTV)}
+            className="text-blue-500 hover:underline mt-2"
+          >
+            {showMoreTV ? "Show Less" : "Show More"}
+          </button>
+        )}
+      </section>
     </div>
   );
 };
 
-export default PersonDetailPage;
+export default DetailPersonPage;
