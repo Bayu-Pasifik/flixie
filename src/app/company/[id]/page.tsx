@@ -12,6 +12,9 @@ import { motion } from "framer-motion";
 import MovieCard from "@/components/MovieCard";
 import { FaGlobe } from "react-icons/fa";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
+import SkeletonMovieCard from "@/components/SkeletonMovieCard";
+import LoadingIndicator from "@/components/LoadingIndicator";
+
 const DetailCompanyPage = () => {
   const params = useParams();
   const id = typeof params.id === "string" ? parseInt(params.id, 10) : 0;
@@ -19,13 +22,12 @@ const DetailCompanyPage = () => {
 
   // Fetch data
   const { data: company, isLoading: loadingCompany } = useDetailCompany(id);
-  const { data: companyImages, isLoading: loadingImages } =
-    useCompanyImages(id);
-  const { data: movieData } = useInfinityMovieByCompany(id);
-  const { data: tvData } = useInfinityTvByCompany(id);
+  const { data: companyImages, isLoading: loadingImages } = useCompanyImages(id);
+  const { data: movieData, isLoading: loadingMovie } = useInfinityMovieByCompany(id);
+  const { data: tvData, isLoading: loadingTv } = useInfinityTvByCompany(id);
 
-  if (loadingCompany || loadingImages)
-    return <div className="text-white">Loading...</div>;
+  if (loadingCompany)
+    return <div className="text-white"><LoadingIndicator /></div>;
 
   // Determine how many logos to show
   const logosToShow = showAllLogos ? companyImages : companyImages?.slice(0, 8);
@@ -74,12 +76,17 @@ const DetailCompanyPage = () => {
             </button>
           )}
         </div>
-        {/* <div className="flex flex-wrap gap-4">
-         
-        </div> */}
-        <LayoutTemplate layout="80rem">
+        <LayoutTemplate layout="card">
           {logosToShow?.map((logo, index) => (
-            <div key={index} className="w-auto h-auto mx-auto bg-gray-500 rounded-lg hover:scale-105 transition-transform duration-300">
+            loadingImages
+            ? Array(8)
+                .fill(0)
+                .map((_, index) => <SkeletonMovieCard key={`images-skeleton-${index}`} />)
+            :
+            <div
+              key={index}
+              className="w-auto h-auto mx-auto bg-gray-500 rounded-lg hover:scale-105 transition-transform duration-300"
+            >
               <motion.img
                 key={logo.file_path}
                 src={`https://image.tmdb.org/t/p/w200${logo.file_path}`}
@@ -103,15 +110,19 @@ const DetailCompanyPage = () => {
           </Link>
         </div>
         <LayoutTemplate layout="80rem">
-          {movieData?.pages[0].movies.slice(0, 8).map((movie) => (
-            <MovieCard
-              key={movie.id}
-              id={movie.id}
-              title={movie.title}
-              overview={movie.overview || "No overview"}
-              posterPath={movie.poster_path || ""}
-            />
-          ))}
+          {loadingMovie
+            ? Array(8)
+                .fill(0)
+                .map((_, index) => <SkeletonMovieCard key={`movie-skeleton-${index}`} />)
+            : movieData?.pages[0].movies.slice(0, 8).map((movie) => (
+                <MovieCard
+                  key={movie.id}
+                  id={movie.id}
+                  title={movie.title}
+                  overview={movie.overview || "No overview"}
+                  posterPath={movie.poster_path || ""}
+                />
+              ))}
         </LayoutTemplate>
       </section>
 
@@ -127,15 +138,20 @@ const DetailCompanyPage = () => {
           </Link>
         </div>
         <LayoutTemplate layout="80rem">
-          {tvData?.pages[0].tvShows.slice(0, 8).map((tvShow) => (
-            <MovieCard
-              key={tvShow.id}
-              id={tvShow.id}
-              title={tvShow.name}
-              overview={tvShow.overview || "No overview"}
-              posterPath={tvShow.poster_path || ""}
-            />
-          ))}
+          {loadingTv
+            ? Array(8)
+                .fill(0)
+                .map((_, index) => <SkeletonMovieCard key={`tv-skeleton-${index}`} />)
+            : tvData?.pages[0].tvShows.slice(0, 8).map((tvShow) => (
+                <MovieCard
+                  key={tvShow.id}
+                  id={tvShow.id}
+                  title={tvShow.name}
+                  overview={tvShow.overview || "No overview"}
+                  posterPath={tvShow.poster_path || ""}
+                  type="tv"
+                />
+              ))}
         </LayoutTemplate>
       </section>
     </div>
