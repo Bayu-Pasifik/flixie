@@ -3,10 +3,12 @@
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
 import MovieListCard from "@/components/MovieListCard";
+import NewDataLoading from "@/components/NewDataLoading";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import { useDetailCompany, useInfinityTvByCompany } from "@/hooks/useCompany";
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 
 export default function DetailCompanyTvShowPage() {
   const { id } = useParams();
@@ -20,6 +22,13 @@ export default function DetailCompanyTvShowPage() {
     hasNextPage: hasNextPageTv,
     isFetchingNextPage: isFetchingNextPageTv,
   } = useInfinityTvByCompany(companyId);
+
+  const { ref, inView } = useInView({ threshold: 0.1 });
+  useEffect(() => {
+    if (inView) {
+      fetchNextPageTv();
+    }
+  }, [inView, fetchNextPageTv]);
   return (
     <div className="p-4  text-white">
       <h1 className="text-2xl font-bold mb-4">
@@ -47,6 +56,11 @@ export default function DetailCompanyTvShowPage() {
               </React.Fragment>
             ))}
       </LayoutTemplate>
+      <div ref={ref} className="h1" />
+      {isFetchingNextPageTv && <NewDataLoading />}
+      {!hasNextPageTv && (
+        <div className="text-center font-bold text-2xl my-3"> Congrat's you reached the end of list</div>
+      )}
     </div>
   );
 }
