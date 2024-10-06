@@ -26,7 +26,7 @@ export default function CompanyPage() {
     isError: searchError,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
   } = useInfinityCompany(searchQuery); // Menggunakan searchQuery untuk mengambil data
 
   const { ref: loadMoreRef, inView } = useInView({

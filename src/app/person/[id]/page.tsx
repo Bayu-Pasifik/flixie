@@ -101,7 +101,7 @@ const DetailPersonPage = () => {
             id={cast.id}
             title={`${cast.title} (${cast.character})`} // Menambahkan karakter di sini
             overview={cast.overview}
-            posterPath={cast.poster_path}
+            posterPath={cast.poster_path || ""}
             type="movie"
           />
         ))}
@@ -127,7 +127,7 @@ const DetailPersonPage = () => {
             id={cast.id}
             title={`${cast.name} (${cast.character})`} // Menambahkan karakter di sini
             overview={cast.overview}
-            posterPath={cast.poster_path}
+            posterPath={cast.poster_path || ""}
             type="tv"
           />
         ))}
