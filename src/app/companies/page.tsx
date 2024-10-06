@@ -92,7 +92,7 @@ export default function CompanyPage() {
                     key={company.id}
                     id={company.id}
                     title={company.name}
-                    posterPath={""}
+                    posterPath={company.logo_path || ""}
                     overview=""
                     type="company"
                   />
