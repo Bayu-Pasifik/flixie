@@ -51,11 +51,20 @@ const DetailPersonPage = () => {
         transition={{ duration: 1, ease: "easeOut" }}
         className="header text-center mb-8"
       >
-        <img
-          className="w-52 h-52 rounded-full mx-auto mb-4"
-          src={`https://image.tmdb.org/t/p/w500${person?.profile_path}`}
-          alt="profile"
-        />
+        {person?.profile_path == null && (
+          <img
+            className="w-52 h-52 rounded-full mx-auto mb-4"
+            src="/no_images.jpg"
+            alt="profile"
+          />
+        )}
+        {person?.profile_path != null && (
+          <img
+            className="w-52 h-52 rounded-full mx-auto mb-4"
+            src={process.env.NEXT_PUBLIC_IMAGE_URL! + `${person?.profile_path}`}
+            alt="profile"
+          />
+        )}
         <h1 className="text-4xl font-bold mb-2">{person?.name}</h1>
         <p className="text-lg text-gray-400">{person?.known_for_department}</p>
       </motion.header>
@@ -69,6 +78,9 @@ const DetailPersonPage = () => {
       >
         <h2 className="text-3xl font-semibold mb-4">Biography</h2>
         <p className="text-gray-300 md:text-justify">
+          {biography == "" && (
+            <p className="text-center text-2xl font-bold">No biography available.</p>
+          )}
           {showFullBio ? biography : trimmedBio}
           {biography.length > 300 && (
             <button
@@ -94,9 +106,13 @@ const DetailPersonPage = () => {
             </Link>
           )}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <ZoomPicture pictures={profiles!}/>
-        </div>
+        {profiles && profiles.length == 0 ? (
+          <p className="text-center text-2xl font-bold">No images available.</p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <ZoomPicture pictures={profiles!.slice(0, 6)} />
+          </div>
+        )}
       </motion.section>
 
       {/* Movie Credits Section */}
@@ -112,6 +128,9 @@ const DetailPersonPage = () => {
             </Link>
           )}
         </div>
+        {movieCredits && movieCredits.cast.length == 0 && (
+          <p className="text-center text-2xl font-bold">No movies available.</p>
+        )}
         <LayoutTemplate layout="80rem">
           {loadingMovies ? (
             Array.from({ length: initialDisplayCount }).map((_, index) => (
@@ -148,6 +167,9 @@ const DetailPersonPage = () => {
             </Link>
           )}
         </div>
+        {tvCredits && tvCredits.cast.length == 0 && (
+          <p className="text-center text-2xl font-bold">No TV shows available.</p>
+        )}
         <LayoutTemplate layout="80rem">
           {loadingTv ? (
             Array.from({ length: initialDisplayCount }).map((_, index) => (
