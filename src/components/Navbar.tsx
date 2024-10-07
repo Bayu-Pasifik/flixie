@@ -53,7 +53,9 @@ export default function Navbar() {
           <Link href="/" passHref>
             <Button
               variant="ghost"
-              className={`hover:bg-gray-700 ${activeMenu === "/" ? "bg-gray-700" : ""}`} // Active background
+              className={`hover:bg-gray-700 ${
+                activeMenu === "/" ? "bg-gray-700" : ""
+              }`} // Active background
               onClick={() => setActiveMenu("/")} // Update active menu
             >
               Home
@@ -62,7 +64,9 @@ export default function Navbar() {
           <Link href="/tv" passHref>
             <Button
               variant="ghost"
-              className={`hover:bg-gray-700 ${activeMenu === "/tv" ? "bg-gray-700" : ""}`} // Active background
+              className={`hover:bg-gray-700 ${
+                activeMenu === "/tv" ? "bg-gray-700" : ""
+              }`} // Active background
               onClick={() => setActiveMenu("/tv")} // Update active menu
             >
               TV Series
@@ -71,17 +75,21 @@ export default function Navbar() {
           <Link href="/person" passHref>
             <Button
               variant="ghost"
-              className={`hover:bg-gray-700 ${activeMenu === "/person" ? "bg-gray-700" : ""}`} // Active background
+              className={`hover:bg-gray-700 ${
+                activeMenu === "/person" ? "bg-gray-700" : ""
+              }`} // Active background
               onClick={() => setActiveMenu("/person")} // Update active menu
             >
               Peoples
             </Button>
           </Link>
-          <Link href="/companies" passHref>
+          <Link href="/company" passHref>
             <Button
               variant="ghost"
-              className={`hover:bg-gray-700 ${activeMenu === "/companies" ? "bg-gray-700" : ""}`} // Active background
-              onClick={() => setActiveMenu("/companies")} // Update active menu
+              className={`hover:bg-gray-700 ${
+                activeMenu === "/company" ? "bg-gray-700" : ""
+              }`} // Active background
+              onClick={() => setActiveMenu("/company")} // Update active menu
             >
               Companies
             </Button>
@@ -91,7 +99,12 @@ export default function Navbar() {
         {/* Icons on the right */}
         <div className="hidden md:flex items-center space-x-4">
           <Link href="/search">
-            <Button variant="ghost" className= {`hover:bg-gray-700 ${activeMenu === "/search" ? "bg-white" : ""}`}>
+            <Button
+              variant="ghost"
+              className={`hover:bg-gray-700 ${
+                activeMenu === "/search" ? "bg-white" : ""
+              }`}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
@@ -169,9 +182,11 @@ export default function Navbar() {
               <Link href="/" passHref>
                 <Button
                   variant="ghost"
-                  className={`text-xl hover:bg-gray-700 ${activeMenu === "/" ? "bg-gray-700" : ""}`} // Active background
-                  onClick={() => { 
-                    setActiveMenu("/"); 
+                  className={`text-xl hover:bg-gray-700 ${
+                    activeMenu === "/" ? "bg-gray-700" : ""
+                  }`} // Active background
+                  onClick={() => {
+                    setActiveMenu("/");
                     setIsOpen(false); // Close menu when clicked
                   }}
                 >
@@ -181,9 +196,11 @@ export default function Navbar() {
               <Link href="/tv" passHref>
                 <Button
                   variant="ghost"
-                  className={`text-xl hover:bg-gray-700 ${activeMenu === "/tv" ? "bg-gray-700" : ""}`} // Active background
-                  onClick={() => { 
-                    setActiveMenu("/tv"); 
+                  className={`text-xl hover:bg-gray-700 ${
+                    activeMenu === "/tv" ? "bg-gray-700" : ""
+                  }`} // Active background
+                  onClick={() => {
+                    setActiveMenu("/tv");
                     setIsOpen(false); // Close menu when clicked
                   }}
                 >
@@ -193,21 +210,25 @@ export default function Navbar() {
               <Link href="/person" passHref>
                 <Button
                   variant="ghost"
-                  className={`text-xl hover:bg-gray-700 ${activeMenu === "/person" ? "bg-gray-700" : ""}`} // Active background
-                  onClick={() => { 
-                    setActiveMenu("/person"); 
+                  className={`text-xl hover:bg-gray-700 ${
+                    activeMenu === "/person" ? "bg-gray-700" : ""
+                  }`} // Active background
+                  onClick={() => {
+                    setActiveMenu("/person");
                     setIsOpen(false); // Close menu when clicked
                   }}
                 >
                   Peoples
                 </Button>
               </Link>
-              <Link href="/companies" passHref>
+              <Link href="/company" passHref>
                 <Button
                   variant="ghost"
-                  className={`text-xl hover:bg-gray-700 ${activeMenu === "/companies" ? "bg-gray-700" : ""}`} // Active background
-                  onClick={() => { 
-                    setActiveMenu("/companies"); 
+                  className={`text-xl hover:bg-gray-700 ${
+                    activeMenu === "/company" ? "bg-gray-700" : ""
+                  }`} // Active background
+                  onClick={() => {
+                    setActiveMenu("/company");
                     setIsOpen(false); // Close menu when clicked
                   }}
                 >

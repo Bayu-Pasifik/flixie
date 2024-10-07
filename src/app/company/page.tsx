@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useCompanyData from "@/util/useCompanyJson";
 import { useInfinityCompany } from "@/hooks/useCompany";
 import MovieCard from "@/components/MovieCard";
@@ -17,7 +17,7 @@ export default function CompanyPage() {
   } = useCompanyData();
 
   const [query, setQuery] = useState("");
-  const [searchQuery, setSearchQuery] = useState(""); // State untuk menyimpan query pencarian yang sebenarnya
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Hook untuk mengambil hasil pencarian berdasarkan query di search bar
   const {
@@ -27,30 +27,39 @@ export default function CompanyPage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfinityCompany(searchQuery); // Menggunakan searchQuery untuk mengambil data
+  } = useInfinityCompany(searchQuery);
 
   const { ref: loadMoreRef, inView } = useInView({
     threshold: 1.0,
   });
 
+  // Saat komponen pertama kali dimuat, ambil query dari sessionStorage jika ada
+  useEffect(() => {
+    const storedQuery = sessionStorage.getItem("searchQuery");
+    if (storedQuery) {
+      setQuery(storedQuery);
+      setSearchQuery(storedQuery);
+    }
+  }, []);
+
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Jika search bar kosong, tidak melakukan pencarian
     if (query.trim() === "") {
-      console.log("Search bar is empty, displaying local companies.");
-      setSearchQuery(""); // Reset searchQuery jika kosong
+      sessionStorage.removeItem("searchQuery");
+      setSearchQuery("");
     } else {
-      console.log(`Searching for companies with name: ${query}`);
-      setSearchQuery(query); // Set searchQuery ke query yang dimasukkan
+      sessionStorage.setItem("searchQuery", query);
+      setSearchQuery(query);
     }
   };
 
   // Memanggil fetchNextPage saat elemen terpapar
-  React.useEffect(() => {
-    if (inView && hasNextPage && !searchLoading) {
+  useEffect(() => {
+    if (inView) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage, searchLoading, fetchNextPage]);
+  }, [inView, fetchNextPage]);
 
   return (
     <div className="p-4">
@@ -78,7 +87,6 @@ export default function CompanyPage() {
 
       {/* Display Data */}
       <div>
-        {/* Jika search bar kosong, tampilkan data dari company.json */}
         {searchQuery.trim() === "" ? (
           <div>
             {companyLoading && <LoadingIndicator />}
