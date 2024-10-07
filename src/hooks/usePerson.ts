@@ -40,6 +40,8 @@ async function fetchPersonImages(id: number): Promise<Images[]> {
   };
   async function fetchMovieCredits(id: number): Promise<{ cast: Cast[]; crew: Crew[] }> {
     try {
+        // Simulate delay to show animations
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
       const response = await axiosInstance.get(`/person/${id}/movie_credits`);
       // Asumsi bahwa API mengembalikan object dengan cast dan crew
       return {
@@ -61,6 +63,8 @@ async function fetchPersonImages(id: number): Promise<Images[]> {
   };
   async function fetchTvCredits(id: number): Promise<{ cast: TvCast[]; crew: TvCrew[] }> {
     try {
+        // Simulate delay to show animations
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
       const response = await axiosInstance.get(`/person/${id}/tv_credits`);
       // Asumsi bahwa API mengembalikan object dengan cast dan crew
       return {

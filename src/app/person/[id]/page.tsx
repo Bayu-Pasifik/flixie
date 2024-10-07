@@ -11,6 +11,8 @@ import {
 import { motion } from "framer-motion";
 import MovieCard from "@/components/MovieCard";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
+import SkeletonMovieCard from "@/components/SkeletonMovieCard";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 const DetailPersonPage = () => {
   const params = useParams();
@@ -21,12 +23,18 @@ const DetailPersonPage = () => {
   // Hooks for data fetching
   const { data: person, isLoading: loadingPerson } = useDetailPerson(id);
   const { data: profiles, isLoading: loadingImages } = usePersonImages(id);
-  const { data: movieCredits, isLoading: loadingMovies } =
-    usePersonMovieCredits(id);
-  const { data: tvCredits, isLoading: loadingTv } = usePersonTvCredits(id);
+  const {
+    data: movieCredits,
+    isLoading: loadingMovies,
+    error: movieError,
+  } = usePersonMovieCredits(id);
+  const {
+    data: tvCredits,
+    isLoading: loadingTv,
+    error: tvError,
+  } = usePersonTvCredits(id);
 
-  if (loadingPerson || loadingImages || loadingMovies || loadingTv)
-    return <div className="text-white">Loading...</div>;
+  if (loadingPerson || loadingImages) return <LoadingIndicator />;
 
   // Trim biography and add "See More" functionality
   const biography = person?.biography || "";
@@ -76,25 +84,22 @@ const DetailPersonPage = () => {
       <motion.section className="gallery mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-semibold mb-4">Gallery</h2>
-          {/* {profiles && profiles.length > 10 && (
-            <button
-              className="text-blue-500 hover:underline mt-4"
-              onClick={() => setShowFullBio(!showFullBio)}
+          {profiles && profiles.length > initialDisplayCount && (
+            <Link
+              href={`/person/${id}/images`}
+              className="text-blue-500 hover:underline text-base"
             >
-              {showFullBio ? "See Less" : "See More"}
-            </button>
-          )} */}
+              See More Images
+            </Link>
+          )}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {profiles?.slice(0, 6).map((profile, index) => (
             <motion.img
-              key={profile.file_path}
+              key={index}
               src={`https://image.tmdb.org/t/p/w500${profile.file_path}`}
               alt="profile"
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: index * 0.2, duration: 1, ease: "easeOut" }}
-              className="rounded-lg hover:scale-105 transition-transform duration-300"
+              className="rounded-lg"
             />
           ))}
         </div>
@@ -114,15 +119,25 @@ const DetailPersonPage = () => {
           )}
         </div>
         <LayoutTemplate layout="80rem">
-          {movieCredits?.cast.slice(0, initialDisplayCount).map((cast) => (
-            <MovieCard
-              key={cast.id}
-              id={cast.id}
-              title={cast.title}
-              overview={cast.overview || "No Reviews"}
-              posterPath={cast.poster_path || ""}
-            />
-          ))}
+          {loadingMovies ? (
+            Array.from({ length: initialDisplayCount }).map((_, index) => (
+              <SkeletonMovieCard key={index} />
+            ))
+          ) : movieError ? (
+            <div className="text-red-500">Error: {movieError.message}</div>
+          ) : (
+            movieCredits?.cast
+              .slice(0, initialDisplayCount)
+              .map((cast) => (
+                <MovieCard
+                  key={cast.id}
+                  id={cast.id}
+                  title={`${cast.title} (${cast.character})`}
+                  overview={cast.overview || "No overview available"}
+                  posterPath={cast.poster_path || ""}
+                />
+              ))
+          )}
         </LayoutTemplate>
       </section>
 
@@ -140,15 +155,25 @@ const DetailPersonPage = () => {
           )}
         </div>
         <LayoutTemplate layout="80rem">
-          {tvCredits?.cast.slice(0, initialDisplayCount).map((cast) => (
-            <MovieCard
-              key={cast.id}
-              id={cast.id}
-              title={`${cast.name} (${cast.character})`}
-              overview={cast.overview}
-              posterPath={cast.poster_path || ""}
-            />
-          ))}
+          {loadingTv ? (
+            Array.from({ length: initialDisplayCount }).map((_, index) => (
+              <SkeletonMovieCard key={index} />
+            ))
+          ) : tvError ? (
+            <div className="text-red-500">Error: {tvError.message}</div>
+          ) : (
+            tvCredits?.cast
+              .slice(0, initialDisplayCount)
+              .map((cast) => (
+                <MovieCard
+                  key={cast.id}
+                  id={cast.id}
+                  title={`${cast.name} (${cast.character})`}
+                  overview={cast.overview || "No overview available"}
+                  posterPath={cast.poster_path || ""}
+                />
+              ))
+          )}
         </LayoutTemplate>
       </section>
     </div>
