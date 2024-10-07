@@ -100,13 +100,18 @@ const DetailCompanyPage = () => {
       <section className="movies mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-semibold">Movies</h2>
-          <Link
-            href={`/company/${id}/movies`}
-            className="text-blue-500 hover:underline text-base"
-          >
-            See More Movies
-          </Link>
+          {movieData && movieData.pages[0].movies.length > 10 && !loadingMovie && (
+            <Link
+              href={`/company/${id}/movies`}
+              className="text-blue-500 hover:underline text-base"
+            >
+              See More Movies
+            </Link>
+          )}
         </div>
+        {movieData && movieData.pages[0].movies.length > 0 && !loadingMovie && (
+          <p className="text-center text-3xl">No movies found</p>
+        )}
         <LayoutTemplate layout="80rem">
           {loadingMovie
             ? Array(8)
@@ -132,13 +137,18 @@ const DetailCompanyPage = () => {
       <section className="tv-shows mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-semibold">TV Shows</h2>
-          <Link
-            href={`/company/${id}/tvshows`}
-            className="text-blue-500 hover:underline text-base"
-          >
-            See More TV Shows
-          </Link>
+          {logosToShow && logosToShow.length > 10 && !loadingTv && (
+            <Link
+              href={`/company/${id}/tvshows`}
+              className="text-blue-500 hover:underline text-base"
+            >
+              See More TV Shows
+            </Link>
+          )}
         </div>
+        {logosToShow && logosToShow.length > 0 && !loadingTv && (
+          <p className="text-2xl text-center">No Tv shows found</p>
+        )}
         <LayoutTemplate layout="80rem">
           {loadingTv
             ? Array(8)
