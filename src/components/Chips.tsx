@@ -17,7 +17,6 @@ interface ChipsProps {
 
 const Chips: React.FC<ChipsProps> = ({
   items,
-  baseUrl = "/discover",
   renderItem,
   noDataMessage = "No items available.",
   itemClassName = "bg-blue-600 text-white rounded-lg px-3 py-2 text-sm",
@@ -36,7 +35,7 @@ const Chips: React.FC<ChipsProps> = ({
         ) : (
           <a
             key={item.id}
-            href={`${baseUrl}/${to}/${item.id}`} // Removed the name parameter
+            href={`${to}/${item.id}`} // Removed the name parameter
           >
             <span className={itemClassName}>{item.name}</span>
           </a>

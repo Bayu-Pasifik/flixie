@@ -14,6 +14,7 @@ import { Tv } from "@/types/movieType";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
+import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 
 export default function TvPage() {
   const chosenCategories = ["airing today", "trending", "top rated"];
@@ -71,7 +72,7 @@ export default function TvPage() {
     setCurrentCategory(category);
   };
 
-  if (isLoading) return <LoadingIndicator />;
+  // if (isLoading) return <LoadingIndicator />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
@@ -103,6 +104,8 @@ export default function TvPage() {
 
       {/* Apply LayoutTemplate here with the chosen viewMode */}
       <LayoutTemplate layout={viewMode}>
+        {isLoading &&
+          Array.from({ length: 20 }).map((_, index) => <SkeletonMovieCard />)}
         {data?.pages.map((page) =>
           page.tvShows.map((tv: Tv, index) => (
             <motion.div

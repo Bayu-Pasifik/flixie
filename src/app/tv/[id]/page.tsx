@@ -19,6 +19,7 @@ import { useVideosTv } from "@/hooks/useVideo";
 import { useRecommendationsTv } from "@/hooks/useRecomendations";
 import { useReviewsTv } from "@/hooks/useReviews";
 import MovieListCard from "@/components/MovieListCard";
+import Chips from "@/components/Chips";
 
 export default function DetailTV() {
   const { id } = useParams();
@@ -161,15 +162,12 @@ export default function DetailTV() {
 
           {/* Genres */}
           <div className="mb-4">
-            <strong>Genres:</strong>{" "}
-            {tv?.genres.map((genre) => (
-              <span
-                key={genre.id}
-                className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
-              >
-                {genre.name}
-              </span>
-            ))}
+            <strong>Genres:</strong>
+            {tv?.genres.length === 0 ? (
+              <p>No genres available.</p>
+            ) : (
+              <Chips to="genres" items={tv?.genres!} />
+            )}
           </div>
 
           {/* Overview */}
@@ -184,55 +182,45 @@ export default function DetailTV() {
             {keywords && keywords.length === 0 ? (
               <p>No keywords available.</p>
             ) : (
-              <div className="flex flex-wrap mt-2">
-                {keywords?.map((keyword) => (
-                  <span
-                    key={keyword.id}
-                    className="bg-blue-600 text-white rounded-lg px-3 py-1 mr-2 mb-2 text-sm"
-                  >
-                    {keyword.name}
-                  </span>
-                ))}
-              </div>
+              <Chips to="keywords" items={keywords!} />
             )}
           </div>
-
-          {/* Airing Company */}
-          <div>
-            <p className="mb-4 font-bold">Airing Company</p>
-            <LayoutTemplate layout="mini">
-              {tv?.networks.map((company) => (
-                <MiniCard
-                  key={company.id}
-                  imagePath={
-                    company.logo_path === null
-                      ? "/no_images.jpg"
-                      : `${process.env.NEXT_PUBLIC_IMAGE_URL}${company.logo_path}`
-                  }
-                  name={company.name}
-                />
-              ))}
-            </LayoutTemplate>
-          </div>
-
-          {/* Production Company */}
-          <div className="mt-4">
-            <p className="mb-4 font-bold">Production Company</p>
-            <LayoutTemplate layout="mini">
-              {tv?.production_companies.map((company) => (
-                <MiniCard
-                  key={company.id}
-                  imagePath={
-                    company.logo_path === null
-                      ? "/no_images.jpg"
-                      : `${process.env.NEXT_PUBLIC_IMAGE_URL}${company.logo_path}`
-                  }
-                  name={company.name}
-                />
-              ))}
-            </LayoutTemplate>
-          </div>
         </div>
+      </div>
+      {/* Airing Company */}
+      <div className="p-4">
+        <p className="mb-4 font-bold">Airing Company</p>
+        <LayoutTemplate layout="mini">
+          {tv?.networks.map((company) => (
+            <MiniCard
+              key={company.id}
+              imagePath={
+                company.logo_path === null
+                  ? "/no_images.jpg"
+                  : `${process.env.NEXT_PUBLIC_IMAGE_URL}${company.logo_path}`
+              }
+              name={company.name}
+            />
+          ))}
+        </LayoutTemplate>
+      </div>
+
+      {/* Production Company */}
+      <div className="mt-4 p-4">
+        <p className="mb-4 font-bold">Production Company</p>
+        <LayoutTemplate layout="mini">
+          {tv?.production_companies.map((company) => (
+            <MiniCard
+              key={company.id}
+              imagePath={
+                company.logo_path === null
+                  ? "/no_images.jpg"
+                  : `${process.env.NEXT_PUBLIC_IMAGE_URL}${company.logo_path}`
+              }
+              name={company.name}
+            />
+          ))}
+        </LayoutTemplate>
       </div>
       {/* Movie Images */}
       {images?.backdrops.length === 0 &&
