@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
-import { useQueryClient } from "@tanstack/react-query"; // Untuk query cache
-import LoadingIndicator from "@/components/LoadingIndicator";
 import NewDataLoading from "@/components/NewDataLoading";
+import SkeletonMovieCard from "@/components/SkeletonMovieCard"; // Import SkeletonMovieCard
 import {
   useInfinityPopularPerson,
   useInfinitySearchPerson,
@@ -13,15 +12,18 @@ import { LayoutTemplate } from "@/components/LayoutTemplate";
 import { Button } from "@/components/ui/button";
 
 export default function PersonPage() {
-  const [query, setQuery] = useState("");
-  const [searchActive, setSearchActive] = useState(false);
-  const [searchTriggered, setSearchTriggered] = useState(false); // State untuk melacak apakah tombol search sudah diklik
-  const queryClient = useQueryClient();
+  // Ambil query dari sessionStorage atau kosong jika tidak ada
+  const [query, setQuery] = useState(() => {
+    return sessionStorage.getItem("searchPersonQuery") || "";
+  });
 
-  // Tentukan apakah search active
-  const isSearchActive = query.trim() !== "" && searchActive;
+  const [isSearching, setIsSearching] = useState(false); // State untuk mengendalikan skeleton loading saat search
+  const { ref, inView } = useInView();
 
-  // Hook untuk mendapatkan data popular persons
+  // Tentukan apakah akan menampilkan hasil pencarian atau data populer
+  const showSearchResults = query.trim() !== "";
+
+  // Hook untuk mendapatkan data populer
   const {
     data: personsData,
     fetchNextPage: fetchNextPagePopular,
@@ -31,7 +33,7 @@ export default function PersonPage() {
     error: errorPopular,
   } = useInfinityPopularPerson();
 
-  // Hook untuk mendapatkan data search persons
+  // Hook untuk mendapatkan data pencarian
   const {
     data: searchData,
     fetchNextPage: fetchNextPageSearch,
@@ -39,46 +41,29 @@ export default function PersonPage() {
     isFetchingNextPage: isFetchingNextPageSearch,
     isLoading: isLoadingSearch,
     error: errorSearch,
-    refetch: refetchSearch, // Untuk memaksa pencarian ulang
+    refetch: refetchSearch,
   } = useInfinitySearchPerson(query);
 
-  const { ref, inView } = useInView();
-
-  // Effect untuk infinite scroll
+  // Efek untuk infinite scroll
   useEffect(() => {
     if (inView) {
-      if (isSearchActive && hasNextPageSearch) {
+      if (showSearchResults && hasNextPageSearch) {
         fetchNextPageSearch();
-      } else if (!isSearchActive && hasNextPagePopular) {
+      } else if (!showSearchResults && hasNextPagePopular) {
         fetchNextPagePopular();
       }
     }
-  }, [
-    inView,
-    fetchNextPagePopular,
-    fetchNextPageSearch,
-    hasNextPagePopular,
-    hasNextPageSearch,
-    isSearchActive,
-  ]);
+  }, [inView, fetchNextPagePopular, fetchNextPageSearch, hasNextPagePopular, hasNextPageSearch, showSearchResults]);
 
   // Handler untuk pencarian
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (query.trim() !== "") {
-      // Reset pencarian sebelumnya
-      setSearchActive(true); // Aktifkan pencarian baru
-      setSearchTriggered(true); // Tandai bahwa tombol search sudah diklik
-      queryClient.resetQueries({ queryKey: ["person/search"] }); // Reset query popular cache
-      refetchSearch(); // Lakukan pencarian ulang saat query baru dimasukkan
-    } else {
-      setSearchActive(false); // Jika query kosong, kembali ke mode popular
-      setSearchTriggered(false); // Reset pencarian, artinya belum ada tombol search yang diklik
-    }
+    sessionStorage.setItem("searchPersonQuery", query);
+    setIsSearching(true); // Aktifkan loading skeleton ketika search button ditekan
+    refetchSearch().finally(() => setIsSearching(false)); // Hentikan skeleton ketika pencarian selesai
   };
 
   // Loading dan error handling
-  if (isLoadingPopular || isLoadingSearch) return <LoadingIndicator />;
   if (errorPopular || errorSearch)
     return <div>Error: {errorPopular?.message || errorSearch?.message}</div>;
 
@@ -106,61 +91,72 @@ export default function PersonPage() {
         </Button>
       </form>
 
-      <LayoutTemplate layout="card">
-        {/* Tampilkan hasil pencarian jika searchActive dan searchTriggered, jika tidak tampilkan popular */}
-        {isSearchActive && searchTriggered
-          ? searchData?.pages.map((page, index) => (
-              <React.Fragment key={index}>
-                {page.persons.map((person) => (
-                  <MovieCard
-                    key={person.id}
-                    id={person.id}
-                    title={person.name}
-                    overview={person.known_for_department}
-                    posterPath={person.profile_path || ""}
-                    type="person"
-                  />
-                ))}
-              </React.Fragment>
-            ))
-          : personsData?.pages.map((page, index) => (
-              <React.Fragment key={index}>
-                {page.persons.map((person) => (
-                  <MovieCard
-                    key={person.id}
-                    id={person.id}
-                    title={person.name}
-                    overview={person.known_for_department}
-                    posterPath={person.profile_path || ""}
-                    type="person"
-                  />
-                ))}
-              </React.Fragment>
-            ))}
-      </LayoutTemplate>
+      {/* Tampilkan Skeleton saat search sedang dalam proses */}
+      {isSearching && (
+        <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {Array.from({ length: 20 }).map((_, index) => (
+            <SkeletonMovieCard key={index} />
+          ))}
+        </div>
+      )}
+
+      {!isSearching && (
+        <LayoutTemplate layout="card">
+          {/* Tampilkan hasil pencarian atau data populer */}
+          {showSearchResults
+            ? searchData?.pages.map((page, index) => (
+                <React.Fragment key={index}>
+                  {page.persons.map((person) => (
+                    <MovieCard
+                      key={person.id}
+                      id={person.id}
+                      title={person.name}
+                      overview={person.known_for_department}
+                      posterPath={person.profile_path || ""}
+                      type="person"
+                    />
+                  ))}
+                </React.Fragment>
+              ))
+            : personsData?.pages.map((page, index) => (
+                <React.Fragment key={index}>
+                  {page.persons.map((person) => (
+                    <MovieCard
+                      key={person.id}
+                      id={person.id}
+                      title={person.name}
+                      overview={person.known_for_department}
+                      posterPath={person.profile_path || ""}
+                      type="person"
+                    />
+                  ))}
+                </React.Fragment>
+              ))}
+        </LayoutTemplate>
+      )}
 
       {/* Infinite Scroll Loading Trigger */}
       <div ref={ref} className="h-1" />
 
       {/* Show loading spinner while fetching next page */}
-      {isSearchActive && isFetchingNextPageSearch && (
+      {showSearchResults && isFetchingNextPageSearch && (
         <div className="text-center mt-4">
           <NewDataLoading />
         </div>
       )}
-      {!isSearchActive && isFetchingNextPagePopular && (
+      {!showSearchResults && isFetchingNextPagePopular && (
         <div className="text-center mt-4">
           <NewDataLoading />
         </div>
       )}
 
       {/* End message */}
-      {!isSearchActive && !hasNextPagePopular && (
+      {!showSearchResults && !hasNextPagePopular && (
         <div className="text-center text-2xl font-bold my-4">
           You've reached the end of popular persons!
         </div>
       )}
-      {isSearchActive && !hasNextPageSearch && (
+      {showSearchResults && !hasNextPageSearch && (
         <div className="text-center text-2xl font-bold my-4">
           No more results found for "{query}"!
         </div>
