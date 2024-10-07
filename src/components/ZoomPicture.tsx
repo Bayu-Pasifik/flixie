@@ -48,7 +48,7 @@ const ZoomPicture: React.FC<ZoomPictureProps> = ({ pictures }) => {
             <motion.img
               src={zoomedImage}
               alt="Zoomed"
-              className="rounded-md max-w-3xl max-h-[80vh]"
+              className="rounded-md max-w-3xl max-h-[100vh]"
               initial={{ scale: 0.5 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.5 }}

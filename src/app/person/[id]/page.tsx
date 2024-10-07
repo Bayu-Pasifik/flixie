@@ -13,6 +13,7 @@ import MovieCard from "@/components/MovieCard";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import ZoomPicture from "@/components/ZoomPicture";
 
 const DetailPersonPage = () => {
   const params = useParams();
@@ -94,14 +95,7 @@ const DetailPersonPage = () => {
           )}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {profiles?.slice(0, 6).map((profile, index) => (
-            <motion.img
-              key={index}
-              src={`https://image.tmdb.org/t/p/w500${profile.file_path}`}
-              alt="profile"
-              className="rounded-lg"
-            />
-          ))}
+          <ZoomPicture pictures={profiles!}/>
         </div>
       </motion.section>
 
