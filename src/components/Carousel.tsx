@@ -10,17 +10,26 @@ import {
 } from "@/components/ui/carousel";
 import { IoMdArrowRoundForward } from "react-icons/io";
 import Link from "next/link";
+import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 
 const HomeCarousel: React.FC = () => {
   const { data, isLoading, error } = useTopMovies();
   const [activeMovieIndex, setActiveMovieIndex] = useState(0);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
   const handleMovieChange = (index: number) => {
     setActiveMovieIndex(index);
   };
+
+  if (isLoading) {
+    return (
+      <div className="relative w-full h-screen bg-[#0c111b] text-white">
+        {/* Tampilan SkeletonMovieCard besar */}
+        <SkeletonMovieCard size="large" />
+      </div>
+    );
+  }
+
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="relative w-full h-screen bg-[#0c111b] text-white">
@@ -58,9 +67,6 @@ const HomeCarousel: React.FC = () => {
           <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
             <button className="px-4 py-2 md:px-6 md:py-3 bg-teal-500 rounded-md text-black">
               Watch Now
-            </button>
-            <button className="px-4 py-2 md:px-6 md:py-3 bg-gray-800 rounded-md">
-              + Add to List
             </button>
             <Link href={"/movie/" + data?.[activeMovieIndex]?.id}>
               <button className="px-4 py-2 md:px-6 md:py-3 bg-gray-800 rounded-md flex items-center space-x-2 md:space-x-4">
