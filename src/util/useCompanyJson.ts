@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 interface Company {
   id: number;
   name: string;
+  logo_path: string;
 }
 
 export default function useCompanyData() {
