@@ -86,7 +86,7 @@ const DetailPersonPage = () => {
           <h2 className="text-3xl font-semibold mb-4">Gallery</h2>
           {profiles && profiles.length > initialDisplayCount && (
             <Link
-              href={`/person/${id}/images`}
+              href={`/person/${id}/gallery`}
               className="text-blue-500 hover:underline text-base"
             >
               See More Images
