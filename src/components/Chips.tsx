@@ -35,7 +35,7 @@ const Chips: React.FC<ChipsProps> = ({
         ) : (
           <a
             key={item.id}
-            href={`${to}/${item.id}`} // Removed the name parameter
+            href={`${item.id}/${to}`} // Removed the name parameter
           >
             <span className={itemClassName}>{item.name}</span>
           </a>
