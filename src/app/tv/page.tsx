@@ -1,5 +1,4 @@
 "use client";
-
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import MovieCard from "@/components/MovieCard";
@@ -18,9 +17,17 @@ import { motion } from "framer-motion";
 
 export default function TvPage() {
   const chosenCategories = ["airing today", "trending", "top rated"];
-  const [currentCategory, setCurrentCategory] = useState("airing today");
-  const [viewMode, setViewMode] = useState("card");
-  const [timeMode, setTimeMode] = useState("day");
+
+  // Mengambil nilai dari sessionStorage atau menginisialisasi default jika tidak ada
+  const [currentCategory, setCurrentCategory] = useState(
+    sessionStorage.getItem("category") || "airing today"
+  );
+  const [viewMode, setViewMode] = useState(
+    sessionStorage.getItem("viewMode") || "card"
+  );
+  const [timeMode, setTimeMode] = useState(
+    sessionStorage.getItem("timeMode") || "day"
+  );
 
   const handleTimeChange = (time: string) => {
     setTimeMode(time);
@@ -29,6 +36,19 @@ export default function TvPage() {
   const handleViewChange = (view: string) => {
     setViewMode(view);
   };
+
+  // Menyimpan setiap perubahan ke sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem("category", currentCategory);
+  }, [currentCategory]);
+
+  useEffect(() => {
+    sessionStorage.setItem("viewMode", viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    sessionStorage.setItem("timeMode", timeMode);
+  }, [timeMode]);
 
   // Define states and data for each category
   const { data, isLoading, error, fetchNextPage, isFetchingNextPage } =
@@ -84,7 +104,7 @@ export default function TvPage() {
       {/* Apply LayoutTemplate here with the chosen viewMode */}
       <LayoutTemplate layout={viewMode}>
         {data?.pages.map((page) =>
-          page.tvShows.map((tv: Tv,index) => (
+          page.tvShows.map((tv: Tv, index) => (
             <motion.div
               key={index}
               className="p-3"
