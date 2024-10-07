@@ -17,7 +17,7 @@ export default function PersonMoviePage() {
   } = usePersonMovieCredits(personId);
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4"> {person?.name} - Movies</h1>
+      <h1 className="text-2xl font-bold mb-4"> {person?.name} - Cast Movies</h1>
       <LayoutTemplate layout="card">
         {isLoadingMovie ? (
           Array.from({ length: 20 }).map((_, index) => (
@@ -30,7 +30,27 @@ export default function PersonMoviePage() {
             <MovieCard
               key={movie.id}
               id={movie.id}
-              title={movie.title}
+              title={`${movie.title} (${movie.character || "-"})`}
+              overview={movie.overview || "No overview available"}
+              posterPath={movie.poster_path || ""}
+            />
+          ))
+        )}
+      </LayoutTemplate>
+      <h1 className="text-2xl font-bold mb-4 mt-4"> {person?.name} - Crew Movies</h1>
+      <LayoutTemplate layout="card">
+        {isLoadingMovie ? (
+          Array.from({ length: 20 }).map((_, index) => (
+            <SkeletonMovieCard key={`movie-skeleton-${index}`} />
+          ))
+        ) : movieError ? (
+          `Error: ${movieError.message}`
+        ) : (
+          movies?.crew.map((movie) => (
+            <MovieCard
+              key={movie.id}
+              id={movie.id}
+              title={`${movie.title} (${movie.job})`}
               overview={movie.overview || "No overview available"}
               posterPath={movie.poster_path || ""}
             />
