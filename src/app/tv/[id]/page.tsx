@@ -274,11 +274,16 @@ export default function DetailTV() {
           )}
         />
       )}
-
+      {noPosters && (
+        <p className="mb-4 text-2xl font-bold text-center">
+          No posters available.
+        </p>
+      )}
       {!noPosters && (
         <SectionCarousel
           title="Posters"
           items={images!.posters.slice(0, 10)}
+          type="posters"
           viewMoreLink={
             images!.posters.length > 10 ? `/tv/${TvId}/images` : undefined
           }
@@ -306,11 +311,16 @@ export default function DetailTV() {
           )}
         />
       )}
-
+      {noLogos && (
+        <p className="mb-4 text-2xl font-bold text-center">
+          No logos available.
+        </p>
+      )}
       {!noLogos && (
         <SectionCarousel
           title="Logos"
           items={images!.logos.slice(0, 10)}
+          type="logos"
           viewMoreLink={
             images!.logos.length > 10 ? `/tv/${TvId}/images` : undefined
           }
@@ -343,9 +353,8 @@ export default function DetailTV() {
         <div className="p-4 text-2xl font-semibold">
           <div className="flex justify-between">
             <p>Movie Cast</p>
-            <p>View More</p>
           </div>
-          No Cast
+          <p className="text-center font-bold text-2xl">No Casts</p>
         </div>
       ) : (
         <SectionCarousel
