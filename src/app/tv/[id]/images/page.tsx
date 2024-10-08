@@ -13,7 +13,9 @@ export default function ImagesTvPage() {
   const { id } = useParams();
   const TvId = typeof id === "string" ? parseInt(id, 10) : 0;
   const searchParams = useSearchParams();
-  const type = searchParams.get("type");
+  const type = searchParams.get("type")?.toLocaleLowerCase();
+  const validTypes = ["backdrops", "posters", "logos"];
+
   const {
     data: images,
     isLoading: imagesLoading,
@@ -34,6 +36,22 @@ export default function ImagesTvPage() {
   };
 
   if (imagesError) return <div>Error: {imagesError.message}</div>;
+
+  // Check if type is valid
+  // Check if type is valid
+  if (!type || !validTypes.includes(type)) {
+    return (
+      <div className="p-4 text-center min-h-screen flex items-center justify-center">
+        <div>
+          <h1 className="text-2xl font-bold mb-4 text-red-500">Invalid Type</h1>
+          <p>
+            The type you provided is not valid. Please use one of the following
+            types: backdrops, posters, or logos.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const renderImages = () => {
     const imageType =
