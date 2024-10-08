@@ -8,6 +8,7 @@ interface SectionCarouselProps<T> {
   items: T[];
   renderItem: (item: T) => React.ReactNode;
   viewMoreLink?: string;
+  type?: string;
 }
 
 export default function SectionCarousel<T>({
@@ -15,6 +16,7 @@ export default function SectionCarousel<T>({
   items,
   renderItem,
   viewMoreLink,
+  type,
 }: SectionCarouselProps<T>) {
   return (
     <div className="w-full max-w-full px-4 mb-8">
@@ -22,7 +24,7 @@ export default function SectionCarousel<T>({
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
         {viewMoreLink && (
           <Link
-            href={viewMoreLink}
+            href={{ pathname: viewMoreLink, query: { type: type } }}
             className="hover:text-blue-500 hover:underline text-2xl font-semibold mb-4"
           >
             View More

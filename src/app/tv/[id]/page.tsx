@@ -105,7 +105,9 @@ export default function DetailTV() {
           reviewError?.message}
       </div>
     );
-
+  const noBackdrops = images?.backdrops.length === 0;
+  const noPosters = images?.posters.length === 0;
+  const noLogos = images?.logos.length === 0;
   return (
     <div>
       <div className="flex flex-col lg:flex-row items-center lg:items-start lg:space-x-8 p-4">
@@ -190,10 +192,15 @@ export default function DetailTV() {
       {/* Airing Company */}
       <div className="p-4">
         <p className="mb-4 font-bold">Airing Company</p>
+        {tv?.networks.length === 0 && (
+          <p className="mb-4 text-2xl font-bold text-center">
+            No networks available.
+          </p>
+        )}
         <LayoutTemplate layout="mini">
           {tv?.networks.map((company) => (
             <MiniCard
-            to= {`${company.id}/airing-company`}
+              to={`${company.id}/airing-company`}
               key={company.id}
               imagePath={
                 company.logo_path === null
@@ -209,6 +216,11 @@ export default function DetailTV() {
       {/* Production Company */}
       <div className="mt-4 p-4">
         <p className="mb-4 font-bold">Production Company</p>
+        {tv?.production_companies.length === 0 && (
+          <p className="mb-4 text-2xl font-bold text-center">
+            No production companies available.
+          </p>
+        )}
         <LayoutTemplate layout="mini">
           {tv?.production_companies.map((company) => (
             <MiniCard
@@ -225,108 +237,106 @@ export default function DetailTV() {
         </LayoutTemplate>
       </div>
       {/* Movie Images */}
-      {images?.backdrops.length === 0 &&
-      images?.posters.length === 0 &&
-      images?.logos.length === 0 ? (
-        <div className="p-4 text-2xl font-semibold">
-          <div className="flex justify-between">
-            <p>Movie Images</p>
-            <p>View More</p>
-          </div>
-          No Images
-        </div>
-      ) : (
-        <>
-          <SectionCarousel
-            title="Backdrops"
-            items={images!.backdrops.slice(0, 10)}
-            viewMoreLink={
-              images!.backdrops.length > 10 ? `/tv/${TvId}/images` : undefined
-            }
-            renderItem={(image) => (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 20,
-                  duration: 0.3,
-                }}
-                onClick={() => handleImageClick(image.file_path)}
-                className="cursor-pointer"
-              >
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
-                  alt="Movie image"
-                  width={3840}
-                  height={2160}
-                  className="rounded-md"
-                />
-              </motion.div>
-            )}
-          />
+      {noBackdrops && (
+        <p className="mb-4 text-2xl font-bold text-center">
+          No backdrops available.
+        </p>
+      )}
+      {!noBackdrops && (
+        <SectionCarousel
+          title="Backdrops"
+          items={images!.backdrops.slice(0, 10)}
+          type="backdrops"
+          viewMoreLink={
+            images!.backdrops.length > 10 ? `/tv/${TvId}/images` : undefined
+          }
+          renderItem={(image) => (
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+                duration: 0.3,
+              }}
+              onClick={() => handleImageClick(image.file_path)}
+              className="cursor-pointer"
+            >
+              <Image
+                src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                alt="Movie image"
+                width={3840}
+                height={2160}
+                className="rounded-md"
+              />
+            </motion.div>
+          )}
+        />
+      )}
 
-          <SectionCarousel
-            title="Posters"
-            items={images!.posters.slice(0, 10)}
-            viewMoreLink={
-              images!.posters.length > 10 ? `/tv/${TvId}/images` : undefined
-            }
-            renderItem={(image) => (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 20,
-                  duration: 0.3,
-                }}
-                onClick={() => handleImageClick(image.file_path)}
-                className="cursor-pointer"
-              >
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
-                  alt="Movie image"
-                  width={300}
-                  height={200}
-                  className="rounded-md"
-                />
-              </motion.div>
-            )}
-          />
+      {!noPosters && (
+        <SectionCarousel
+          title="Posters"
+          items={images!.posters.slice(0, 10)}
+          viewMoreLink={
+            images!.posters.length > 10 ? `/tv/${TvId}/images` : undefined
+          }
+          renderItem={(image) => (
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+                duration: 0.3,
+              }}
+              onClick={() => handleImageClick(image.file_path)}
+              className="cursor-pointer"
+            >
+              <Image
+                src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                alt="Movie image"
+                width={300}
+                height={200}
+                className="rounded-md"
+              />
+            </motion.div>
+          )}
+        />
+      )}
 
-          <SectionCarousel
-            title="Logos"
-            items={images!.logos.slice(0, 10)}
-            viewMoreLink={
-              images!.logos.length > 0 ? `/tv/${TvId}/images` : undefined
-            }
-            renderItem={(image) => (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 20,
-                  duration: 0.3,
-                }}
-                onClick={() => handleImageClick(image.file_path)}
-                className="cursor-pointer"
-              >
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
-                  alt="Movie logo"
-                  width={500}
-                  height={300}
-                  className="rounded-md"
-                />
-              </motion.div>
-            )}
-          />
-        </>
+      {!noLogos && (
+        <SectionCarousel
+          title="Logos"
+          items={images!.logos.slice(0, 10)}
+          viewMoreLink={
+            images!.logos.length > 10 ? `/tv/${TvId}/images` : undefined
+          }
+          renderItem={(image) => (
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+                duration: 0.3,
+              }}
+              onClick={() => handleImageClick(image.file_path)}
+              className="cursor-pointer"
+            >
+              <Image
+                src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${image.file_path}`}
+                alt="Movie logo"
+                width={500}
+                height={300}
+                className="rounded-md"
+              />
+            </motion.div>
+          )}
+        />
       )}
       {/* Casts */}
       {casts?.length === 0 ? (
