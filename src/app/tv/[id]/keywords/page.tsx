@@ -4,19 +4,21 @@ import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
 import NewDataLoading from "@/components/NewDataLoading";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
-import {  useTvGenres } from "@/hooks/useGenres";
-import { useInfiniteTVByGenres } from "@/hooks/useSearch";
+import { useDetailKeywords } from "@/hooks/useKeywords";
+import {
+  useInfiniteTVByGenres,
+  useInfiniteTvByKeywords,
+} from "@/hooks/useSearch";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
 export default function MovieGenresPage() {
   const { id } = useParams();
-  const genreId = typeof id === "string" ? parseInt(id, 10) : 0;
-  const { data: genres } = useTvGenres();
-  const genre = Array.isArray(genres)
-    ? genres.find((genre) => genre.id === genreId)
-    : null;
+  const keywordId = typeof id === "string" ? parseInt(id, 10) : 0;
+  const { data: keyword } = useDetailKeywords(keywordId);
+
+  console.log(keyword);
   const {
     data: movies,
     isLoading,
@@ -24,7 +26,7 @@ export default function MovieGenresPage() {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useInfiniteTVByGenres(genreId);
+  } = useInfiniteTvByKeywords(keywordId);
   const { ref, inView } = useInView();
   useEffect(() => {
     if (inView) {
@@ -35,7 +37,7 @@ export default function MovieGenresPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-        Tv Shows with Genre of {genre?.name}
+        Tv Shows with Keywords of {keyword?.name}
       </h1>
       <LayoutTemplate layout="card">
         {isLoading
@@ -48,8 +50,8 @@ export default function MovieGenresPage() {
                   key={Tv.id}
                   id={Tv.id}
                   title={Tv.name}
-                  overview={Tv.overview || 'No overview available'}
-                  posterPath={Tv.poster_path || ''}
+                  overview={Tv.overview || "No overview available"}
+                  posterPath={Tv.poster_path || ""}
                   type="tv"
                 />
               ))
@@ -57,7 +59,7 @@ export default function MovieGenresPage() {
       </LayoutTemplate>
       {isFetchingNextPage && <NewDataLoading />}
       {!hasNextPage && (
-        <p className="text-center text-2xl font-bold">
+        <p className="text-center text-2xl font-bold mt-6">
           Congrat's you've reached the end
         </p>
       )}
