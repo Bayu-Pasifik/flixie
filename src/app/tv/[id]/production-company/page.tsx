@@ -3,15 +3,14 @@ import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
 import NewDataLoading from "@/components/NewDataLoading";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
-import {useInfinityTvByCompany } from "@/hooks/useCompany";
-import { useDetailNetwork } from "@/hooks/useDetailMovie";
+import { useDetailCompany, useInfinityTvByCompany } from "@/hooks/useCompany";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-export default function TvAiringCompanyPage() {
+export default function TvProductionCompanyPage() {
   const { id } = useParams();
   const tvId = typeof id === "string" ? parseInt(id, 10) : 0;
-  const { data } = useDetailNetwork(tvId);
+  const { data } = useDetailCompany(tvId);
   const {
     data: tvShows,
     isLoading,
@@ -20,7 +19,6 @@ export default function TvAiringCompanyPage() {
     isFetchingNextPage,
     hasNextPage,
   } = useInfinityTvByCompany(tvId);
-  console.log("data", tvShows);
   const { ref, inView } = useInView();
   useEffect(() => {
     if (inView) {
@@ -31,7 +29,7 @@ export default function TvAiringCompanyPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4 uppercase">
-        Tv Show Aired By {data?.name}
+        Tv Show Produced By {data?.name}
       </h1>
       <LayoutTemplate layout="card">
         {isLoading
@@ -54,12 +52,10 @@ export default function TvAiringCompanyPage() {
             )}
       </LayoutTemplate>
       {!hasNextPage && (
-        <p className="text-center font-bold text-2xl mt-6">No more tv shows</p>  
+        <p className="text-center font-bold text-2xl mt-6">No more tv shows</p>
       )}
-      {isFetchingNextPage && (
-          <NewDataLoading />
-      )}
-      <div ref={ref} className="h-1"/>
+      {isFetchingNextPage && <NewDataLoading />}
+      <div ref={ref} className="h-1" />
     </div>
   );
 }
