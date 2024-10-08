@@ -1,5 +1,5 @@
 'use client'
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import axiosInstance from '../lib/axios';
 import { Keywords } from '@/types/keywordsType';
 import { Recomendation } from '@/types/recomendationType';
@@ -23,21 +23,44 @@ export const useRecommendations = (id: number) => {
     staleTime: 1000 * 60 * 5, // 5 menit
   });
 };
-async function fetchRecommendationsTv(id: number): Promise<Recomendation[]> {
+async function fetchInfinityRecommendationTv(
+id: number,
+{ pageParam = 1 }: { pageParam?: number }): Promise<{
+  recommendations: Recomendation[];  // Sesuaikan dengan tipe TV show Anda
+  currentPage: number | null;
+  nextPage: number | null;
+  prevPage: number | null;
+}> {
   try {
-    const response = await axiosInstance.get(`/tv/${id}/recommendations`);
-    return response.data.results; // Asumsi response data berupa object Detailmovie
+    // Simulasi delay untuk animasi (opsional)
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
+    // Lakukan request ke API dengan paginasi
+    const response = await axiosInstance.get("/tv/" + id + "/recommendations", {
+      params: { page: pageParam },
+    });
+
+    return {
+      recommendations: response.data.results,
+      nextPage:
+        response.data.page < response.data.total_pages
+          ? response.data.page + 1
+          : null,
+      currentPage: response.data.page,
+      prevPage: response.data.page > 1 ? response.data.page - 1 : null,
+    };
   } catch (error) {
-    console.error('Error fetching movie detail:', error);
-    throw error;
+    console.error("Error fetching currently airing TV shows:", error);
+    throw error; // Rethrow error untuk React Query menangani
   }
 }
 
-// Hook untuk menggunakan React Query
-export const useRecommendationsTv = (id: number) => {
-  return useQuery<Recomendation[], Error>({
-    queryKey: ['tv/recommendations', id],
-    queryFn: () => fetchRecommendationsTv(id),
-    staleTime: 1000 * 60 * 5, // 5 menit
+// Hook untuk infinite scroll pada TV shows
+export const useInfinityRecommendationsTv = (id: number) => {
+  return useInfiniteQuery({
+    queryKey: ["recommendations/tv", id],
+    queryFn: ({ pageParam = 1 }) => fetchInfinityRecommendationTv(id,{
+      pageParam,}),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
   });
 };

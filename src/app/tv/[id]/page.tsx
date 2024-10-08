@@ -16,7 +16,7 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 import { useCreditsTv } from "@/hooks/useCredits";
 import MovieCard from "@/components/MovieCard";
 import { useVideosTv } from "@/hooks/useVideo";
-import { useRecommendationsTv } from "@/hooks/useRecomendations";
+import { useInfinityRecommendationsTv } from "@/hooks/useRecomendations";
 import { useReviewsTv } from "@/hooks/useReviews";
 import MovieListCard from "@/components/MovieListCard";
 import Chips from "@/components/Chips";
@@ -66,7 +66,7 @@ export default function DetailTV() {
     data: recommendations,
     isLoading: recommendationLoading,
     error: recommendationError,
-  } = useRecommendationsTv(TvId);
+  } = useInfinityRecommendationsTv(TvId);
 
   const {
     data: reviews,
@@ -361,7 +361,7 @@ export default function DetailTV() {
           title="Cast"
           items={casts!.cast.slice(0, 10)} // Menampilkan maksimal 10 cast
           viewMoreLink={
-            casts!.cast.length > 10 ? `/tv/${TvId}/cast` : undefined
+            casts!.cast.length > 10 ? `/tv/${TvId}/credits` : undefined
           } // Tampilkan tautan View More hanya jika cast lebih dari 10
           renderItem={(cast) => (
             <MovieCard
@@ -381,7 +381,6 @@ export default function DetailTV() {
         <div className="p-4 text-2xl font-semibold">
           <div className="flex justify-between">
             <p>Movie Videos</p>
-            <p>View More</p>
           </div>
           No Videos
         </div>
@@ -389,7 +388,7 @@ export default function DetailTV() {
         <SectionCarousel
           title="Videos"
           items={videos!.slice(0, 10)}
-          viewMoreLink={`/tv/${TvId}/videos`}
+          viewMoreLink={videos!.length > 10 ? `/tv/${TvId}/videos` : undefined}
           renderItem={(video) => (
             <iframe
               src={`https://www.youtube.com/embed/${video.key}`}
@@ -403,7 +402,7 @@ export default function DetailTV() {
         />
       )}
       {/* Recommendations */}
-      {recommendations?.length === 0 ? (
+      {recommendations?.pages[0].recommendations.length === 0 ? (
         <div className="p-4 text-2xl font-semibold text-center">
           <div className="flex justify-between">
             <p>Recommendations</p>
@@ -414,13 +413,17 @@ export default function DetailTV() {
       ) : (
         <SectionCarousel
           title="Recommendations"
-          items={recommendations!.slice(0, 10)}
-          viewMoreLink={`/tv/${TvId}/recommendations`}
+          items={recommendations!.pages[0].recommendations.slice(0, 10)}
+          viewMoreLink={
+            recommendations!.pages[0].recommendations.length > 10
+              ? `/tv/${TvId}/recommendations`
+              : undefined
+          }
           renderItem={(recommendation) => (
             <MovieCard
               type="tv"
               id={recommendation.id}
-              title={recommendation.title}
+              title={recommendation.name}
               overview={recommendation.overview}
               posterPath={recommendation.poster_path}
             />
