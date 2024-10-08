@@ -5,15 +5,12 @@ import MovieCard from "@/components/MovieCard";
 import NewDataLoading from "@/components/NewDataLoading";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import { useDetailKeywords } from "@/hooks/useKeywords";
-import {
-  useInfiniteTVByGenres,
-  useInfiniteTvByKeywords,
-} from "@/hooks/useSearch";
+import { useInfiniteMovieByKeywords } from "@/hooks/useSearch";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
-export default function TVKeywordsPage() {
+export default function MovieKeywordsPage() {
   const { id } = useParams();
   const keywordId = typeof id === "string" ? parseInt(id, 10) : 0;
   const { data: keyword } = useDetailKeywords(keywordId);
@@ -26,7 +23,7 @@ export default function TVKeywordsPage() {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useInfiniteTvByKeywords(keywordId);
+  } = useInfiniteMovieByKeywords(keywordId);
   const { ref, inView } = useInView();
   useEffect(() => {
     if (inView) {
@@ -37,7 +34,7 @@ export default function TVKeywordsPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4 uppercase">
-        <span className="text-teal-500">TV Shows</span> with Keywords of{" "}
+        <span className="text-teal-500">Movies</span> with Keywords of{" "}
         <span className="text-sky-500">{keyword?.name}</span>
       </h1>
       <LayoutTemplate layout="card">
@@ -46,13 +43,13 @@ export default function TVKeywordsPage() {
               <SkeletonMovieCard key={`movie-skeleton-${index}`} />
             ))
           : movies?.pages.map((tv) =>
-              tv.tvShows.map((Tv) => (
+              tv.movies.map((movie) => (
                 <MovieCard
-                  key={Tv.id}
-                  id={Tv.id}
-                  title={Tv.name}
-                  overview={Tv.overview || "No overview available"}
-                  posterPath={Tv.poster_path || ""}
+                  key={movie.id}
+                  id={movie.id}
+                  title={movie.title}
+                  overview={movie.overview || "No overview available"}
+                  posterPath={movie.poster_path || ""}
                   type="tv"
                 />
               ))
