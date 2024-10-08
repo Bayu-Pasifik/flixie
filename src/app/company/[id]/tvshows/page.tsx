@@ -31,8 +31,8 @@ export default function DetailCompanyTvShowPage() {
   }, [inView, fetchNextPageTv]);
   return (
     <div className="p-4  text-white">
-      <h1 className="text-2xl font-bold mb-4">
-        TV Shows that {company?.name} produced
+      <h1 className="text-2xl font-bold mb-4 uppercase">
+        TV Shows produced by {company?.name}
       </h1>
       <LayoutTemplate layout="card">
         {isLoadingTv

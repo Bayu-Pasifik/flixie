@@ -32,9 +32,9 @@ export default function DetailCompanyMoviesPage() {
   }, [inView, fetchNextPageMovie]);
   return (
     <div className="p-4  text-white">
-      <h1 className="text-2xl font-bold mb-4">
+      <h1 className="text-2xl font-bold mb-4 uppercase">
         {" "}
-        Movies that {company?.name} produced
+        Movies produced by {company?.name}
       </h1>
       <LayoutTemplate layout="card">
         {isLoadingMovie ? (
