@@ -2,19 +2,36 @@
 
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
+import NewDataLoading from "@/components/NewDataLoading";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
-import { useMovieGenre } from "@/hooks/useGenres";
+import { useMovieGenre, useTvGenres } from "@/hooks/useGenres";
 import { useInfiniteTVByGenres } from "@/hooks/useSearch";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 
 export default function MovieGenresPage() {
   const { id } = useParams();
   const genreId = typeof id === "string" ? parseInt(id, 10) : 0;
-  const { data: genres } = useMovieGenre();
+  const { data: genres } = useTvGenres();
   const genre = Array.isArray(genres)
     ? genres.find((genre) => genre.id === genreId)
     : null;
-  const { data: movies, isLoading, error } = useInfiniteTVByGenres(genreId);
+  console.log(genre);
+  const {
+    data: movies,
+    isLoading,
+    error,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useInfiniteTVByGenres(genreId);
+  const { ref, inView } = useInView();
+  useEffect(() => {
+    if (inView) {
+      fetchNextPage();
+    }
+  }, [inView, fetchNextPage]);
   if (error) return <div>Error: {error.message}</div>;
   return (
     <div className="p-4">
@@ -32,12 +49,20 @@ export default function MovieGenresPage() {
                   key={Tv.id}
                   id={Tv.id}
                   title={Tv.name}
-                  overview={Tv.overview}
-                  posterPath={Tv.poster_path}
+                  overview={Tv.overview || 'No overview available'}
+                  posterPath={Tv.poster_path || ''}
+                  type="tv"
                 />
               ))
             )}
       </LayoutTemplate>
+      {isFetchingNextPage && <NewDataLoading />}
+      {!hasNextPage && (
+        <p className="text-center font-2xl text-bold">
+          Congrat's you've reached the end
+        </p>
+      )}
+      <div ref={ref}></div>
     </div>
   );
 }
