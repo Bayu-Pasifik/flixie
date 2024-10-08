@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -13,13 +13,14 @@ import MovieCard from "@/components/MovieCard";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
-import ZoomPicture from "@/components/ZoomPicture";
+import { ImageModal } from "@/components/ImageModal"; // Import ImageModal
 
 const DetailPersonPage = () => {
   const params = useParams();
   const id = typeof params.id === "string" ? parseInt(params.id, 10) : 0;
   const [showFullBio, setShowFullBio] = useState(false);
-  const initialDisplayCount = 8; // Jumlah item yang ditampilkan secara default
+  const [selectedImage, setSelectedImage] = useState<string | null>(null); // State for selected image
+  const initialDisplayCount = 8;
 
   // Hooks for data fetching
   const { data: person, isLoading: loadingPerson } = useDetailPerson(id);
@@ -37,10 +38,17 @@ const DetailPersonPage = () => {
 
   if (loadingPerson || loadingImages) return <LoadingIndicator />;
 
-  // Trim biography and add "See More" functionality
   const biography = person?.biography || "";
   const trimmedBio =
     biography.length > 300 ? biography.substring(0, 300) + "..." : biography;
+
+  const openImageModal = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+  };
 
   return (
     <div className="portfolio p-8 max-w-7xl mx-auto text-white">
@@ -110,11 +118,27 @@ const DetailPersonPage = () => {
           <p className="text-center text-2xl font-bold">No images available.</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <ZoomPicture pictures={profiles!.slice(0, 6)} />
+            {profiles!.slice(0, 6).map((picture) => (
+              <img
+                key={picture.file_path}
+                src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${picture.file_path}`}
+                alt="Gallery"
+                className="rounded-lg cursor-pointer"
+                onClick={() => openImageModal(`${process.env.NEXT_PUBLIC_IMAGE_URL_ORIGINAL}${picture.file_path}`)}
+              />
+            ))}
           </div>
         )}
       </motion.section>
 
+      {/* ImageModal */}
+      <ImageModal
+        isOpen={!!selectedImage}
+        onClose={closeImageModal}
+        imageUrl={selectedImage || ""}
+      />
+
+      {/* Movie and TV Credits Sections */}
       {/* Movie Credits Section */}
       <section className="movie-credits mb-8">
         <div className="flex justify-between items-center mb-4">
