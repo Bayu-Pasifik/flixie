@@ -436,7 +436,6 @@ export default function DetailTV() {
         <div className="p-4 text-2xl font-semibold text-center">
           <div className="flex justify-between">
             <p>Reviews</p>
-            <p>View More</p>
           </div>
           No Reviews
         </div>
@@ -446,7 +445,7 @@ export default function DetailTV() {
             <p className="text-2xl font-bold">Reviews</p>
 
             {/* Conditional rendering: Jika reviews lebih dari 1, tampilkan tautan. Jika tidak, tampilkan teks biasa */}
-            {reviews!.length > 1 ? (
+            {reviews!.length > 10 ? (
               <Link
                 href={`/tv/${TvId}/reviews`}
                 className="hover:text-blue-500 hover:underline text-2xl font-semibold mb-4"
@@ -459,13 +458,15 @@ export default function DetailTV() {
           </div>
 
           <LayoutTemplate layout="list">
-            {reviews!.map((review, index) => (
+            {reviews!.slice(0, 10).map((review, index) => (
               <MovieListCard
                 key={index}
                 id={index}
                 posterPath={review.author_details.avatar_path ?? ""} // Berikan path avatar atau "" jika null
                 title={review.author}
                 overview={review.content}
+                type="reviews"
+                releaseDate={new Date(review.created_at)} 
               />
             ))}
           </LayoutTemplate>
