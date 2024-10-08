@@ -189,6 +189,7 @@ export default function MovieDetailPage() {
           <LayoutTemplate layout="mini">
             {movie?.production_companies.map((company) => (
               <MiniCard
+                to={`/company/${company.id}`}
                 key={company.id}
                 imagePath={
                   company.logo_path === null
@@ -208,7 +209,6 @@ export default function MovieDetailPage() {
         <div className="p-4 text-2xl font-semibold">
           <div className="flex justify-between">
             <p>Movie Images</p>
-            <p>View More</p>
           </div>
           No Images
         </div>
@@ -331,7 +331,6 @@ export default function MovieDetailPage() {
         <div className="p-4 text-2xl font-semibold">
           <div className="flex justify-between">
             <p>Movie Cast</p>
-            <p>View More</p>
           </div>
           No Cast
         </div>
@@ -358,7 +357,6 @@ export default function MovieDetailPage() {
         <div className="p-4 text-2xl font-semibold">
           <div className="flex justify-between">
             <p>Movie Videos</p>
-            <p>View More</p>
           </div>
           No Videos
         </div>
@@ -387,7 +385,6 @@ export default function MovieDetailPage() {
         <div className="p-4 text-2xl font-semibold text-center">
           <div className="flex justify-between">
             <p>Recommendations</p>
-            <p>View More</p>
           </div>
           No Recommendations
         </div>
@@ -402,8 +399,10 @@ export default function MovieDetailPage() {
           }
           renderItem={(recommendation) => (
             <MovieCard
+            
+              key={recommendation.id}
               id={recommendation.id}
-              title={recommendation.title}
+              title={recommendation.name}
               overview={recommendation.overview}
               posterPath={recommendation.poster_path}
             />

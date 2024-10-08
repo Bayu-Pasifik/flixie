@@ -4,13 +4,13 @@ import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
 import NewDataLoading from "@/components/NewDataLoading";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
-import {  useTvGenres } from "@/hooks/useGenres";
-import { useInfiniteTVByGenres } from "@/hooks/useSearch";
+import { useTvGenres } from "@/hooks/useGenres";
+import { useInfiniteMovieByGenres } from "@/hooks/useSearch";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
-export default function TVGenresPage() {
+export default function MovieGenresPage() {
   const { id } = useParams();
   const genreId = typeof id === "string" ? parseInt(id, 10) : 0;
   const { data: genres } = useTvGenres();
@@ -24,7 +24,7 @@ export default function TVGenresPage() {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useInfiniteTVByGenres(genreId);
+  } = useInfiniteMovieByGenres(genreId);
   const { ref, inView } = useInView();
   useEffect(() => {
     if (inView) {
@@ -34,8 +34,9 @@ export default function TVGenresPage() {
   if (error) return <div>Error: {error.message}</div>;
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        Tv Shows with Genre of {genre?.name}
+      <h1 className="text-2xl font-bold mb-4 uppercase">
+        <span className="text-teal-500">Movies</span> with Genre of{" "}
+        <span className="text-sky-500">{genre?.name}</span>
       </h1>
       <LayoutTemplate layout="card">
         {isLoading
@@ -43,14 +44,14 @@ export default function TVGenresPage() {
               <SkeletonMovieCard key={`movie-skeleton-${index}`} />
             ))
           : movies?.pages.map((tv) =>
-              tv.tvShows.map((Tv) => (
+              tv.movies.map((movie) => (
                 <MovieCard
-                  key={Tv.id}
-                  id={Tv.id}
-                  title={Tv.name}
-                  overview={Tv.overview || 'No overview available'}
-                  posterPath={Tv.poster_path || ''}
-                  type="tv"
+                  key={movie.id}
+                  id={movie.id}
+                  title={movie.title}
+                  overview={movie.overview || "No overview available"}
+                  posterPath={movie.poster_path || ""}
+                  //   type="tv"
                 />
               ))
             )}
