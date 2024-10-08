@@ -14,30 +14,32 @@ import { FaGlobe } from "react-icons/fa";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import LoadingIndicator from "@/components/LoadingIndicator";
-import ZoomPicture from "@/components/ZoomPicture";
+import { ImageModal } from "@/components/ImageModal"; // Import ImageModal
 
 const DetailCompanyPage = () => {
   const params = useParams();
   const id = typeof params.id === "string" ? parseInt(params.id, 10) : 0;
   const [showAllLogos, setShowAllLogos] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Fetch data
   const { data: company, isLoading: loadingCompany } = useDetailCompany(id);
-  const { data: companyImages, isLoading: loadingImages } =
-    useCompanyImages(id);
-  const { data: movieData, isLoading: loadingMovie } =
-    useInfinityMovieByCompany(id);
+  const { data: companyImages, isLoading: loadingImages } = useCompanyImages(id);
+  const { data: movieData, isLoading: loadingMovie } = useInfinityMovieByCompany(id);
   const { data: tvData, isLoading: loadingTv } = useInfinityTvByCompany(id);
 
-  if (loadingCompany)
-    return (
-      <div className="text-white">
-        <LoadingIndicator />
-      </div>
-    );
+  if (loadingCompany) return <LoadingIndicator />;
 
   // Determine how many logos to show
   const logosToShow = showAllLogos ? companyImages : companyImages?.slice(0, 8);
+
+  const openImageModal = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+  };
 
   return (
     <div className="company-details p-8 max-w-7xl mx-auto text-white">
@@ -91,7 +93,15 @@ const DetailCompanyPage = () => {
                 <SkeletonMovieCard key={`logo-skeleton-${index}`} />
               ))
           ) : (
-            <ZoomPicture pictures={companyImages!} type="logo" />
+            logosToShow?.map((logo) => (
+              <img
+                key={logo.file_path}
+                src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${logo.file_path}`}
+                alt="Logo"
+                className="rounded-lg cursor-pointer"
+                onClick={() => openImageModal(`${process.env.NEXT_PUBLIC_IMAGE_URL}${logo.file_path}`)}
+              />
+            ))
           )}
         </LayoutTemplate>
       </motion.section>
@@ -101,10 +111,7 @@ const DetailCompanyPage = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-semibold">Movies</h2>
           {movieData && movieData.pages[0].movies.length > 8 && !loadingMovie && (
-            <Link
-              href={`/company/${id}/movies`}
-              className="text-blue-500 hover:underline text-base"
-            >
+            <Link href={`/company/${id}/movies`} className="text-blue-500 hover:underline text-base">
               See More Movies
             </Link>
           )}
@@ -119,17 +126,15 @@ const DetailCompanyPage = () => {
                 .map((_, index) => (
                   <SkeletonMovieCard key={`movie-skeleton-${index}`} />
                 ))
-            : movieData?.pages[0].movies
-                .slice(0, 8)
-                .map((movie) => (
-                  <MovieCard
-                    key={movie.id}
-                    id={movie.id}
-                    title={movie.title}
-                    overview={movie.overview || "No overview"}
-                    posterPath={movie.poster_path || ""}
-                  />
-                ))}
+            : movieData?.pages[0].movies.slice(0, 8).map((movie) => (
+                <MovieCard
+                  key={movie.id}
+                  id={movie.id}
+                  title={movie.title}
+                  overview={movie.overview || "No overview"}
+                  posterPath={movie.poster_path || ""}
+                />
+              ))}
         </LayoutTemplate>
       </section>
 
@@ -138,10 +143,7 @@ const DetailCompanyPage = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-semibold">TV Shows</h2>
           {tvData && tvData.pages[0].tvShows.length > 8 && !loadingTv && (
-            <Link
-              href={`/company/${id}/tvshows`}
-              className="text-blue-500 hover:underline text-base"
-            >
+            <Link href={`/company/${id}/tvshows`} className="text-blue-500 hover:underline text-base">
               See More TV Shows
             </Link>
           )}
@@ -156,20 +158,25 @@ const DetailCompanyPage = () => {
                 .map((_, index) => (
                   <SkeletonMovieCard key={`tv-skeleton-${index}`} />
                 ))
-            : tvData?.pages[0].tvShows
-                .slice(0, 8)
-                .map((tvShow) => (
-                  <MovieCard
-                    key={tvShow.id}
-                    id={tvShow.id}
-                    title={tvShow.name}
-                    overview={tvShow.overview || "No overview"}
-                    posterPath={tvShow.poster_path || ""}
-                    type="tv"
-                  />
-                ))}
+            : tvData?.pages[0].tvShows.slice(0, 8).map((tvShow) => (
+                <MovieCard
+                  key={tvShow.id}
+                  id={tvShow.id}
+                  title={tvShow.name}
+                  overview={tvShow.overview || "No overview"}
+                  posterPath={tvShow.poster_path || ""}
+                  type="tv"
+                />
+              ))}
         </LayoutTemplate>
       </section>
+
+      {/* ImageModal */}
+      <ImageModal
+        isOpen={!!selectedImage}
+        onClose={closeImageModal}
+        imageUrl={selectedImage || ""}
+      />
     </div>
   );
 };
