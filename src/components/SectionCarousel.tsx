@@ -24,7 +24,10 @@ export default function SectionCarousel<T>({
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
         {viewMoreLink && (
           <Link
-            href={{ pathname: viewMoreLink, query: { type: type } }}
+            href={{
+              pathname: viewMoreLink,
+              query: type ? { type } : undefined, // Include type only if it exists
+            }}
             className="hover:text-blue-500 hover:underline text-2xl font-semibold mb-4"
           >
             View More

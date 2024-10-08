@@ -12,7 +12,7 @@ export type Credit = {
     credit_id:            string;
     order:                number;
 }
-export type TvCredit = {
+export type TvCast = {
     adult:                boolean;
     gender:               number;
     id:                   number;
@@ -25,6 +25,21 @@ export type TvCredit = {
     credit_id:            string;
     order:                number;
 }
+
+export type TvCrew = {
+    adult:                boolean;
+    gender:               number;
+    id:                   number;
+    known_for_department: string;
+    name:                 string;
+    original_name:        string;
+    popularity:           number;
+    profile_path:         null;
+    credit_id:            string;
+    department:           string;
+    job:                  string;
+}
+
 
 
 export type Person = {

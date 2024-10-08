@@ -349,7 +349,7 @@ export default function DetailTV() {
         />
       )}
       {/* Casts */}
-      {casts?.length === 0 ? (
+      {casts?.cast.length === 0 ? (
         <div className="p-4 text-2xl font-semibold">
           <div className="flex justify-between">
             <p>Movie Cast</p>
@@ -359,8 +359,10 @@ export default function DetailTV() {
       ) : (
         <SectionCarousel
           title="Cast"
-          items={casts!.slice(0, 10)} // Menampilkan maksimal 10 cast
-          viewMoreLink={casts!.length > 10 ? `/tv/${TvId}/credits` : undefined} // Tampilkan tautan View More hanya jika cast lebih dari 10
+          items={casts!.cast.slice(0, 10)} // Menampilkan maksimal 10 cast
+          viewMoreLink={
+            casts!.cast.length > 10 ? `/tv/${TvId}/cast` : undefined
+          } // Tampilkan tautan View More hanya jika cast lebih dari 10
           renderItem={(cast) => (
             <MovieCard
               type="person"

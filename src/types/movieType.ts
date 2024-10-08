@@ -73,7 +73,7 @@ export type Crew = {
     job:               string;
 }
 
-export type TvCast = {
+export type DetailTvCast = {
     adult:             boolean;
     backdrop_path:     string;
     genre_ids:         number[];
@@ -93,7 +93,7 @@ export type TvCast = {
     episode_count:     number;
 }
 
-export type TvCrew = {
+export type DetailTvCrew = {
     adult:             boolean;
     backdrop_path:     null;
     genre_ids:         number[];
