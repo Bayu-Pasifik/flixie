@@ -193,6 +193,7 @@ export default function DetailTV() {
         <LayoutTemplate layout="mini">
           {tv?.networks.map((company) => (
             <MiniCard
+            to= {`${company.id}/airing-company`}
               key={company.id}
               imagePath={
                 company.logo_path === null
@@ -211,6 +212,7 @@ export default function DetailTV() {
         <LayoutTemplate layout="mini">
           {tv?.production_companies.map((company) => (
             <MiniCard
+              to="production-company"
               key={company.id}
               imagePath={
                 company.logo_path === null

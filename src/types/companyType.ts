@@ -21,3 +21,12 @@ export type ParentCompany = {
     id:        number;
     logo_path: string;
 }
+
+export type Networks = {
+    headquarters:   string;
+    homepage:       string;
+    id:             number;
+    logo_path:      string;
+    name:           string;
+    origin_country: string;
+}
