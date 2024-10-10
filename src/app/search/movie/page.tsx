@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import AsyncSelect from "react-select/async";
+import Select from "react-select"; // Import react-select for the rating
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
 import { useInfinitySearchMovie } from "@/hooks/useSearch";
@@ -15,6 +16,18 @@ import { useMovieGenre } from "@/hooks/useGenres";
 type OptionType = {
   value: string;
   label: string;
+};
+
+// Generate rating options from 0.1 to 10 with increments of 0.1
+const generateRatingOptions = () => {
+  const options = [];
+  for (let i = 1; i <= 100; i++) {
+    options.push({
+      value: (i / 10).toFixed(1), // Format to 1 decimal place
+      label: (i / 10).toFixed(1),
+    });
+  }
+  return options;
 };
 
 export default function SearchMoviePage() {
@@ -32,6 +45,11 @@ export default function SearchMoviePage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState(query || "");
   const [debouncedQuery, setDebouncedQuery] = useState(query || "");
+  const [runtimeMoreThan, setRuntimeMoreThan] = useState<number | "">("");
+  const [runtimeLessThan, setRuntimeLessThan] = useState<number | "">("");
+  const [ratingMoreThan, setRatingMoreThan] = useState<string | "">(""); // Change to string
+  const [ratingLessThan, setRatingLessThan] = useState<string | "">(""); // Change to string
+  const [year, setYear] = useState<number | "">("");
   const { data: genres, isLoading: isGenresLoading } = useMovieGenre();
   const { data: countries, isLoading: isCountriesLoading } = useCountries();
   const { data: languages, isLoading: isLanguagesLoading } = useLanguages(); // Fetch languages using the hook
@@ -151,6 +169,19 @@ export default function SearchMoviePage() {
     return Promise.resolve(filteredLanguages);
   };
 
+  const handleSearch = () => {
+    // Build the query string based on the filters
+    const filters = [];
+    if (runtimeMoreThan) filters.push(`runtime_more_than=${runtimeMoreThan}`);
+    if (runtimeLessThan) filters.push(`runtime_less_than=${runtimeLessThan}`);
+    if (ratingMoreThan) filters.push(`rating_more_than=${ratingMoreThan}`);
+    if (ratingLessThan) filters.push(`rating_less_than=${ratingLessThan}`);
+    if (year) filters.push(`year=${year}`);
+
+    const filterQuery = filters.length > 0 ? `&${filters.join('&')}` : '';
+    router.push(`/search/movie?query=${debouncedQuery}${filterQuery}`);
+  };
+
   return (
     <div className="p-4">
       <h1>Search Movie - {query}</h1>
@@ -164,16 +195,56 @@ export default function SearchMoviePage() {
         className="w-full p-2 border rounded-md mb-4 text-black"
       />
 
-      <div className="mb-4 flex flex-row w-full">
+      {/* Advanced Search Filters */}
+      <div className="mb-4 flex flex-col">
         <h2>Advanced Search</h2>
-        <AsyncSelect
-          cacheOptions
-          loadOptions={loadCompanyOptions}
-          placeholder="Select a company..."
-          defaultOptions
-          isClearable
+
+        <label className="mt-2">Runtime More Than:</label>
+        <input
+          type="number"
+          value={runtimeMoreThan}
+          onChange={(e) => setRuntimeMoreThan(Number(e.target.value) || "")}
+          placeholder="e.g. 90"
+          className="p-2 border rounded-md mb-2 text-black"
+        />
+
+        <label className="mt-2">Runtime Less Than:</label>
+        <input
+          type="number"
+          value={runtimeLessThan}
+          onChange={(e) => setRuntimeLessThan(Number(e.target.value) || "")}
+          placeholder="e.g. 150"
+          className="p-2 border rounded-md mb-2 text-black"
+        />
+
+        <label className="mt-2">Rating More Than:</label>
+        <Select
+          options={generateRatingOptions()} // Pass the rating options
+          value={ratingMoreThan ? { value: ratingMoreThan, label: ratingMoreThan } : null} // Set value
+          onChange={(option) => setRatingMoreThan(option ? option.value : "")} // Update state
+          placeholder="Select rating..."
           className="mb-2 text-black"
         />
+
+        <label className="mt-2">Rating Less Than:</label>
+        <Select
+          options={generateRatingOptions()} // Pass the rating options
+          value={ratingLessThan ? { value: ratingLessThan, label: ratingLessThan } : null} // Set value
+          onChange={(option) => setRatingLessThan(option ? option.value : "")} // Update state
+          placeholder="Select rating..."
+          className="mb-2 text-black"
+        />
+
+        <label className="mt-2">Year:</label>
+        <input
+          type="number"
+          value={year}
+          onChange={(e) => setYear(Number(e.target.value) || "")}
+          placeholder="e.g. 2023"
+          className="p-2 border rounded-md mb-2 text-black"
+        />
+
+        {/* Async Select Components */}
         <AsyncSelect
           cacheOptions
           loadOptions={loadKeywordOptions}
@@ -209,13 +280,20 @@ export default function SearchMoviePage() {
           loadOptions={loadLanguageOptions}
           placeholder="Select a language..."
           defaultOptions={languages?.map((language) => ({
-            value: language.iso_639_1, // Using iso_639_1 as the language identifier
+            value: language.iso_639_1,
             label: language.english_name,
           })) || []} 
           isClearable
           className="mb-2 text-black"
         />
       </div>
+
+      <button
+        onClick={handleSearch}
+        className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+      >
+        Search
+      </button>
 
       <LayoutTemplate layout="card">
         {isLoading
