@@ -21,8 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={cn("min-h-screen bg-slate-800 font-sans antialiased")}>
-        <Navbar />
-        <Providers>{children}</Providers>
+        {/* <Navbar /> */}
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
       </body>
     </html>
   );

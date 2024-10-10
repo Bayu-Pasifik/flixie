@@ -1,5 +1,5 @@
 import { Movie, Tv } from "@/types/movieType";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import axiosInstance from "../lib/axios";
 
 // Fetch Movies by Keyword
@@ -199,5 +199,45 @@ export const useInfinitySearchTV = (query: string) => {
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
     placeholderData : (prevData) => prevData,
+  });
+};
+
+async function fetchSimpleSearhMovie(query: string): Promise<Movie[]> {
+  try {
+    const response = await axiosInstance.get(`/search/movie?query=${query}`);
+    console.log('simple search movie:', response.data.results);
+    return response.data.results; // Pastikan ini adalah array dari Post
+  } catch (error) {
+    console.error('Error fetching now movies:', error);
+    throw error; // Re-throw the error for useQuery handling
+  }
+}
+
+export const useSimpleSearchMovie = (query: string) => {
+  return useQuery<Movie[], Error>({
+    queryKey: ['simple/search/movie', query], 
+    queryFn: () => fetchSimpleSearhMovie(query),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+
+
+async function fetchSimpleSearchTv(query: string): Promise<Tv[]> {
+  try {
+    const response = await axiosInstance.get(`/search/tv?query=${query}`);
+    return response.data.results; // Pastikan response.data sesuai dengan tipe Genres[]
+  } catch (error) {
+    console.error('Error fetching simple search tv:', error);
+    throw error;
+  }
+}
+
+// Hook untuk menggunakan React Query
+export const useSimpleSearchTv = (query: string) =>{ // Tambahkan type annotation
+  return useQuery<Tv[]>({
+    queryKey: ['simple/search/tv', query],
+    queryFn: () => fetchSimpleSearchTv(query),
+    staleTime: 1000 * 60 * 5, // 5 menit
   });
 };

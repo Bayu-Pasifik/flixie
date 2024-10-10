@@ -10,7 +10,7 @@ import MovieListCard from "@/components/MovieListCard";
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
 import ViewToggle from "@/components/ToogleView";
-import { useQueryClient } from "@tanstack/react-query"; // Import queryClient
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState(""); // Store the search term
@@ -86,6 +86,7 @@ export default function SearchPage() {
     sessionStorage.setItem("category", newCategory); // Save selected category in sessionStorage
   };
 
+  if (isMovieLoading || isTVLoading) return <LoadingIndicator />;
 
   const handleViewChange = (newView: string) => {
     setView(newView);

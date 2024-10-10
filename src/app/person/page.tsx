@@ -10,6 +10,7 @@ import {
 import MovieCard from "@/components/MovieCard";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import { Button } from "@/components/ui/button";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 export default function PersonPage() {
   // Ambil query dari sessionStorage atau kosong jika tidak ada
@@ -53,7 +54,14 @@ export default function PersonPage() {
         fetchNextPagePopular();
       }
     }
-  }, [inView, fetchNextPagePopular, fetchNextPageSearch, hasNextPagePopular, hasNextPageSearch, showSearchResults]);
+  }, [
+    inView,
+    fetchNextPagePopular,
+    fetchNextPageSearch,
+    hasNextPagePopular,
+    hasNextPageSearch,
+    showSearchResults,
+  ]);
 
   // Handler untuk pencarian
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -66,6 +74,8 @@ export default function PersonPage() {
   // Loading dan error handling
   if (errorPopular || errorSearch)
     return <div>Error: {errorPopular?.message || errorSearch?.message}</div>;
+
+  if (isLoadingPopular || isLoadingSearch) return <LoadingIndicator />;
 
   return (
     <div className="p-4">
