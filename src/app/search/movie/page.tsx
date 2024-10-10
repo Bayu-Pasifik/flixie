@@ -4,6 +4,7 @@ import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
 import { useInfinitySearchMovie } from "@/hooks/useSearch";
 import { useSearchParams, useRouter } from "next/navigation";
+import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 
 export default function SearchMoviePage() {
   const params = useSearchParams();
@@ -39,12 +40,16 @@ export default function SearchMoviePage() {
         placeholder="Search for movies..."
         className="w-full p-2 border rounded-md mb-4 text-black"
       />
-
-      {isLoading && <p>Loading...</p>}
-      {error && <p>Error: {error.message}</p>}
       
       <LayoutTemplate layout="card">
-        {data?.pages.map((page) =>
+        {isLoading ? (
+            Array.from({ length: 20 }).map((_, index) => (
+              <SkeletonMovieCard key={`movie-skeleton-${index}`} />
+            ))
+        ) : error ? (
+          `Error: ${error.message}`
+        ) : (
+            data?.pages.map((page) =>
           page.movies.map((movie) => (
             <MovieCard
               key={movie.id}
@@ -54,6 +59,7 @@ export default function SearchMoviePage() {
               posterPath={movie.poster_path || ""}
             />
           ))
+        )
         )}
       </LayoutTemplate>
     </div>
