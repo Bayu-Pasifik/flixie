@@ -9,9 +9,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
-import { useAdvancedSearchData, useCountries, useLanguages } from "@/hooks/useAdvancedSearch";
+import {
+  useAdvancedSearchData,
+  useCountries,
+  useLanguages,
+} from "@/hooks/useAdvancedSearch";
 import { useMovieGenre } from "@/hooks/useGenres";
-// import { useLanguages } from "@/hooks/useLanguages"; // Import the useLanguages hook
 
 type OptionType = {
   value: string;
@@ -47,12 +50,13 @@ export default function SearchMoviePage() {
   const [debouncedQuery, setDebouncedQuery] = useState(query || "");
   const [runtimeMoreThan, setRuntimeMoreThan] = useState<number | "">("");
   const [runtimeLessThan, setRuntimeLessThan] = useState<number | "">("");
-  const [ratingMoreThan, setRatingMoreThan] = useState<string | "">(""); // Change to string
-  const [ratingLessThan, setRatingLessThan] = useState<string | "">(""); // Change to string
+  const [ratingMoreThan, setRatingMoreThan] = useState<string | "">("");
+  const [ratingLessThan, setRatingLessThan] = useState<string | "">("");
   const [year, setYear] = useState<number | "">("");
   const { data: genres, isLoading: isGenresLoading } = useMovieGenre();
   const { data: countries, isLoading: isCountriesLoading } = useCountries();
-  const { data: languages, isLoading: isLanguagesLoading } = useLanguages(); // Fetch languages using the hook
+  const { data: languages, isLoading: isLanguagesLoading } = useLanguages();
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -79,7 +83,7 @@ export default function SearchMoviePage() {
 
   const companyCache: { [key: string]: OptionType[] } = {};
   const keywordCache: { [key: string]: OptionType[] } = {};
-  
+
   const loadCompanyOptions = (inputValue: string): Promise<OptionType[]> => {
     if (companyCache[inputValue]) {
       return Promise.resolve(companyCache[inputValue]);
@@ -162,7 +166,7 @@ export default function SearchMoviePage() {
         language.english_name.toLowerCase().includes(inputValue.toLowerCase())
       )
       .map((language) => ({
-        value: language.iso_639_1, // Assuming iso_639_1 is the identifier for languages
+        value: language.iso_639_1,
         label: language.english_name,
       }));
 
@@ -178,7 +182,7 @@ export default function SearchMoviePage() {
     if (ratingLessThan) filters.push(`rating_less_than=${ratingLessThan}`);
     if (year) filters.push(`year=${year}`);
 
-    const filterQuery = filters.length > 0 ? `&${filters.join('&')}` : '';
+    const filterQuery = filters.length > 0 ? `&${filters.join("&")}` : "";
     router.push(`/search/movie?query=${debouncedQuery}${filterQuery}`);
   };
 
@@ -195,133 +199,169 @@ export default function SearchMoviePage() {
         className="w-full p-2 border rounded-md mb-4 text-black"
       />
 
-      {/* Advanced Search Filters */}
-      <div className="mb-4 flex flex-col">
-        <h2>Advanced Search</h2>
-
-        <label className="mt-2">Runtime More Than:</label>
-        <input
-          type="number"
-          value={runtimeMoreThan}
-          onChange={(e) => setRuntimeMoreThan(Number(e.target.value) || "")}
-          placeholder="e.g. 90"
-          className="p-2 border rounded-md mb-2 text-black"
-        />
-
-        <label className="mt-2">Runtime Less Than:</label>
-        <input
-          type="number"
-          value={runtimeLessThan}
-          onChange={(e) => setRuntimeLessThan(Number(e.target.value) || "")}
-          placeholder="e.g. 150"
-          className="p-2 border rounded-md mb-2 text-black"
-        />
-
-        <label className="mt-2">Rating More Than:</label>
-        <Select
-          options={generateRatingOptions()} // Pass the rating options
-          value={ratingMoreThan ? { value: ratingMoreThan, label: ratingMoreThan } : null} // Set value
-          onChange={(option) => setRatingMoreThan(option ? option.value : "")} // Update state
-          placeholder="Select rating..."
-          className="mb-2 text-black"
-        />
-
-        <label className="mt-2">Rating Less Than:</label>
-        <Select
-          options={generateRatingOptions()} // Pass the rating options
-          value={ratingLessThan ? { value: ratingLessThan, label: ratingLessThan } : null} // Set value
-          onChange={(option) => setRatingLessThan(option ? option.value : "")} // Update state
-          placeholder="Select rating..."
-          className="mb-2 text-black"
-        />
-
-        <label className="mt-2">Year:</label>
-        <input
-          type="number"
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value) || "")}
-          placeholder="e.g. 2023"
-          className="p-2 border rounded-md mb-2 text-black"
-        />
-
-        {/* Async Select Components */}
-        <AsyncSelect
-          cacheOptions
-          loadOptions={loadKeywordOptions}
-          placeholder="Select a keyword..."
-          defaultOptions
-          isClearable
-          className="mb-2 text-black"
-        />
-        <AsyncSelect
-          cacheOptions
-          loadOptions={loadGenreOptions}
-          placeholder="Select a genre..."
-          defaultOptions={genres?.map((genre) => ({
-            value: genre.id.toString(),
-            label: genre.name,
-          })) || []} 
-          isClearable
-          className="mb-2 text-black"
-        />
-        <AsyncSelect
-          cacheOptions
-          loadOptions={loadCountryOptions}
-          placeholder="Select a country..."
-          defaultOptions={countries?.map((country) => ({
-            value: country.iso_3166_1,
-            label: country.english_name,
-          })) || []} 
-          isClearable
-          className="mb-2 text-black"
-        />
-        <AsyncSelect
-          cacheOptions
-          loadOptions={loadLanguageOptions}
-          placeholder="Select a language..."
-          defaultOptions={languages?.map((language) => ({
-            value: language.iso_639_1,
-            label: language.english_name,
-          })) || []} 
-          isClearable
-          className="mb-2 text-black"
-        />
-      </div>
-
+      {/* Button to Show Advanced Search */}
       <button
-        onClick={handleSearch}
+        onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
         className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
       >
-        Search
+        Toggle Advanced Search
       </button>
 
-      <LayoutTemplate layout="card">
-        {isLoading
-          ? Array.from({ length: 20 }).map((_, index) => (
+      {/* Advanced Search Filters */}
+      {showAdvancedSearch && (
+        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="mt-2">Runtime More Than:</label>
+            <input
+              type="number"
+              value={runtimeMoreThan}
+              onChange={(e) => setRuntimeMoreThan(Number(e.target.value) || "")}
+              placeholder="e.g. 90"
+              className="p-2 border rounded-md mb-2 text-black mt-4 ml-3"
+            />
+          </div>
+
+          <div>
+            <label className="mt-2">Runtime Less Than:</label>
+            <input
+              type="number"
+              value={runtimeLessThan}
+              onChange={(e) => setRuntimeLessThan(Number(e.target.value) || "")}
+              placeholder="e.g. 150"
+              className="p-2 border rounded-md mb-2 text-black ml-5"
+            />
+          </div>
+
+          <div>
+            <label className="mt-2">Rating More Than:</label>
+            <Select
+              options={generateRatingOptions()}
+              value={
+                ratingMoreThan
+                  ? { value: ratingMoreThan, label: ratingMoreThan }
+                  : null
+              }
+              onChange={(option) =>
+                setRatingMoreThan(option ? option.value : "")
+              }
+              placeholder="Select rating..."
+              className="mb-2 text-black"
+            />
+          </div>
+
+          <div>
+            <label className="mt-2">Rating Less Than:</label>
+            <Select
+              options={generateRatingOptions()}
+              value={
+                ratingLessThan
+                  ? { value: ratingLessThan, label: ratingLessThan }
+                  : null
+              }
+              onChange={(option) =>
+                setRatingLessThan(option ? option.value : "")
+              }
+              placeholder="Select rating..."
+              className="mb-2 text-black"
+            />
+          </div>
+
+          <div>
+            <label className="mt-2">Year:</label>
+            <input
+              type="number"
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value) || "")}
+              placeholder="e.g. 2023"
+              className="p-2 border rounded-md mb-2 text-black ml-4"
+            />
+          </div>
+
+          <div>
+            <label className="mt-2">Companies:</label>
+            <AsyncSelect
+              loadOptions={loadCompanyOptions}
+              isClearable
+              placeholder="Select company..."
+              className="mb-2"
+            />
+          </div>
+
+          <div>
+            <label className="mt-2">Genres:</label>
+            <AsyncSelect
+              loadOptions={loadGenreOptions}
+              isClearable
+              placeholder="Select genres..."
+              className="mb-2"
+            />
+          </div>
+
+          <div>
+            <label className="mt-2">Keywords:</label>
+            <AsyncSelect
+              loadOptions={loadKeywordOptions}
+              isClearable
+              placeholder="Select keywords..."
+              className="mb-2"
+            />
+          </div>
+
+          <div>
+            <label className="mt-2">Countries:</label>
+            <AsyncSelect
+              loadOptions={loadCountryOptions}
+              isClearable
+              placeholder="Select countries..."
+              className="mb-2"
+            />
+          </div>
+
+          <div>
+            <label className="mt-2">Languages:</label>
+            <AsyncSelect
+              loadOptions={loadLanguageOptions}
+              isClearable
+              placeholder="Select languages..."
+              className="mb-2"
+            />
+          </div>
+
+          <button
+            onClick={handleSearch}
+            className="col-span-1 md:col-span-2 mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+          >
+            Apply Filters
+          </button>
+        </div>
+      )}
+
+      {/* Movie Results */}
+      <div className="mt-4">
+        <LayoutTemplate layout="card">
+          {isLoading ? (
+            Array.from({ length: 20 }).map((_, index) => (
               <SkeletonMovieCard key={`movie-skeleton-${index}`} />
             ))
-          : error
-          ? `Error: ${error.message}`
-          : data?.pages.map((page) =>
+          ) : error ? (
+            <div>Error: {error.message}</div>
+          ) : (
+            data?.pages.map((page) =>
               page.movies.map((movie) => (
                 <MovieCard
                   key={movie.id}
                   id={movie.id}
                   title={movie.title}
-                  overview={movie.overview || "No overview available"}
-                  posterPath={movie.poster_path || ""}
+                  posterPath={movie.poster_path}
+                  overview={movie.overview}
                 />
               ))
-            )}
-      </LayoutTemplate>
-      {!hasNextPage && (
-        <p className="text-center mt-6 text-2xl font-bold">
-          No more movies to load
-        </p>
-      )}
-
-      {isFetchingNextPage && <NewDataLoading />}
-      <div ref={loadMoreRef} />
+            )
+          )}
+        </LayoutTemplate>
+        {isFetchingNextPage && <NewDataLoading />}
+        <div ref={loadMoreRef} />
+      </div>
     </div>
   );
 }
