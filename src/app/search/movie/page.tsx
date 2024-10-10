@@ -89,9 +89,9 @@ export default function SearchMoviePage() {
     runTimeGreater: runtimeMoreThan,
     runTimeLess: runtimeLessThan,
     year,
-    companyId: companyId.map((c) => Number(c.value)),
-    keywordsId: keywordsId.map((k) => Number(k.value)),
-    genresId: genresId.map((g) => Number(g.value)),
+    companyId: companyId.map((c) => (c.value)),
+    keywordsId: keywordsId.map((k) => (k.value)),
+    genresId: genresId.map((g) => (g.value)),
     countryId: countryId ? countryId.value : undefined, // Updated to pass single country value
     languagesId: languagesId.map((l) => l.value),
   });

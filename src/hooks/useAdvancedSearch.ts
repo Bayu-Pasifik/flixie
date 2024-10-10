@@ -91,9 +91,9 @@ async function fetchLanguages(): Promise<Languages[]> {
       runTimeLess?: number;
       runTimeGreater?: number;
       year?: number;
-      companyId?: number[];
-      keywordsId?: number[];
-      genresId?: number[];
+      companyId?: string[];
+      keywordsId?: string[];
+      genresId?: string[];
       countryId?: string;
       languagesId?: string[];
     },
@@ -119,6 +119,7 @@ async function fetchLanguages(): Promise<Languages[]> {
     };
   
     const response = await axiosInstance.get(`/discover/movie`, { params });
+    console.log('Response:', response.data.results);
   
     return {
       movies: response.data.results,
@@ -134,9 +135,9 @@ export const useMovieByAdvancedSearch = (filters: {
   runTimeLess?: number;
   runTimeGreater?: number;
   year?: number;
-  companyId?: number[];
-  keywordsId?: number[];
-  genresId?: number[];
+  companyId?: string[];
+  keywordsId?: string[];
+  genresId?: string[];
   countryId?: string;
   languagesId?: string[];
 }) => {
