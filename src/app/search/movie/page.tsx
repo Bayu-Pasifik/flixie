@@ -8,11 +8,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
-import { useAdvancedSearchData, useCountries } from "@/hooks/useAdvancedSearch";
+import { useAdvancedSearchData, useCountries, useLanguages } from "@/hooks/useAdvancedSearch";
 import { useMovieGenre } from "@/hooks/useGenres";
+// import { useLanguages } from "@/hooks/useLanguages"; // Import the useLanguages hook
 
 type OptionType = {
-  value: string; // Ensure value is a string
+  value: string;
   label: string;
 };
 
@@ -33,6 +34,7 @@ export default function SearchMoviePage() {
   const [debouncedQuery, setDebouncedQuery] = useState(query || "");
   const { data: genres, isLoading: isGenresLoading } = useMovieGenre();
   const { data: countries, isLoading: isCountriesLoading } = useCountries();
+  const { data: languages, isLoading: isLanguagesLoading } = useLanguages(); // Fetch languages using the hook
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -59,7 +61,7 @@ export default function SearchMoviePage() {
 
   const companyCache: { [key: string]: OptionType[] } = {};
   const keywordCache: { [key: string]: OptionType[] } = {};
-
+  
   const loadCompanyOptions = (inputValue: string): Promise<OptionType[]> => {
     if (companyCache[inputValue]) {
       return Promise.resolve(companyCache[inputValue]);
@@ -71,7 +73,7 @@ export default function SearchMoviePage() {
       )
       .slice(0, 20)
       .map((company) => ({
-        value: company.id.toString(), // Convert id to string
+        value: company.id.toString(),
         label: company.name,
       }));
 
@@ -89,7 +91,7 @@ export default function SearchMoviePage() {
         genre.name.toLowerCase().includes(inputValue.toLowerCase())
       )
       .map((genre) => ({
-        value: genre.id.toString(), // Convert genre id to string
+        value: genre.id.toString(),
         label: genre.name,
       }));
 
@@ -107,7 +109,7 @@ export default function SearchMoviePage() {
       )
       .slice(0, 20)
       .map((keyword) => ({
-        value: keyword.id.toString(), // Convert keyword id to string
+        value: keyword.id.toString(),
         label: keyword.name,
       }));
 
@@ -125,11 +127,28 @@ export default function SearchMoviePage() {
         country.english_name.toLowerCase().includes(inputValue.toLowerCase())
       )
       .map((country) => ({
-        value: country.iso_3166_1, // Use iso_3166_1 as the country identifier
+        value: country.iso_3166_1,
         label: country.english_name,
       }));
 
     return Promise.resolve(filteredCountries);
+  };
+
+  const loadLanguageOptions = (inputValue: string): Promise<OptionType[]> => {
+    if (isLanguagesLoading || !languages) {
+      return Promise.resolve([]);
+    }
+
+    const filteredLanguages = languages
+      .filter((language) =>
+        language.english_name.toLowerCase().includes(inputValue.toLowerCase())
+      )
+      .map((language) => ({
+        value: language.iso_639_1, // Assuming iso_639_1 is the identifier for languages
+        label: language.english_name,
+      }));
+
+    return Promise.resolve(filteredLanguages);
   };
 
   return (
@@ -168,7 +187,7 @@ export default function SearchMoviePage() {
           loadOptions={loadGenreOptions}
           placeholder="Select a genre..."
           defaultOptions={genres?.map((genre) => ({
-            value: genre.id.toString(), // Ensure genre id is string
+            value: genre.id.toString(),
             label: genre.name,
           })) || []} 
           isClearable
@@ -179,8 +198,19 @@ export default function SearchMoviePage() {
           loadOptions={loadCountryOptions}
           placeholder="Select a country..."
           defaultOptions={countries?.map((country) => ({
-            value: country.iso_3166_1, // Using iso_3166_1 as the country identifier
+            value: country.iso_3166_1,
             label: country.english_name,
+          })) || []} 
+          isClearable
+          className="mb-2 text-black"
+        />
+        <AsyncSelect
+          cacheOptions
+          loadOptions={loadLanguageOptions}
+          placeholder="Select a language..."
+          defaultOptions={languages?.map((language) => ({
+            value: language.iso_639_1, // Using iso_639_1 as the language identifier
+            label: language.english_name,
           })) || []} 
           isClearable
           className="mb-2 text-black"

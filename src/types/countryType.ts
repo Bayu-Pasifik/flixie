@@ -4,3 +4,9 @@ export type Country = {
     native_name: string;
     
 };
+
+export type Languages = {
+    iso_639_1: string;
+    english_name: string;
+    name: string;
+}
