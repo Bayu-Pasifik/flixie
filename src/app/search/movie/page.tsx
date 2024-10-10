@@ -1,5 +1,4 @@
-// SearchMoviePage.jsx
-'use client';
+"use client";
 import { useState, useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
@@ -10,6 +9,7 @@ import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
 import { useAdvancedSearchData } from "@/hooks/useAdvancedSearch";
+import { useMovieGenre } from "@/hooks/useGenres";
 
 type OptionType = {
   value: number;
@@ -31,6 +31,7 @@ export default function SearchMoviePage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState(query || "");
   const [debouncedQuery, setDebouncedQuery] = useState(query || "");
+  const { data: genres, isLoading: isGenresLoading } = useMovieGenre();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -79,6 +80,25 @@ export default function SearchMoviePage() {
     return Promise.resolve(filteredCompanies);
   };
 
+  // Fungsi untuk memuat data genre secara dinamis
+  const loadGenreOptions = (inputValue: string): Promise<OptionType[]> => {
+    if (isGenresLoading || !genres) {
+      return Promise.resolve([]); // Return an empty array if genres are loading or not available
+    }
+
+    // Filter genres based on user input
+    const filteredGenres = genres
+      .filter((genre) =>
+        genre.name.toLowerCase().includes(inputValue.toLowerCase())
+      )
+      .map((genre) => ({
+        value: genre.id,
+        label: genre.name,
+      }));
+
+    return Promise.resolve(filteredGenres); // Return the filtered genres
+  };
+
   // Fungsi untuk memuat data keyword secara dinamis
   const loadKeywordOptions = (inputValue: string): Promise<OptionType[]> => {
     if (keywordCache[inputValue]) {
@@ -99,14 +119,6 @@ export default function SearchMoviePage() {
     return Promise.resolve(filteredKeywords);
   };
 
-  // Custom option component to display link if no options are available
-  const noOptionsMessage = (inputValue: string) => {
-    if (inputValue.trim() === "") {
-      return <div className="text-blue-500 underline cursor-pointer">Please type to search or <a href="/view-all">view all keywords and companies</a></div>;
-    }
-    return "No options";
-  };
-
   return (
     <div className="p-4">
       <h1>Search Movie - {query}</h1>
@@ -120,7 +132,7 @@ export default function SearchMoviePage() {
         className="w-full p-2 border rounded-md mb-4 text-black"
       />
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-row w-full">
         <h2>Advanced Search</h2>
         <AsyncSelect
           cacheOptions
@@ -129,7 +141,6 @@ export default function SearchMoviePage() {
           defaultOptions
           isClearable
           className="mb-2 text-black"
-          noOptionsMessage={() => noOptionsMessage("")}
         />
         <AsyncSelect
           cacheOptions
@@ -138,7 +149,19 @@ export default function SearchMoviePage() {
           defaultOptions
           isClearable
           className="mb-2 text-black"
-          noOptionsMessage={() => noOptionsMessage("")}
+        />
+        <AsyncSelect
+          cacheOptions
+          loadOptions={loadGenreOptions}
+          placeholder="Select a genre..."
+          defaultOptions={
+            genres?.map((genre) => ({
+              value: genre.id,
+              label: genre.name,
+            })) || []
+          } // Preload all genres if available
+          isClearable
+          className="mb-2 text-black"
         />
       </div>
 
