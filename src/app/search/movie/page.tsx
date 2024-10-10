@@ -16,14 +16,14 @@ import { LayoutTemplate } from "@/components/LayoutTemplate";
 const generateRatingOptions = () => {
   const options = [];
   for (let i = 1; i <= 100; i++) {
+    const ratingValue = (i / 10).toFixed(1);
     options.push({
-      value: (i / 10).toFixed(1),
-      label: (i / 10).toFixed(1),
+      value: Number(ratingValue), // Ensure value is a number
+      label: ratingValue, // Keep label as string
     });
   }
   return options;
 };
-
 type OptionType = {
   value: string;
   label: string;
@@ -33,8 +33,8 @@ export default function SearchMoviePage() {
   const router = useRouter();
   const [runtimeMoreThan, setRuntimeMoreThan] = useState<number | 0>(0);
   const [runtimeLessThan, setRuntimeLessThan] = useState<number | 0>(0);
-  const [ratingMoreThan, setRatingMoreThan] = useState<string | 0>(0);
-  const [ratingLessThan, setRatingLessThan] = useState<string | 0>(0);
+  const [ratingMoreThan, setRatingMoreThan] = useState<number>(0);
+  const [ratingLessThan, setRatingLessThan] = useState<number>(0);
   const [year, setYear] = useState<number | 0>(0);
   const [companyId, setCompanyId] = useState<OptionType[]>([]);
   const [genresId, setGenresId] = useState<OptionType[]>([]);
@@ -88,10 +88,12 @@ export default function SearchMoviePage() {
   const { data: movieData, fetchNextPage } = useMovieByAdvancedSearch({
     runTimeGreater: runtimeMoreThan,
     runTimeLess: runtimeLessThan,
+    vote_averageMoreThan: ratingMoreThan,
+    vote_averageLessThan: ratingLessThan,
     year,
-    companyId: companyId.map((c) => (c.value)),
-    keywordsId: keywordsId.map((k) => (k.value)),
-    genresId: genresId.map((g) => (g.value)),
+    companyId: companyId.map((c) => c.value),
+    keywordsId: keywordsId.map((k) => k.value),
+    genresId: genresId.map((g) => g.value),
     countryId: countryId ? countryId.value : undefined, // Updated to pass single country value
     languagesId: languagesId.map((l) => l.value),
   });
@@ -114,7 +116,7 @@ export default function SearchMoviePage() {
         <div>
           <label>Runtime More Than:</label>
           <input
-            type="number"
+            type="text"
             value={runtimeMoreThan}
             onChange={(e) => setRuntimeMoreThan(Number(e.target.value) || 0)}
             placeholder="e.g. 90"
@@ -124,7 +126,7 @@ export default function SearchMoviePage() {
         <div>
           <label>Runtime Less Than:</label>
           <input
-            type="number"
+            type="text"
             value={runtimeLessThan}
             onChange={(e) => setRuntimeLessThan(Number(e.target.value) || 0)}
             placeholder="e.g. 150"
@@ -136,11 +138,11 @@ export default function SearchMoviePage() {
           <Select
             options={generateRatingOptions()}
             value={
-              ratingMoreThan
-                ? { value: ratingMoreThan, label: ratingMoreThan }
+              ratingMoreThan > 0 // Ensure the value is only set if greater than 0
+                ? { value: ratingMoreThan, label: ratingMoreThan.toString() }
                 : null
             }
-            onChange={(option) => setRatingMoreThan(option ? option.value : "")}
+            onChange={(option) => setRatingMoreThan(option ? option.value : 0)}
             placeholder="Select rating..."
             className="mb-2 text-black"
           />
@@ -150,11 +152,11 @@ export default function SearchMoviePage() {
           <Select
             options={generateRatingOptions()}
             value={
-              ratingLessThan
-                ? { value: ratingLessThan, label: ratingLessThan }
+              ratingLessThan > 0 // Ensure the value is only set if greater than 0
+                ? { value: ratingLessThan, label: ratingLessThan.toString() }
                 : null
             }
-            onChange={(option) => setRatingLessThan(option ? option.value : "")}
+            onChange={(option) => setRatingLessThan(option ? option.value : 0)}
             placeholder="Select rating..."
             className="mb-2 text-black"
           />
@@ -169,7 +171,6 @@ export default function SearchMoviePage() {
             className="p-2 border rounded-md mb-2 text-black"
           />
         </div>
-
         {/* Select Companies */}
         <div>
           <label>Companies:</label>
@@ -182,7 +183,6 @@ export default function SearchMoviePage() {
             className="mb-2 text-black"
           />
         </div>
-
         {/* Select Genres */}
         <div>
           <label>Genres:</label>
@@ -198,7 +198,6 @@ export default function SearchMoviePage() {
             className="mb-2 text-black"
           />
         </div>
-
         {/* Select Keywords */}
         <div>
           <label>Keywords:</label>
@@ -211,7 +210,6 @@ export default function SearchMoviePage() {
             className="mb-2 text-black"
           />
         </div>
-
         {/* Select Countries */}
         <div>
           <label>Countries:</label>
@@ -226,7 +224,6 @@ export default function SearchMoviePage() {
             className="mb-2 text-black"
           />
         </div>
-
         {/* Select Languages */}
         <div>
           <label>Languages:</label>
@@ -253,17 +250,17 @@ export default function SearchMoviePage() {
 
       {/* Movie Results */}
       <LayoutTemplate layout="card">
-      {movieData?.pages.map((page) =>
-        page.movies.map((movie) => (
-          <MovieCard
-            key={movie.id}
-            id={movie.id}
-            title={movie.title}
-            overview={movie.overview}
-            posterPath={movie.poster_path}
-          />
-        ))
-      )}
+        {movieData?.pages.map((page) =>
+          page.movies.map((movie) => (
+            <MovieCard
+              key={movie.id}
+              id={movie.id}
+              title={movie.title}
+              overview={movie.overview}
+              posterPath={movie.poster_path}
+            />
+          ))
+        )}
       </LayoutTemplate>
     </div>
   );
