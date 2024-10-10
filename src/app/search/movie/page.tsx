@@ -8,11 +8,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
-import { useAdvancedSearchData } from "@/hooks/useAdvancedSearch";
+import { useAdvancedSearchData, useCountries } from "@/hooks/useAdvancedSearch";
 import { useMovieGenre } from "@/hooks/useGenres";
 
 type OptionType = {
-  value: number;
+  value: string; // Ensure value is a string
   label: string;
 };
 
@@ -32,6 +32,7 @@ export default function SearchMoviePage() {
   const [searchQuery, setSearchQuery] = useState(query || "");
   const [debouncedQuery, setDebouncedQuery] = useState(query || "");
   const { data: genres, isLoading: isGenresLoading } = useMovieGenre();
+  const { data: countries, isLoading: isCountriesLoading } = useCountries();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -56,11 +57,9 @@ export default function SearchMoviePage() {
     }
   }, [inView, fetchNextPage]);
 
-  // Caching for search results
   const companyCache: { [key: string]: OptionType[] } = {};
   const keywordCache: { [key: string]: OptionType[] } = {};
 
-  // Fungsi untuk memuat data perusahaan secara dinamis
   const loadCompanyOptions = (inputValue: string): Promise<OptionType[]> => {
     if (companyCache[inputValue]) {
       return Promise.resolve(companyCache[inputValue]);
@@ -70,9 +69,9 @@ export default function SearchMoviePage() {
       .filter((company) =>
         company.name.toLowerCase().includes(inputValue.toLowerCase())
       )
-      .slice(0, 20) // Limit the results to 20 companies
+      .slice(0, 20)
       .map((company) => ({
-        value: company.id,
+        value: company.id.toString(), // Convert id to string
         label: company.name,
       }));
 
@@ -80,26 +79,23 @@ export default function SearchMoviePage() {
     return Promise.resolve(filteredCompanies);
   };
 
-  // Fungsi untuk memuat data genre secara dinamis
   const loadGenreOptions = (inputValue: string): Promise<OptionType[]> => {
     if (isGenresLoading || !genres) {
-      return Promise.resolve([]); // Return an empty array if genres are loading or not available
+      return Promise.resolve([]);
     }
 
-    // Filter genres based on user input
     const filteredGenres = genres
       .filter((genre) =>
         genre.name.toLowerCase().includes(inputValue.toLowerCase())
       )
       .map((genre) => ({
-        value: genre.id,
+        value: genre.id.toString(), // Convert genre id to string
         label: genre.name,
       }));
 
-    return Promise.resolve(filteredGenres); // Return the filtered genres
+    return Promise.resolve(filteredGenres);
   };
 
-  // Fungsi untuk memuat data keyword secara dinamis
   const loadKeywordOptions = (inputValue: string): Promise<OptionType[]> => {
     if (keywordCache[inputValue]) {
       return Promise.resolve(keywordCache[inputValue]);
@@ -109,14 +105,31 @@ export default function SearchMoviePage() {
       .filter((keyword) =>
         keyword.name.toLowerCase().includes(inputValue.toLowerCase())
       )
-      .slice(0, 20) // Limit the results to 20 keywords
+      .slice(0, 20)
       .map((keyword) => ({
-        value: keyword.id,
+        value: keyword.id.toString(), // Convert keyword id to string
         label: keyword.name,
       }));
 
     keywordCache[inputValue] = filteredKeywords;
     return Promise.resolve(filteredKeywords);
+  };
+
+  const loadCountryOptions = (inputValue: string): Promise<OptionType[]> => {
+    if (isCountriesLoading || !countries) {
+      return Promise.resolve([]);
+    }
+
+    const filteredCountries = countries
+      .filter((country) =>
+        country.english_name.toLowerCase().includes(inputValue.toLowerCase())
+      )
+      .map((country) => ({
+        value: country.iso_3166_1, // Use iso_3166_1 as the country identifier
+        label: country.english_name,
+      }));
+
+    return Promise.resolve(filteredCountries);
   };
 
   return (
@@ -154,12 +167,21 @@ export default function SearchMoviePage() {
           cacheOptions
           loadOptions={loadGenreOptions}
           placeholder="Select a genre..."
-          defaultOptions={
-            genres?.map((genre) => ({
-              value: genre.id,
-              label: genre.name,
-            })) || []
-          } // Preload all genres if available
+          defaultOptions={genres?.map((genre) => ({
+            value: genre.id.toString(), // Ensure genre id is string
+            label: genre.name,
+          })) || []} 
+          isClearable
+          className="mb-2 text-black"
+        />
+        <AsyncSelect
+          cacheOptions
+          loadOptions={loadCountryOptions}
+          placeholder="Select a country..."
+          defaultOptions={countries?.map((country) => ({
+            value: country.iso_3166_1, // Using iso_3166_1 as the country identifier
+            label: country.english_name,
+          })) || []} 
           isClearable
           className="mb-2 text-black"
         />

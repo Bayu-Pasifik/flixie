@@ -1,4 +1,7 @@
 // hooks/useAdvancedSearchData.js
+import axiosInstance from "@/lib/axios";
+import { Country } from "@/types/countryType";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 
 type Company = {
@@ -44,3 +47,22 @@ export function useAdvancedSearchData() {
   return { companies, keywords, loading };
 }
 
+
+async function fetchCountries(): Promise<Country[]> {
+    try {
+      const response = await axiosInstance.get(`/configuration/countries`);
+      return response.data; // Pastikan response.data sesuai dengan tipe Country[]
+    } catch (error) {
+      console.error('Error fetching countries:', error);
+      throw error;
+    }
+  }
+  
+  // Hook untuk menggunakan React Query
+  export const useCountries = (): UseQueryResult<Country[]> => { // Tambahkan type annotation
+    return useQuery<Country[], Error>({
+      queryKey: ['all/countries'],
+      queryFn: fetchCountries,
+      staleTime: 1000 * 60 * 5, // 5 menit
+    });
+  };
