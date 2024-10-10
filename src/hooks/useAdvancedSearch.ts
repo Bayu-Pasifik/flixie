@@ -1,7 +1,8 @@
 // hooks/useAdvancedSearchData.js
 import axiosInstance from "@/lib/axios";
 import { Country, Languages } from "@/types/countryType";
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { Movie } from "@/types/movieType";
+import { useInfiniteQuery, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 
 type Company = {
@@ -84,3 +85,66 @@ async function fetchLanguages(): Promise<Languages[]> {
       staleTime: 1000 * 60 * 5, // 5 menit
     });
   };
+
+  async function fetchAdvancedSearchMovie(
+    filters: {
+      runTimeLess?: number;
+      runTimeGreater?: number;
+      year?: number;
+      companyId?: number[];
+      keywordsId?: number[];
+      genresId?: number[];
+      countryId?: string;
+      languagesId?: string[];
+    },
+    pageParam: number = 1
+  ): Promise<{
+    movies: Movie[];
+    currentPage: number | null;
+    nextPage: number | null;
+    prevPage: number | null;
+  }> {
+    const { runTimeLess, runTimeGreater, year, companyId, keywordsId, genresId, countryId, languagesId } = filters;
+  
+    const params: any = {
+      page: pageParam,
+      ...(runTimeGreater && { with_runtime_gte: runTimeGreater }),
+      ...(runTimeLess && { with_runtime_lte: runTimeLess }),
+      ...(year && { year }),
+      ...(companyId && { with_companies: companyId.join(",") }),
+      ...(keywordsId && { with_keywords: keywordsId.join(",") }),
+      ...(genresId && { with_genres: genresId.join(",") }),
+      ...(countryId && { with_origin_country: countryId}),
+      ...(languagesId && { with_original_language: languagesId.join(",") }),
+    };
+  
+    const response = await axiosInstance.get(`/discover/movie`, { params });
+  
+    return {
+      movies: response.data.results,
+      currentPage: response.data.page,
+      nextPage: response.data.page < response.data.total_pages ? response.data.page + 1 : null,
+      prevPage: response.data.page > 1 ? response.data.page - 1 : null,
+    };
+  }
+  
+
+
+export const useMovieByAdvancedSearch = (filters: {
+  runTimeLess?: number;
+  runTimeGreater?: number;
+  year?: number;
+  companyId?: number[];
+  keywordsId?: number[];
+  genresId?: number[];
+  countryId?: string;
+  languagesId?: string[];
+}) => {
+  return useInfiniteQuery({
+    queryKey: ["movieByAdvancedSearch", filters],
+    queryFn:  ({ pageParam = 1 }) => fetchAdvancedSearchMovie(filters, pageParam),
+    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+    initialPageParam: 1,
+  }
+  );
+};
