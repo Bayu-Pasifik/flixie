@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import Select from "react-select";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMovieByAdvancedSearch } from "@/hooks/useAdvancedSearch";
+import { useInfinitySearchMovie } from "@/hooks/useSearch";
 import {
   useAdvancedSearchData,
   useCountries,
@@ -18,12 +19,14 @@ const generateRatingOptions = () => {
   for (let i = 1; i <= 100; i++) {
     const ratingValue = (i / 10).toFixed(1);
     options.push({
-      value: Number(ratingValue), // Ensure value is a number
-      label: ratingValue, // Keep label as string
+      value: Number(ratingValue),
+      label: ratingValue,
     });
   }
   return options;
 };
+
+// Define the type for OptionType explicitly
 type OptionType = {
   value: string;
   label: string;
@@ -31,26 +34,45 @@ type OptionType = {
 
 export default function SearchMoviePage() {
   const router = useRouter();
-  const [runtimeMoreThan, setRuntimeMoreThan] = useState<number | 0>(0);
-  const [runtimeLessThan, setRuntimeLessThan] = useState<number | 0>(0);
+  const params = useSearchParams();
+  const initialQuery = params.get("query");
+  const [query, setQuery] = useState<string>(initialQuery || "");
+
+  // State for filtering
+  const [runtimeMoreThan, setRuntimeMoreThan] = useState<number>(0);
+  const [runtimeLessThan, setRuntimeLessThan] = useState<number>(0);
   const [ratingMoreThan, setRatingMoreThan] = useState<number>(0);
   const [ratingLessThan, setRatingLessThan] = useState<number>(0);
-  const [year, setYear] = useState<number | 0>(0);
+  const [year, setYear] = useState<number>(0);
+
+  // Add types to all filter states
   const [companyId, setCompanyId] = useState<OptionType[]>([]);
   const [genresId, setGenresId] = useState<OptionType[]>([]);
   const [keywordsId, setKeywordsId] = useState<OptionType[]>([]);
-  const [countryId, setCountryId] = useState<OptionType | null>(null); // Changed to allow single selection
+  const [countryId, setCountryId] = useState<OptionType | null>(null);
   const [languagesId, setLanguagesId] = useState<OptionType[]>([]);
 
+  // Active filters state
+  const [activeFilters, setActiveFilters] = useState({
+    runtimeMoreThan: 0,
+    runtimeLessThan: 0,
+    ratingMoreThan: 0,
+    ratingLessThan: 0,
+    year: 0,
+    companyId: [] as OptionType[],
+    genresId: [] as OptionType[],
+    keywordsId: [] as OptionType[],
+    countryId: null as OptionType | null,
+    languagesId: [] as OptionType[],
+  });
+
+  // Fetch data for dropdowns
   const { companies, keywords } = useAdvancedSearchData();
   const { data: genres } = useMovieGenre();
   const { data: countries } = useCountries();
   const { data: languages } = useLanguages();
 
-  // Cache untuk company
   const companyCache: Record<string, OptionType[]> = {};
-
-  // Fungsi untuk filter Company
   const loadCompanyOptions = (inputValue: string) => {
     if (companyCache[inputValue]) {
       return Promise.resolve(companyCache[inputValue]);
@@ -64,12 +86,10 @@ export default function SearchMoviePage() {
         value: company.id.toString(),
         label: company.name,
       }));
-
     companyCache[inputValue] = filteredCompanies;
     return Promise.resolve(filteredCompanies);
   };
 
-  // Fungsi untuk filter Keywords
   const loadKeywordOptions = (inputValue: string) => {
     const filteredKeywords = keywords
       .filter((keyword) =>
@@ -80,38 +100,78 @@ export default function SearchMoviePage() {
         value: keyword.id.toString(),
         label: keyword.name,
       }));
-
     return Promise.resolve(filteredKeywords);
   };
 
-  // Fetch movies with advanced search filters
+  const [useAdvancedSearch, setUseAdvancedSearch] = useState<boolean>(false);
+
+  const { data: searchData, fetchNextPage: fetchNextSearchPage } =
+    useInfinitySearchMovie(query);
   const { data: movieData, fetchNextPage } = useMovieByAdvancedSearch({
-    runTimeGreater: runtimeMoreThan,
-    runTimeLess: runtimeLessThan,
-    vote_averageMoreThan: ratingMoreThan,
-    vote_averageLessThan: ratingLessThan,
-    year,
-    companyId: companyId.map((c) => c.value),
-    keywordsId: keywordsId.map((k) => k.value),
-    genresId: genresId.map((g) => g.value),
-    countryId: countryId ? countryId.value : undefined, // Updated to pass single country value
-    languagesId: languagesId.map((l) => l.value),
+    runTimeGreater: activeFilters.runtimeMoreThan,
+    runTimeLess: activeFilters.runtimeLessThan,
+    vote_averageMoreThan: activeFilters.ratingMoreThan,
+    vote_averageLessThan: activeFilters.ratingLessThan,
+    year: activeFilters.year,
+    companyId: activeFilters.companyId.map((c) => c.value),
+    keywordsId: activeFilters.keywordsId.map((k) => k.value),
+    genresId: activeFilters.genresId.map((g) => g.value),
+    countryId: activeFilters.countryId
+      ? activeFilters.countryId.value
+      : undefined,
+    languagesId: activeFilters.languagesId.map((l) => l.value),
   });
 
-  const handleSearch = () => {
-    // Optionally, you can reset pages when applying new filters
-    // resetPage();
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setUseAdvancedSearch(query === "");
+    }, 1000);
 
-    // To load more movies if the filters change
-    fetchNextPage();
+    return () => clearTimeout(delayDebounceFn);
+  }, [query]);
+
+  const handleSearch = () => {
+    setUseAdvancedSearch(true);
+    setQuery("");
+    setActiveFilters({
+      runtimeMoreThan,
+      runtimeLessThan,
+      ratingMoreThan,
+      ratingLessThan,
+      year,
+      companyId,
+      genresId,
+      keywordsId,
+      countryId,
+      languagesId,
+    });
   };
 
   return (
     <div className="p-4">
       <h1>Search Movie</h1>
-
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search for movies..."
+        className="p-2 border rounded-md mb-4 text-black w-full"
+      />
       {/* Advanced Search Filters */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Example filter component */}
+        <div>
+          <label>Runtime More Than:</label>
+          <input
+            type="text"
+            value={runtimeMoreThan}
+            onChange={(e) => setRuntimeMoreThan(Number(e.target.value) || 0)}
+            placeholder="e.g. 90"
+            className="p-2 border rounded-md mb-2 text-black"
+          />
+        </div>
+        {/* Add other filter inputs here */}
+
         {/* Filters for Runtime, Rating, and Year */}
         <div>
           <label>Runtime More Than:</label>
@@ -240,28 +300,25 @@ export default function SearchMoviePage() {
           />
         </div>
       </div>
-
       <button
         onClick={handleSearch}
-        className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+        className="bg-blue-500 text-white p-2 rounded-md mb-4"
       >
         Apply Filters
       </button>
-
-      {/* Movie Results */}
-      <LayoutTemplate layout="card">
-        {movieData?.pages.map((page) =>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {(useAdvancedSearch ? movieData : searchData)?.pages.flatMap((page) =>
           page.movies.map((movie) => (
             <MovieCard
               key={movie.id}
               id={movie.id}
               title={movie.title}
-              overview={movie.overview}
               posterPath={movie.poster_path}
+              overview={movie.overview}
             />
           ))
         )}
-      </LayoutTemplate>
+      </div>
     </div>
   );
 }
