@@ -1,7 +1,7 @@
 // hooks/useAdvancedSearchData.js
 import axiosInstance from "@/lib/axios";
 import { Country, Languages } from "@/types/countryType";
-import { Movie } from "@/types/movieType";
+import { Movie, Tv } from "@/types/movieType";
 import { useInfiniteQuery, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 
@@ -144,6 +144,7 @@ async function fetchLanguages(): Promise<Languages[]> {
     };
   }
   
+
   export const useMovieByAdvancedSearch = (filters: {
     runTimeLess?: number;
     runTimeGreater?: number;
@@ -159,6 +160,84 @@ async function fetchLanguages(): Promise<Languages[]> {
     return useInfiniteQuery({
       queryKey: ["movieByAdvancedSearch", filters],
       queryFn: ({ pageParam = 1 }) => fetchAdvancedSearchMovie(filters, pageParam),
+      getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+      initialPageParam: 1,
+    });
+  };
+  async function fetchAdvancedSearchTv(
+    filters: {
+      runTimeLess?: number;
+      runTimeGreater?: number;
+      year?: number;
+      vote_averageMoreThan?: number; // Added parameter
+      vote_averageLessThan?: number; // Added parameter
+      companyId?: string[];
+      keywordsId?: string[];
+      genresId?: string[];
+      countryId?: string;
+      languagesId?: string;
+    },
+    pageParam: number = 1
+  ): Promise<{
+    tvShows: Tv[];
+    currentPage: number | null;
+    nextPage: number | null;
+    prevPage: number | null;
+  }> {
+    const {
+      runTimeLess,
+      runTimeGreater,
+      year,
+      vote_averageMoreThan, // Destructure added parameter
+      vote_averageLessThan,  // Destructure added parameter
+      companyId,
+      keywordsId,
+      genresId,
+      countryId,
+      languagesId,
+    } = filters;
+  
+    const params: any = {
+      page: pageParam,
+      ...(runTimeGreater && { 'with_runtime.gte': runTimeGreater }), // Updated format
+      ...(runTimeLess && { 'with_runtime.lte': runTimeLess }), // Updated format
+      ...(year && { year }),
+      ...(vote_averageMoreThan && { 'vote_average.gte': vote_averageMoreThan }), // Updated format
+      ...(vote_averageLessThan && { 'vote_average.lte': vote_averageLessThan }), // Updated format
+      ...(companyId && { with_companies: companyId.join(",") }),
+      ...(keywordsId && { with_keywords: keywordsId.join(",") }),
+      ...(genresId && { with_genres: genresId.join(",") }),
+      ...(countryId && { with_origin_country: countryId }),
+      ...(languagesId && { with_original_language: languagesId}),
+    };
+  
+    const response = await axiosInstance.get(`/discover/movie`, { params });
+    console.log('Response:', response.request.responseURL);
+  
+    return {
+      tvShows: response.data.results,
+      currentPage: response.data.page,
+      nextPage: response.data.page < response.data.total_pages ? response.data.page + 1 : null,
+      prevPage: response.data.page > 1 ? response.data.page - 1 : null,
+    };
+  }
+  
+
+  export const useTvByAdvancedSearch = (filters: {
+    runTimeLess?: number;
+    runTimeGreater?: number;
+    year?: number;
+    vote_averageMoreThan?: number; // Added parameter
+    vote_averageLessThan?: number; // Added parameter
+    companyId?: string[];
+    keywordsId?: string[];
+    genresId?: string[];
+    countryId?: string;
+    languagesId?: string;
+  }) => {
+    return useInfiniteQuery({
+      queryKey: ["TvByAdvancedSearch", filters],
+      queryFn: ({ pageParam = 1 }) => fetchAdvancedSearchTv(filters, pageParam),
       getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
       initialPageParam: 1,
     });
