@@ -185,7 +185,7 @@ async function fetchLanguages(): Promise<Languages[]> {
       genresId?: string[];
       countryId?: string;
       languagesId?: string;
-      airingCompanyId?: string;
+      airingCompanyId?: number;
     },
     pageParam: number = 1
   ): Promise<{
@@ -207,7 +207,6 @@ async function fetchLanguages(): Promise<Languages[]> {
       languagesId,
       airingCompanyId,
     } = filters;
-  
     const params: any = {
       page: pageParam,
       ...(runTimeGreater && { 'with_runtime.gte': runTimeGreater }), // Updated format
@@ -220,11 +219,12 @@ async function fetchLanguages(): Promise<Languages[]> {
       ...(genresId && { with_genres: genresId.join(",") }),
       ...(countryId && { with_origin_country: countryId }),
       ...(languagesId && { with_original_language: languagesId}),
-      ...(airingCompanyId && { with_networks: airingCompanyId}),
+      ...(airingCompanyId && { with_networks: airingCompanyId }),
+
     };
-  
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
     const response = await axiosInstance.get(`/discover/tv`, { params });
-    console.log('Response:', response.request.responseURL);
+    
   
     return {
       tvShows: response.data.results,
@@ -246,6 +246,7 @@ async function fetchLanguages(): Promise<Languages[]> {
     genresId?: string[];
     countryId?: string;
     languagesId?: string;
+    airingCompanyId?: number;
   }) => {
     return useInfiniteQuery({
       queryKey: ["TvByAdvancedSearch", filters],

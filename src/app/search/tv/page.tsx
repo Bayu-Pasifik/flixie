@@ -37,6 +37,11 @@ type OptionType = {
   label: string;
 };
 
+type OptionTypeNum = {
+  value: number;
+  label: string;
+};
+
 export default function SearchMoviePage() {
   const router = useRouter();
   const params = useSearchParams();
@@ -55,7 +60,7 @@ export default function SearchMoviePage() {
   const [keywordsId, setKeywordsId] = useState<OptionType[]>([]);
   const [countryId, setCountryId] = useState<OptionType | null>(null);
   const [languagesId, setLanguagesId] = useState<OptionType | null>(null);
-  const [airingCompanyId, setAiringCompanyId] = useState<OptionType | null>(
+  const [airingCompanyId, setAiringCompanyId] = useState<OptionTypeNum | null>(
     null
   );
 
@@ -70,7 +75,7 @@ export default function SearchMoviePage() {
     keywordsId: [] as OptionType[],
     countryId: null as OptionType | null,
     languagesId: null as OptionType | null,
-    airingCompanyId: null as OptionType | null,
+    airingCompanyId: null as OptionTypeNum | null,
   });
 
   const { companies, keywords, airingCompany } = useAdvancedSearchData();
@@ -142,6 +147,9 @@ export default function SearchMoviePage() {
     languagesId: activeFilters.languagesId
       ? activeFilters.languagesId.value
       : undefined,
+    airingCompanyId: activeFilters.airingCompanyId
+      ? activeFilters.airingCompanyId.value
+      : undefined,
   });
 
   useEffect(() => {
@@ -186,9 +194,7 @@ export default function SearchMoviePage() {
   };
 
   // Intersection Observer for infinite scrolling
-  const { ref: loadMoreRef, inView } = useInView({
-    threshold: 1.0, // Trigger when the element is fully visible
-  });
+  const { ref: loadMoreRef, inView } = useInView();
 
   // Fetch next page when inView is true
   useEffect(() => {
@@ -398,8 +404,9 @@ export default function SearchMoviePage() {
                 isClearable
                 placeholder="Select Airing Company..." // Updated to singular
                 onChange={(value) =>
-                  setAiringCompanyId(value as OptionType | null)
-                } // Allow single selection
+                  setAiringCompanyId(value as OptionTypeNum | null)
+                }
+                // Allow single selection
                 className="mb-2 text-black mt-2"
               />
             </div>
@@ -413,7 +420,6 @@ export default function SearchMoviePage() {
         </>
       )}
       {/* Movie Cards */}
-      {/* Display "No results found" message if no data */}
 
       {/* Movie Cards */}
       <LayoutTemplate layout="card">
@@ -436,7 +442,11 @@ export default function SearchMoviePage() {
         )}
       </LayoutTemplate>
 
-      {isFetchingTvNextPage || (isFetchingSearchNextPage && <NewDataLoading />)}
+      {(isFetchingTvNextPage || isFetchingSearchNextPage) && (
+        <div className="text-center mt-4">
+          <NewDataLoading />
+        </div>
+      )}
 
       {/* Display "No more results" message only if pages contain tvShows */}
       {!hasNextSearchPage &&
@@ -456,18 +466,20 @@ export default function SearchMoviePage() {
             </p>
           </div>
         )}
-      {!useAdvancedSearch&&searchData?.pages.some((page) => page.tvShows.length === 0) && (
-        <p className="text-center mt-5 text-2xl font-bold h-screen">
-          No results found for {query}
-        </p>
-      )}
-      { useAdvancedSearch && TvData?.pages.some((page) => page.tvShows.length === 0) && (
-        <p className="text-center mt-5 text-2xl font-bold h-screen">
-          No results found
-        </p>
-      )}  
+      {!useAdvancedSearch &&
+        searchData?.pages.some((page) => page.tvShows.length === 0) && (
+          <p className="text-center mt-5 text-2xl font-bold h-screen">
+            No results found for {query}
+          </p>
+        )}
+      {useAdvancedSearch &&
+        TvData?.pages.some((page) => page.tvShows.length === 0) && (
+          <p className="text-center mt-5 text-2xl font-bold h-screen">
+            No results found
+          </p>
+        )}
       {/* Load More Trigger */}
-      <div ref={loadMoreRef} className="h-10" />
+      <div ref={loadMoreRef} className="h-1" />
     </div>
   );
 }
