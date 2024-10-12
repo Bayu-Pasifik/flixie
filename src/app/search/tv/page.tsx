@@ -55,6 +55,9 @@ export default function SearchMoviePage() {
   const [keywordsId, setKeywordsId] = useState<OptionType[]>([]);
   const [countryId, setCountryId] = useState<OptionType | null>(null);
   const [languagesId, setLanguagesId] = useState<OptionType | null>(null);
+  const [airingCompanyId, setAiringCompanyId] = useState<OptionType | null>(
+    null
+  );
 
   const [activeFilters, setActiveFilters] = useState({
     runtimeMoreThan: 0,
@@ -67,9 +70,10 @@ export default function SearchMoviePage() {
     keywordsId: [] as OptionType[],
     countryId: null as OptionType | null,
     languagesId: null as OptionType | null,
+    airingCompanyId: null as OptionType | null,
   });
 
-  const { companies, keywords } = useAdvancedSearchData();
+  const { companies, keywords, airingCompany } = useAdvancedSearchData();
   const { data: genres } = useMovieGenre();
   const { data: countries } = useCountries();
   const { data: languages } = useLanguages();
@@ -111,15 +115,17 @@ export default function SearchMoviePage() {
     data: searchData,
     fetchNextPage: fetchNextSearchPage,
     isLoading: isLoadingSearch,
+    isFetching: isFetchingSearch,
     isFetchingNextPage: isFetchingSearchNextPage,
     hasNextPage: hasNextSearchPage,
   } = useInfinitySearchTV(query);
 
   const {
-    data: movieData,
+    data: TvData,
     fetchNextPage,
     isLoading: isLoadingMovie,
-    isFetchingNextPage: isFetchingMovieNextPage,
+    isFetching: isFetchingTv,
+    isFetchingNextPage: isFetchingTvNextPage,
     hasNextPage: hasNextMoviePage,
   } = useTvByAdvancedSearch({
     runTimeGreater: activeFilters.runtimeMoreThan,
@@ -137,8 +143,6 @@ export default function SearchMoviePage() {
       ? activeFilters.languagesId.value
       : undefined,
   });
-  const searchEmpty = searchData?.pages[0].tvShows.length === 0;
-  const movieEmpty = movieData?.pages[0].tvShows.length === 0;
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -171,6 +175,7 @@ export default function SearchMoviePage() {
       keywordsId,
       countryId,
       languagesId,
+      airingCompanyId,
     });
     router.replace("/search/tv");
   };
@@ -187,7 +192,7 @@ export default function SearchMoviePage() {
 
   // Fetch next page when inView is true
   useEffect(() => {
-    if (inView && (useAdvancedSearch ? movieData : searchData)) {
+    if (inView && (useAdvancedSearch ? TvData : searchData)) {
       if (useAdvancedSearch && !isLoadingMovie) {
         fetchNextPage();
       } else if (!useAdvancedSearch && !isLoadingSearch) {
@@ -201,7 +206,7 @@ export default function SearchMoviePage() {
     useAdvancedSearch,
     isLoadingMovie,
     isLoadingSearch,
-    movieData,
+    TvData,
     searchData,
   ]);
 
@@ -302,7 +307,7 @@ export default function SearchMoviePage() {
             </div>
             {/* Select Companies */}
             <div>
-              <label>Companies:</label>
+              <label>Company:</label>
               <AsyncSelect
                 loadOptions={loadCompanyOptions}
                 isClearable
@@ -312,7 +317,7 @@ export default function SearchMoviePage() {
                 className="mb-2 text-black mt-2"
                 noOptionsMessage={() => (
                   <a
-                    href="/list-company"
+                    href="/list-company?type=tv"
                     className="text-black hover:text-blue-700"
                   >
                     See List Of Company Here !
@@ -333,93 +338,6 @@ export default function SearchMoviePage() {
                 placeholder="Select genres..."
                 onChange={(value) => setGenresId(value as OptionType[])}
                 className="mb-2 text-black mt-2"
-                noOptionsMessage={() => (
-                  <a className="text-black hover:text-blue-700">
-                    you can see list here
-                  </a>
-                )}
-              />
-            </div>
-            {/* Select Keywords */}
-            <div>
-              <label>Keywords:</label>
-              <AsyncSelect
-                loadOptions={loadKeywordOptions}
-                isClearable
-                isMulti
-                placeholder="Select keywords..."
-                onChange={(value) => setKeywordsId(value as OptionType[])}
-                className="mb-2 text-black mt-2"
-              />
-            </div>
-            {/* Select Countries */}
-            <div>
-              <label>Countries:</label>
-              <Select
-                options={countries?.map((country) => ({
-                  value: country.iso_3166_1,
-                  label: country.english_name,
-                }))}
-                isClearable
-                placeholder="Select country..." // Updated to singular
-                onChange={(value) => setCountryId(value as OptionType | null)} // Allow single selection
-                className="mb-2 text-black mt-2"
-              />
-            </div>
-            {/* Select Languages */}
-            <div>
-              <label>Languages:</label>
-              <Select
-                options={languages?.map((language) => ({
-                  value: language.iso_639_1,
-                  label: language.english_name,
-                }))}
-                isClearable
-                placeholder="Select languages..."
-                onChange={(value) => setLanguagesId(value as OptionType | null)}
-                className="mb-2 text-black mt-2"
-              />
-            </div>
-          </div>
-          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Company Select */}
-            <div>
-              <label>Companies:</label>
-              <AsyncSelect
-                loadOptions={loadCompanyOptions}
-                isClearable
-                isMulti
-                placeholder="Select company..."
-                onChange={(value) => setCompanyId(value as OptionType[])}
-                className="mb-2 text-black mt-2"
-                noOptionsMessage={() => (
-                  <a
-                    href="/list-companies?type=movie"
-                    className="text-black hover:text-blue-700"
-                  >
-                    See List Of Companie Here !
-                  </a>
-                )}
-              />
-            </div>
-            {/* Select Genres */}
-            <div>
-              <label>Genres:</label>
-              <Select
-                options={genres?.map((genre) => ({
-                  value: genre.id.toString(),
-                  label: genre.name,
-                }))}
-                isClearable
-                isMulti
-                placeholder="Select genres..."
-                onChange={(value) => setGenresId(value as OptionType[])}
-                className="mb-2 text-black mt-2"
-                noOptionsMessage={() => (
-                  <a className="text-black hover:text-blue-700">
-                    you can see list here
-                  </a>
-                )}
               />
             </div>
             {/* Select Keywords */}
@@ -442,7 +360,21 @@ export default function SearchMoviePage() {
                 )}
               />
             </div>
-            {/* Country Select */}
+            {/* Select Languages */}
+            <div>
+              <label>Languages:</label>
+              <Select
+                options={languages?.map((language) => ({
+                  value: language.iso_639_1,
+                  label: language.english_name,
+                }))}
+                isClearable
+                placeholder="Select languages..."
+                onChange={(value) => setLanguagesId(value as OptionType | null)}
+                className="mb-2 text-black mt-2"
+              />
+            </div>
+            {/* Select Countries */}
             <div>
               <label>Country:</label>
               <Select
@@ -450,20 +382,25 @@ export default function SearchMoviePage() {
                   value: country.iso_3166_1,
                   label: country.english_name,
                 }))}
-                onChange={setCountryId}
-                className="mb-2"
+                isClearable
+                placeholder="Select country..." // Updated to singular
+                onChange={(value) => setCountryId(value as OptionType | null)} // Allow single selection
+                className="mb-2 text-black mt-2"
               />
             </div>
-            {/* Language Select */}
             <div>
-              <label>Language:</label>
+              <label>Airing Company : </label>
               <Select
-                options={languages?.map((language) => ({
-                  value: language.iso_639_1,
-                  label: language.name,
+                options={airingCompany?.map((airing) => ({
+                  value: airing.id,
+                  label: airing.name,
                 }))}
-                onChange={setLanguagesId}
-                className="mb-2"
+                isClearable
+                placeholder="Select Airing Company..." // Updated to singular
+                onChange={(value) =>
+                  setAiringCompanyId(value as OptionType | null)
+                } // Allow single selection
+                className="mb-2 text-black mt-2"
               />
             </div>
           </div>
@@ -475,53 +412,60 @@ export default function SearchMoviePage() {
           </button>
         </>
       )}
-      {movieEmpty && (
-        <div>
-          <p className="text-center mt-5 text-2xl font-bold">
-            No results for Advanced Search
-          </p>
-        </div>
-      )}
-      {searchEmpty && (
-        <div>
-          <p className="text-center mt-5 text-2xl font-bold">
-            No results for {query}
-          </p>
-        </div>
-      )}
+      {/* Movie Cards */}
+      {/* Display "No results found" message if no data */}
+
       {/* Movie Cards */}
       <LayoutTemplate layout="card">
-        {(useAdvancedSearch ? movieData : searchData)?.pages.map((page) =>
-          page.tvShows.map((movie) => (
-            <MovieCard
-              key={movie.id}
-              id={movie.id}
-              title={movie.name}
-              posterPath={movie.poster_path || ""}
-              overview={movie.overview || "No overview available"}
-            />
-          ))
-        )}
-        {(isLoadingSearch || isLoadingMovie) &&
+        {(isFetchingSearch || isFetchingTv) &&
           Array.from({ length: 20 }, (_, index) => (
-            <SkeletonMovieCard key={index} />
+            <SkeletonMovieCard key={`skeleton-${index}`} />
           ))}
+        {(useAdvancedSearch ? TvData : searchData)?.pages.map(
+          (page, pageIndex) =>
+            page.tvShows.map((movie) => (
+              <MovieCard
+                key={movie.id}
+                id={movie.id}
+                title={movie.name}
+                posterPath={movie.poster_path || ""}
+                overview={movie.overview || "No overview available"}
+                type="tv"
+              />
+            ))
+        )}
       </LayoutTemplate>
-      {isFetchingMovieNextPage ||
-        (isFetchingSearchNextPage && <NewDataLoading />)}
-      {!hasNextSearchPage && !searchEmpty && (
-        <div>
-          <p className="text-center mt-5 text-2xl font-bold">
-            No more results for {query}
-          </p>
-        </div>
-      )}
-      {!hasNextMoviePage && !movieEmpty && (
-        <div>
-          <p className="text-center mt-5 text-2xl font-bold">No more results</p>
-        </div>
-      )}
 
+      {isFetchingTvNextPage || (isFetchingSearchNextPage && <NewDataLoading />)}
+
+      {/* Display "No more results" message only if pages contain tvShows */}
+      {!hasNextSearchPage &&
+        searchData?.pages.some((page) => page.tvShows.length !== 0) && (
+          <div>
+            <p className="text-center mt-5 text-2xl font-bold">
+              No more results for {query}
+            </p>
+          </div>
+        )}
+
+      {!hasNextMoviePage &&
+        TvData?.pages.some((page) => page.tvShows.length !== 0) && (
+          <div>
+            <p className="text-center mt-5 text-2xl font-bold">
+              No more results
+            </p>
+          </div>
+        )}
+      {!useAdvancedSearch&&searchData?.pages.some((page) => page.tvShows.length === 0) && (
+        <p className="text-center mt-5 text-2xl font-bold h-screen">
+          No results found for {query}
+        </p>
+      )}
+      { useAdvancedSearch && TvData?.pages.some((page) => page.tvShows.length === 0) && (
+        <p className="text-center mt-5 text-2xl font-bold h-screen">
+          No results found
+        </p>
+      )}  
       {/* Load More Trigger */}
       <div ref={loadMoreRef} className="h-10" />
     </div>

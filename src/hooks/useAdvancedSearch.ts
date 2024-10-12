@@ -15,26 +15,35 @@ type Keyword = {
   name: string;
 };
 
+type AiringCompany = {
+  id: number,
+  name: string,
+}
+
 export function useAdvancedSearchData() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
+  const [airingCompany, setAiringCompany] = useState<AiringCompany[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [companyRes, keywordRes] = await Promise.all([
+        const [companyRes, keywordRes,airingCompanyRes] = await Promise.all([
           fetch("/json/allCompany.json"),
           fetch("/json/keyword.json"),
+          fetch("/json/airing_company.json"),
         ]);
 
         // Parsing response sebagai JSON
         const companyData = await companyRes.json();
         const keywordData = await keywordRes.json();
+        const airingCompanyData = await airingCompanyRes.json();
 
         // Mengakses properti 'data' untuk mendapatkan array yang diinginkan
         setCompanies(companyData.data);
         setKeywords(keywordData.data);
+        setAiringCompany(airingCompanyData.data);
       } catch (error) {
         console.error("Error fetching advanced search data:", error);
       } finally {
@@ -45,7 +54,7 @@ export function useAdvancedSearchData() {
     fetchData();
   }, []);
 
-  return { companies, keywords, loading };
+  return { companies, keywords, loading,airingCompany };
 }
 
 
@@ -176,6 +185,7 @@ async function fetchLanguages(): Promise<Languages[]> {
       genresId?: string[];
       countryId?: string;
       languagesId?: string;
+      airingCompanyId?: string;
     },
     pageParam: number = 1
   ): Promise<{
@@ -195,6 +205,7 @@ async function fetchLanguages(): Promise<Languages[]> {
       genresId,
       countryId,
       languagesId,
+      airingCompanyId,
     } = filters;
   
     const params: any = {
@@ -209,9 +220,10 @@ async function fetchLanguages(): Promise<Languages[]> {
       ...(genresId && { with_genres: genresId.join(",") }),
       ...(countryId && { with_origin_country: countryId }),
       ...(languagesId && { with_original_language: languagesId}),
+      ...(airingCompanyId && { with_networks: airingCompanyId}),
     };
   
-    const response = await axiosInstance.get(`/discover/movie`, { params });
+    const response = await axiosInstance.get(`/discover/tv`, { params });
     console.log('Response:', response.request.responseURL);
   
     return {
