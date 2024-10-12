@@ -276,7 +276,7 @@ export default function SearchMoviePage() {
                 className="mb-2 text-black mt-2"
                 noOptionsMessage={() => (
                   <a
-                    href="/list-companies"
+                    href="/list-companies?type=movie"
                     className="text-black hover:text-blue-700"
                   >
                     See List Of Companie Here !
@@ -316,7 +316,7 @@ export default function SearchMoviePage() {
                 className="mb-2 text-black mt-2"
                 noOptionsMessage={() => (
                   <a
-                    href="/list-keywords"
+                    href="/list-keywords?type=movie"
                     className="text-black hover:text-blue-700"
                   >
                     See List Of Keywords Here !

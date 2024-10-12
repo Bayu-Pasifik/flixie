@@ -1,19 +1,26 @@
 "use client";
 import { useState } from "react";
 import { useAdvancedSearchData } from "@/hooks/useAdvancedSearch";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 export default function KeywordsListPage() {
   const { keywords, loading } = useAdvancedSearchData();
   const [selectedLetter, setSelectedLetter] = useState("A");
+  const params = useSearchParams();
+  const type = params.get("type");
 
   // Jika loading masih true
   if (loading) {
-    return <p>Loading...</p>;
+    return <LoadingIndicator />;
   }
 
   // Filter keywords berdasarkan huruf yang dipilih (menggunakan huruf kecil)
   const filteredKeywords = keywords.filter(
-    (keyword) => keyword.name && keyword.name.toLowerCase().startsWith(selectedLetter.toLowerCase())
+    (keyword) =>
+      keyword.name &&
+      keyword.name.toLowerCase().startsWith(selectedLetter.toLowerCase())
   );
 
   console.log("Filtered Keywords:", filteredKeywords); // Debugging
@@ -48,11 +55,28 @@ export default function KeywordsListPage() {
         Keywords starting with {selectedLetter}
       </h2>
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-2 list-disc list-inside">
-        {filteredKeywords.map((keyword) => (
-          <li key={keyword.id} className="text-white">
-            {keyword.name}
-          </li>
-        ))}
+        {filteredKeywords.map((keyword) => {
+          if (type === "movie" || type === "tv") {
+            return (
+              <Link
+                href={
+                  type === "movie"
+                    ? `/movie/${keyword.id}/keywords`
+                    : `/tv/${keyword.id}/keywords`
+                }
+                key={keyword.id}
+              >
+                <li className="text-white hover:underline hover:text-blue-500">{keyword.name}</li>
+              </Link>
+            );
+          } else {
+            return (
+              <li key={keyword.id} className="text-white">
+                {keyword.name}
+              </li>
+            );
+          }
+        })}
       </ul>
 
       {/* Jika tidak ada keywords yang ditemukan */}
