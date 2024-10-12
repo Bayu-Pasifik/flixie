@@ -134,6 +134,8 @@ export default function SearchMoviePage() {
       ? activeFilters.languagesId.value
       : undefined,
   });
+  const searchEmpty = searchData?.pages[0].movies.length === 0;
+  const movieEmpty = movieData?.pages[0].movies.length === 0;
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -470,7 +472,21 @@ export default function SearchMoviePage() {
           </button>
         </>
       )}
-
+      {movieEmpty && (
+        <div>
+          <p className="text-center mt-5 text-2xl font-bold">
+            No results for Advanced Search
+          </p>
+        </div>
+      )}
+      {searchEmpty && (
+        <div>
+          <p className="text-center mt-5 text-2xl font-bold">
+            
+            No results for {query}
+          </p>
+        </div>
+      )}
       {/* Movie Cards */}
       <LayoutTemplate layout="card">
         {(useAdvancedSearch ? movieData : searchData)?.pages.map((page) =>
@@ -491,12 +507,14 @@ export default function SearchMoviePage() {
       </LayoutTemplate>
       {isFetchingMovieNextPage ||
         (isFetchingSearchNextPage && <NewDataLoading />)}
-      {!hasNextSearchPage && (
+      {!hasNextSearchPage && !searchEmpty && (
         <div>
-          <p className="text-center mt-5 text-2xl font-bold">No more results for {query}</p>
+          <p className="text-center mt-5 text-2xl font-bold">
+            No more results for {query}
+          </p>
         </div>
       )}
-      {!hasNextMoviePage && (
+      {!hasNextMoviePage && !movieEmpty && (
         <div>
           <p className="text-center mt-5 text-2xl font-bold">No more results</p>
         </div>
