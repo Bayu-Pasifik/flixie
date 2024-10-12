@@ -276,10 +276,10 @@ export default function SearchMoviePage() {
                 className="mb-2 text-black mt-2"
                 noOptionsMessage={() => (
                   <a
-                    href="/list-company"
+                    href="/list-companies"
                     className="text-black hover:text-blue-700"
                   >
-                    See List Of Company Here !
+                    See List Of Companie Here !
                   </a>
                 )}
               />
@@ -314,6 +314,14 @@ export default function SearchMoviePage() {
                 placeholder="Select keywords..."
                 onChange={(value) => setKeywordsId(value as OptionType[])}
                 className="mb-2 text-black mt-2"
+                noOptionsMessage={() => (
+                  <a
+                    href="/list-keywords"
+                    className="text-black hover:text-blue-700"
+                  >
+                    See List Of Keywords Here !
+                  </a>
+                )}
               />
             </div>
             {/* Select Countries */}
