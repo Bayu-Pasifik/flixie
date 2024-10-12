@@ -97,7 +97,7 @@ async function fetchLanguages(): Promise<Languages[]> {
       keywordsId?: string[];
       genresId?: string[];
       countryId?: string;
-      languagesId?: string[];
+      languagesId?: string;
     },
     pageParam: number = 1
   ): Promise<{
@@ -130,7 +130,7 @@ async function fetchLanguages(): Promise<Languages[]> {
       ...(keywordsId && { with_keywords: keywordsId.join(",") }),
       ...(genresId && { with_genres: genresId.join(",") }),
       ...(countryId && { with_origin_country: countryId }),
-      ...(languagesId && { with_original_language: languagesId.join(",") }),
+      ...(languagesId && { with_original_language: languagesId}),
     };
   
     const response = await axiosInstance.get(`/discover/movie`, { params });
@@ -154,7 +154,7 @@ async function fetchLanguages(): Promise<Languages[]> {
     keywordsId?: string[];
     genresId?: string[];
     countryId?: string;
-    languagesId?: string[];
+    languagesId?: string;
   }) => {
     return useInfiniteQuery({
       queryKey: ["movieByAdvancedSearch", filters],

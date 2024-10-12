@@ -13,6 +13,7 @@ import {
 import { useMovieGenre } from "@/hooks/useGenres";
 import MovieCard from "@/components/MovieCard";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
+import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 
 const generateRatingOptions = () => {
   const options = [];
@@ -49,7 +50,7 @@ export default function SearchMoviePage() {
   const [genresId, setGenresId] = useState<OptionType[]>([]);
   const [keywordsId, setKeywordsId] = useState<OptionType[]>([]);
   const [countryId, setCountryId] = useState<OptionType | null>(null);
-  const [languagesId, setLanguagesId] = useState<OptionType[]>([]);
+  const [languagesId, setLanguagesId] = useState<OptionType | null>(null);
 
   const [activeFilters, setActiveFilters] = useState({
     runtimeMoreThan: 0,
@@ -61,7 +62,7 @@ export default function SearchMoviePage() {
     genresId: [] as OptionType[],
     keywordsId: [] as OptionType[],
     countryId: null as OptionType | null,
-    languagesId: [] as OptionType[],
+    languagesId: null as OptionType |null,
   });
 
   const { companies, keywords } = useAdvancedSearchData();
@@ -102,9 +103,16 @@ export default function SearchMoviePage() {
 
   const [useAdvancedSearch, setUseAdvancedSearch] = useState<boolean>(false);
 
-  const { data: searchData, fetchNextPage: fetchNextSearchPage } =
-    useInfinitySearchMovie(query);
-  const { data: movieData, fetchNextPage } = useMovieByAdvancedSearch({
+  const {
+    data: searchData,
+    fetchNextPage: fetchNextSearchPage,
+    isLoading: isLoadingSearch,
+  } = useInfinitySearchMovie(query);
+  const {
+    data: movieData,
+    fetchNextPage,
+    isLoading: isLoadingMovie,
+  } = useMovieByAdvancedSearch({
     runTimeGreater: activeFilters.runtimeMoreThan,
     runTimeLess: activeFilters.runtimeLessThan,
     vote_averageMoreThan: activeFilters.ratingMoreThan,
@@ -116,7 +124,7 @@ export default function SearchMoviePage() {
     countryId: activeFilters.countryId
       ? activeFilters.countryId.value
       : undefined,
-    languagesId: activeFilters.languagesId.map((l) => l.value),
+    languagesId: activeFilters.languagesId ? activeFilters.languagesId.value : undefined,
   });
 
   useEffect(() => {
@@ -252,6 +260,14 @@ export default function SearchMoviePage() {
                 placeholder="Select company..."
                 onChange={(value) => setCompanyId(value as OptionType[])}
                 className="mb-2 text-black mt-2"
+                noOptionsMessage={() => (
+                  <a
+                    href="/list-company"
+                    className="text-black hover:text-blue-700"
+                  >
+                    See List Of Company Here !
+                  </a>
+                )}
               />
             </div>
             {/* Select Genres */}
@@ -267,6 +283,11 @@ export default function SearchMoviePage() {
                 placeholder="Select genres..."
                 onChange={(value) => setGenresId(value as OptionType[])}
                 className="mb-2 text-black mt-2"
+                noOptionsMessage={() => (
+                  <a className="text-black hover:text-blue-700">
+                    you can see list here
+                  </a>
+                )}
               />
             </div>
             {/* Select Keywords */}
@@ -304,9 +325,8 @@ export default function SearchMoviePage() {
                   label: language.english_name,
                 }))}
                 isClearable
-                isMulti
                 placeholder="Select languages..."
-                onChange={(value) => setLanguagesId(value as OptionType[])}
+                onChange={(value) => setLanguagesId(value as OptionType | null)}
                 className="mb-2 text-black mt-2"
               />
             </div>
@@ -320,19 +340,24 @@ export default function SearchMoviePage() {
           </button>
         </>
       )}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {(useAdvancedSearch ? movieData : searchData)?.pages.flatMap((page) =>
-          page.movies.map((movie) => (
-            <MovieCard
-              key={movie.id}
-              id={movie.id}
-              title={movie.title}
-              posterPath={movie.poster_path}
-              overview={movie.overview}
-            />
-          ))
-        )}
-      </div>
+      <LayoutTemplate layout="card">
+        {isLoadingMovie || isLoadingSearch
+          ? Array.from({ length: 20 }).map((_, index) => (
+              <SkeletonMovieCard key={`movie-skeleton-${index}`} />
+            ))
+          : (useAdvancedSearch ? movieData : searchData)?.pages.flatMap(
+              (page) =>
+                page.movies.map((movie) => (
+                  <MovieCard
+                    key={movie.id}
+                    id={movie.id}
+                    title={movie.title}
+                    posterPath={movie.poster_path}
+                    overview={movie.overview}
+                  />
+                ))
+            )}
+      </LayoutTemplate>
     </div>
   );
 }
