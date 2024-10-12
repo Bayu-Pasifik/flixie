@@ -14,6 +14,8 @@ import { useMovieGenre } from "@/hooks/useGenres";
 import MovieCard from "@/components/MovieCard";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
+import { useInView } from "react-intersection-observer";
+import NewDataLoading from "@/components/NewDataLoading";
 
 const generateRatingOptions = () => {
   const options = [];
@@ -106,12 +108,16 @@ export default function SearchMoviePage() {
     data: searchData,
     fetchNextPage: fetchNextSearchPage,
     isLoading: isLoadingSearch,
+    isFetchingNextPage: isFetchingSearchNextPage,
+    hasNextPage: hasNextSearchPage,
   } = useInfinitySearchMovie(query);
 
   const {
     data: movieData,
     fetchNextPage,
     isLoading: isLoadingMovie,
+    isFetchingNextPage: isFetchingMovieNextPage,
+    hasNextPage: hasNextMoviePage,
   } = useMovieByAdvancedSearch({
     runTimeGreater: activeFilters.runtimeMoreThan,
     runTimeLess: activeFilters.runtimeLessThan,
@@ -168,6 +174,31 @@ export default function SearchMoviePage() {
     setQuery(e.target.value);
     setUseAdvancedSearch(false);
   };
+
+  // Intersection Observer for infinite scrolling
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 1.0, // Trigger when the element is fully visible
+  });
+
+  // Fetch next page when inView is true
+  useEffect(() => {
+    if (inView && (useAdvancedSearch ? movieData : searchData)) {
+      if (useAdvancedSearch && !isLoadingMovie) {
+        fetchNextPage();
+      } else if (!useAdvancedSearch && !isLoadingSearch) {
+        fetchNextSearchPage();
+      }
+    }
+  }, [
+    inView,
+    fetchNextPage,
+    fetchNextSearchPage,
+    useAdvancedSearch,
+    isLoadingMovie,
+    isLoadingSearch,
+    movieData,
+    searchData,
+  ]);
 
   return (
     <div className="p-4">
@@ -276,6 +307,88 @@ export default function SearchMoviePage() {
                 className="mb-2 text-black mt-2"
                 noOptionsMessage={() => (
                   <a
+                    href="/list-company"
+                    className="text-black hover:text-blue-700"
+                  >
+                    See List Of Company Here !
+                  </a>
+                )}
+              />
+            </div>
+            {/* Select Genres */}
+            <div>
+              <label>Genres:</label>
+              <Select
+                options={genres?.map((genre) => ({
+                  value: genre.id.toString(),
+                  label: genre.name,
+                }))}
+                isClearable
+                isMulti
+                placeholder="Select genres..."
+                onChange={(value) => setGenresId(value as OptionType[])}
+                className="mb-2 text-black mt-2"
+                noOptionsMessage={() => (
+                  <a className="text-black hover:text-blue-700">
+                    you can see list here
+                  </a>
+                )}
+              />
+            </div>
+            {/* Select Keywords */}
+            <div>
+              <label>Keywords:</label>
+              <AsyncSelect
+                loadOptions={loadKeywordOptions}
+                isClearable
+                isMulti
+                placeholder="Select keywords..."
+                onChange={(value) => setKeywordsId(value as OptionType[])}
+                className="mb-2 text-black mt-2"
+              />
+            </div>
+            {/* Select Countries */}
+            <div>
+              <label>Countries:</label>
+              <Select
+                options={countries?.map((country) => ({
+                  value: country.iso_3166_1,
+                  label: country.english_name,
+                }))}
+                isClearable
+                placeholder="Select country..." // Updated to singular
+                onChange={(value) => setCountryId(value as OptionType | null)} // Allow single selection
+                className="mb-2 text-black mt-2"
+              />
+            </div>
+            {/* Select Languages */}
+            <div>
+              <label>Languages:</label>
+              <Select
+                options={languages?.map((language) => ({
+                  value: language.iso_639_1,
+                  label: language.english_name,
+                }))}
+                isClearable
+                placeholder="Select languages..."
+                onChange={(value) => setLanguagesId(value as OptionType | null)}
+                className="mb-2 text-black mt-2"
+              />
+            </div>
+          </div>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Company Select */}
+            <div>
+              <label>Companies:</label>
+              <AsyncSelect
+                loadOptions={loadCompanyOptions}
+                isClearable
+                isMulti
+                placeholder="Select company..."
+                onChange={(value) => setCompanyId(value as OptionType[])}
+                className="mb-2 text-black mt-2"
+                noOptionsMessage={() => (
+                  <a
                     href="/list-companies?type=movie"
                     className="text-black hover:text-blue-700"
                   >
@@ -324,61 +437,73 @@ export default function SearchMoviePage() {
                 )}
               />
             </div>
-            {/* Select Countries */}
+            {/* Country Select */}
             <div>
-              <label>Countries:</label>
+              <label>Country:</label>
               <Select
                 options={countries?.map((country) => ({
                   value: country.iso_3166_1,
                   label: country.english_name,
                 }))}
-                isClearable
-                placeholder="Select country..." // Updated to singular
-                onChange={(value) => setCountryId(value as OptionType | null)} // Allow single selection
-                className="mb-2 text-black mt-2"
+                onChange={setCountryId}
+                className="mb-2"
               />
             </div>
-            {/* Select Languages */}
+            {/* Language Select */}
             <div>
-              <label>Languages:</label>
+              <label>Language:</label>
               <Select
                 options={languages?.map((language) => ({
                   value: language.iso_639_1,
-                  label: language.english_name,
+                  label: language.name,
                 }))}
-                isClearable
-                placeholder="Select languages..."
-                onChange={(value) => setLanguagesId(value as OptionType | null)}
-                className="mb-2 text-black mt-2"
+                onChange={setLanguagesId}
+                className="mb-2"
               />
             </div>
           </div>
           <button
             onClick={handleApplyFilters}
-            className="bg-blue-500 text-white p-2 w-full rounded-md mb-4"
+            className="bg-blue-500 text-white p-2 rounded-md mb-4"
           >
             Apply Filters
           </button>
         </>
       )}
+
+      {/* Movie Cards */}
       <LayoutTemplate layout="card">
-        {isLoadingMovie || isLoadingSearch
-          ? Array.from({ length: 20 }).map((_, index) => (
-              <SkeletonMovieCard key={`movie-skeleton-${index}`} />
-            ))
-          : (useAdvancedSearch ? movieData : searchData)?.pages.flatMap(
-              (page) =>
-                page.movies.map((movie) => (
-                  <MovieCard
-                    key={movie.id}
-                    id={movie.id}
-                    title={movie.title}
-                    posterPath={movie.poster_path || ""}
-                    overview={movie.overview || "No overview available"}
-                  />
-                ))
-            )}
+        {(useAdvancedSearch ? movieData : searchData)?.pages.map((page) =>
+          page.movies.map((movie) => (
+            <MovieCard
+              key={movie.id}
+              id={movie.id}
+              title={movie.title}
+              posterPath={movie.poster_path || ""}
+              overview={movie.overview || "No overview available"}
+            />
+          ))
+        )}
+        {(isLoadingSearch || isLoadingMovie) &&
+          Array.from({ length: 20 }, (_, index) => (
+            <SkeletonMovieCard key={index} />
+          ))}
       </LayoutTemplate>
+      {isFetchingMovieNextPage ||
+        (isFetchingSearchNextPage && <NewDataLoading />)}
+      {!hasNextSearchPage && (
+        <div>
+          <p className="text-center mt-5 text-2xl font-bold">No more results for {query}</p>
+        </div>
+      )}
+      {!hasNextMoviePage && (
+        <div>
+          <p className="text-center mt-5 text-2xl font-bold">No more results</p>
+        </div>
+      )}
+
+      {/* Load More Trigger */}
+      <div ref={loadMoreRef} className="h-10" />
     </div>
   );
 }
