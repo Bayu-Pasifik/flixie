@@ -45,7 +45,6 @@ export default function SearchMoviePage() {
   const [ratingMoreThan, setRatingMoreThan] = useState<number>(0);
   const [ratingLessThan, setRatingLessThan] = useState<number>(0);
   const [year, setYear] = useState<number>(0);
-
   const [companyId, setCompanyId] = useState<OptionType[]>([]);
   const [genresId, setGenresId] = useState<OptionType[]>([]);
   const [keywordsId, setKeywordsId] = useState<OptionType[]>([]);
@@ -62,7 +61,7 @@ export default function SearchMoviePage() {
     genresId: [] as OptionType[],
     keywordsId: [] as OptionType[],
     countryId: null as OptionType | null,
-    languagesId: null as OptionType |null,
+    languagesId: null as OptionType | null,
   });
 
   const { companies, keywords } = useAdvancedSearchData();
@@ -108,6 +107,7 @@ export default function SearchMoviePage() {
     fetchNextPage: fetchNextSearchPage,
     isLoading: isLoadingSearch,
   } = useInfinitySearchMovie(query);
+
   const {
     data: movieData,
     fetchNextPage,
@@ -124,16 +124,23 @@ export default function SearchMoviePage() {
     countryId: activeFilters.countryId
       ? activeFilters.countryId.value
       : undefined,
-    languagesId: activeFilters.languagesId ? activeFilters.languagesId.value : undefined,
+    languagesId: activeFilters.languagesId
+      ? activeFilters.languagesId.value
+      : undefined,
   });
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      setUseAdvancedSearch(query === "");
+      if (query) {
+        // Add the query parameter to the URL
+        router.replace(`/search/movie?query=${query}`);
+      } else {
+        setUseAdvancedSearch(true);
+      }
     }, 1000);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query]);
+  }, [query, router]);
 
   const handleShowAdvancedSearch = () => {
     setShowAdvancedSearch((prev) => !prev);
@@ -154,6 +161,12 @@ export default function SearchMoviePage() {
       countryId,
       languagesId,
     });
+    router.replace("/search/movie");
+  };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+    setUseAdvancedSearch(false);
   };
 
   return (
@@ -162,7 +175,7 @@ export default function SearchMoviePage() {
       <input
         type="text"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={handleSearchInputChange}
         placeholder="Search for movies..."
         className="p-2 border rounded-md mb-4 text-black w-full"
       />
@@ -176,6 +189,7 @@ export default function SearchMoviePage() {
       {/* Advanced Search Filters */}
       {showAdvancedSearch && (
         <>
+          {/* Filters and Apply Filters button */}
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Filters for Runtime, Rating, and Year */}
             <div>
@@ -331,7 +345,6 @@ export default function SearchMoviePage() {
               />
             </div>
           </div>
-          {/* Apply Filters Button */}
           <button
             onClick={handleApplyFilters}
             className="bg-blue-500 text-white p-2 w-full rounded-md mb-4"
@@ -352,8 +365,8 @@ export default function SearchMoviePage() {
                     key={movie.id}
                     id={movie.id}
                     title={movie.title}
-                    posterPath={movie.poster_path}
-                    overview={movie.overview}
+                    posterPath={movie.poster_path || ""}
+                    overview={movie.overview || "No overview available"}
                   />
                 ))
             )}
