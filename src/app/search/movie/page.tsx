@@ -337,18 +337,6 @@ export default function SearchMoviePage() {
                 )}
               />
             </div>
-            {/* Select Keywords */}
-            <div>
-              <label>Keywords:</label>
-              <AsyncSelect
-                loadOptions={loadKeywordOptions}
-                isClearable
-                isMulti
-                placeholder="Select keywords..."
-                onChange={(value) => setKeywordsId(value as OptionType[])}
-                className="mb-2 text-black mt-2"
-              />
-            </div>
             {/* Select Countries */}
             <div>
               <label>Countries:</label>
@@ -377,49 +365,6 @@ export default function SearchMoviePage() {
                 className="mb-2 text-black mt-2"
               />
             </div>
-          </div>
-          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Company Select */}
-            <div>
-              <label>Companies:</label>
-              <AsyncSelect
-                loadOptions={loadCompanyOptions}
-                isClearable
-                isMulti
-                placeholder="Select company..."
-                onChange={(value) => setCompanyId(value as OptionType[])}
-                className="mb-2 text-black mt-2"
-                noOptionsMessage={() => (
-                  <a
-                    href="/list-companies?type=movie"
-                    className="text-black hover:text-blue-700"
-                  >
-                    See List Of Companie Here !
-                  </a>
-                )}
-              />
-            </div>
-            {/* Select Genres */}
-            <div>
-              <label>Genres:</label>
-              <Select
-                options={genres?.map((genre) => ({
-                  value: genre.id.toString(),
-                  label: genre.name,
-                }))}
-                isClearable
-                isMulti
-                placeholder="Select genres..."
-                onChange={(value) => setGenresId(value as OptionType[])}
-                className="mb-2 text-black mt-2"
-                noOptionsMessage={() => (
-                  <a className="text-black hover:text-blue-700">
-                    you can see list here
-                  </a>
-                )}
-              />
-            </div>
-            {/* Select Keywords */}
             <div>
               <label>Keywords:</label>
               <AsyncSelect
@@ -439,31 +384,8 @@ export default function SearchMoviePage() {
                 )}
               />
             </div>
-            {/* Country Select */}
-            <div>
-              <label>Country:</label>
-              <Select
-                options={countries?.map((country) => ({
-                  value: country.iso_3166_1,
-                  label: country.english_name,
-                }))}
-                onChange={setCountryId}
-                className="mb-2"
-              />
-            </div>
-            {/* Language Select */}
-            <div>
-              <label>Language:</label>
-              <Select
-                options={languages?.map((language) => ({
-                  value: language.iso_639_1,
-                  label: language.name,
-                }))}
-                onChange={setLanguagesId}
-                className="mb-2"
-              />
-            </div>
           </div>
+
           <button
             onClick={handleApplyFilters}
             className="bg-blue-500 text-white p-2 rounded-md mb-4"
@@ -472,23 +394,12 @@ export default function SearchMoviePage() {
           </button>
         </>
       )}
-      {movieEmpty && (
-        <div>
-          <p className="text-center mt-5 text-2xl font-bold">
-            No results for Advanced Search
-          </p>
-        </div>
-      )}
-      {searchEmpty && (
-        <div>
-          <p className="text-center mt-5 text-2xl font-bold">
-            
-            No results for {query}
-          </p>
-        </div>
-      )}
       {/* Movie Cards */}
       <LayoutTemplate layout="card">
+        {(isLoadingSearch || isLoadingMovie) &&
+          Array.from({ length: 20 }, (_, index) => (
+            <SkeletonMovieCard key={index} />
+          ))}
         {(useAdvancedSearch ? movieData : searchData)?.pages.map((page) =>
           page.movies.map((movie) => (
             <MovieCard
@@ -500,25 +411,41 @@ export default function SearchMoviePage() {
             />
           ))
         )}
-        {(isLoadingSearch || isLoadingMovie) &&
-          Array.from({ length: 20 }, (_, index) => (
-            <SkeletonMovieCard key={index} />
-          ))}
       </LayoutTemplate>
-      {isFetchingMovieNextPage ||
-        (isFetchingSearchNextPage && <NewDataLoading />)}
-      {!hasNextSearchPage && !searchEmpty && (
-        <div>
-          <p className="text-center mt-5 text-2xl font-bold">
-            No more results for {query}
+      {(isFetchingMovieNextPage || isFetchingSearchNextPage) && (
+        <div className="text-center mt-4">
+          <NewDataLoading />
+        </div>
+      )}
+      {!hasNextSearchPage &&
+        searchData?.pages.some((page) => page.movies.length !== 0) && (
+          <div>
+            <p className="text-center mt-5 text-2xl font-bold">
+              No more results for {query}
+            </p>
+          </div>
+        )}
+
+      {!hasNextMoviePage &&
+        movieData?.pages.some((page) => page.movies.length !== 0) && (
+          <div>
+            <p className="text-center mt-5 text-2xl font-bold">
+              No more results
+            </p>
+          </div>
+        )}
+      {!useAdvancedSearch &&
+        searchData?.pages.some((page) => page.movies.length === 0) && (
+          <p className="text-center mt-5 text-2xl font-bold h-screen">
+            No results found for {query}
           </p>
-        </div>
-      )}
-      {!hasNextMoviePage && !movieEmpty && (
-        <div>
-          <p className="text-center mt-5 text-2xl font-bold">No more results</p>
-        </div>
-      )}
+        )}
+      {useAdvancedSearch &&
+        movieData?.pages.some((page) => page.movies.length === 0) && (
+          <p className="text-center mt-5 text-2xl font-bold h-screen">
+            No results found
+          </p>
+        )}
 
       {/* Load More Trigger */}
       <div ref={loadMoreRef} className="h-10" />
