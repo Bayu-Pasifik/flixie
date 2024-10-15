@@ -23,7 +23,6 @@ function KeywordsList() {
       keyword.name.toLowerCase().startsWith(selectedLetter.toLowerCase())
   );
 
-  console.log("Filtered Keywords:", filteredKeywords); // Debugging
 
   // Generate alphabet buttons
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");

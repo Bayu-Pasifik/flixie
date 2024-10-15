@@ -15,7 +15,6 @@ export default function MovieKeywordsPage() {
   const keywordId = typeof id === "string" ? parseInt(id, 10) : 0;
   const { data: keyword } = useDetailKeywords(keywordId);
 
-  console.log(keyword);
   const {
     data: movies,
     isLoading,
