@@ -15,7 +15,10 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 function PersonPage() {
   // Ambil query dari sessionStorage atau kosong jika tidak ada
   const [query, setQuery] = useState(() => {
-    return sessionStorage.getItem("searchPersonQuery") || "";
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("searchPersonQuery") || "";
+    }
+    return "";
   });
 
   const [isSearching, setIsSearching] = useState(false); // State untuk mengendalikan skeleton loading saat search
@@ -66,7 +69,9 @@ function PersonPage() {
   // Handler untuk pencarian
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    sessionStorage.setItem("searchPersonQuery", query);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("searchPersonQuery", query);
+    }
     setIsSearching(true); // Aktifkan loading skeleton ketika search button ditekan
     refetchSearch().finally(() => setIsSearching(false)); // Hentikan skeleton ketika pencarian selesai
   };

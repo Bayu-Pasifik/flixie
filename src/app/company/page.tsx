@@ -19,7 +19,6 @@ export default function CompanyPage() {
   const [query, setQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Hook untuk mengambil hasil pencarian berdasarkan query di search bar
   const {
     data: searchData,
     isLoading: searchLoading,
@@ -33,28 +32,32 @@ export default function CompanyPage() {
     threshold: 1.0,
   });
 
-  // Saat komponen pertama kali dimuat, ambil query dari sessionStorage jika ada
+  // Run only on the client
   useEffect(() => {
-    const storedQuery = sessionStorage.getItem("searchQuery");
-    if (storedQuery) {
-      setQuery(storedQuery);
-      setSearchQuery(storedQuery);
+    if (typeof window !== "undefined") {
+      const storedQuery = sessionStorage.getItem("searchQuery");
+      if (storedQuery) {
+        setQuery(storedQuery);
+        setSearchQuery(storedQuery);
+      }
     }
   }, []);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Jika search bar kosong, tidak melakukan pencarian
     if (query.trim() === "") {
-      sessionStorage.removeItem("searchQuery");
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("searchQuery");
+      }
       setSearchQuery("");
     } else {
-      sessionStorage.setItem("searchQuery", query);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("searchQuery", query);
+      }
       setSearchQuery(query);
     }
   };
 
-  // Memanggil fetchNextPage saat elemen terpapar
   useEffect(() => {
     if (inView) {
       fetchNextPage();
@@ -131,7 +134,7 @@ export default function CompanyPage() {
               </LayoutTemplate>
             )}
             {isFetchingNextPage && (
-              <div className="text-center mt-4 ">
+              <div className="text-center mt-4">
                 <NewDataLoading />
               </div>
             )}
@@ -140,7 +143,6 @@ export default function CompanyPage() {
                 <p>No more results.</p>
               </div>
             )}
-            {/* Loading More Indicator */}
             <div ref={loadMoreRef}></div>
           </div>
         )}

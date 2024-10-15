@@ -20,16 +20,24 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 function TvPage() {
   const chosenCategories = ["airing today", "trending", "top rated"];
 
-  // Mengambil nilai dari sessionStorage atau menginisialisasi default jika tidak ada
-  const [currentCategory, setCurrentCategory] = useState(
-    sessionStorage.getItem("category") || "airing today"
-  );
-  const [viewMode, setViewMode] = useState(
-    sessionStorage.getItem("viewMode") || "card"
-  );
-  const [timeMode, setTimeMode] = useState(
-    sessionStorage.getItem("timeMode") || "day"
-  );
+  const [currentCategory, setCurrentCategory] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("category") || "airing today";
+    }
+    return "airing today";
+  });
+  const [viewMode, setViewMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("viewMode") || "card";
+    }
+    return "card";
+  });
+  const [timeMode, setTimeMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("timeMode") || "day";
+    }
+    return "day";
+  });
 
   const handleTimeChange = (time: string) => {
     setTimeMode(time);
@@ -39,25 +47,28 @@ function TvPage() {
     setViewMode(view);
   };
 
-  // Menyimpan setiap perubahan ke sessionStorage
   useEffect(() => {
-    sessionStorage.setItem("category", currentCategory);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("category", currentCategory);
+    }
   }, [currentCategory]);
 
   useEffect(() => {
-    sessionStorage.setItem("viewMode", viewMode);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("viewMode", viewMode);
+    }
   }, [viewMode]);
 
   useEffect(() => {
-    sessionStorage.setItem("timeMode", timeMode);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("timeMode", timeMode);
+    }
   }, [timeMode]);
 
-  // Initialize hooks outside of conditions
   const airingData = useInfinityAiringTV();
   const topRatedData = useInfinityTopRateTv();
   const trendingData = useInfinityTrendingTv(timeMode);
 
-  // Choose which data to use based on the category
   const { data, isLoading, error, fetchNextPage, isFetchingNextPage } =
     currentCategory === "airing today"
       ? airingData
@@ -67,7 +78,6 @@ function TvPage() {
 
   const { ref, inView } = useInView({});
 
-  // Fetch next page when element is in view
   useEffect(() => {
     if (inView) {
       fetchNextPage();
@@ -78,7 +88,6 @@ function TvPage() {
     setCurrentCategory(category);
   };
 
-  // if (isLoading) return <LoadingIndicator />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
@@ -108,7 +117,6 @@ function TvPage() {
         </div>
       )}
 
-      {/* Apply LayoutTemplate here with the chosen viewMode */}
       <LayoutTemplate layout={viewMode}>
         {isLoading &&
           Array.from({ length: 20 }).map((_, index) => (
