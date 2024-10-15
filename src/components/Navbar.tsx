@@ -6,7 +6,6 @@ import { Menu, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "./ui/input";
 import { useSimpleSearchMovie, useSimpleSearchTv } from "@/hooks/useSearch";
-import NewDataLoading from "./NewDataLoading";
 
 // Define menu variants for animation
 const menuVariants = {

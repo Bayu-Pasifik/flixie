@@ -3,7 +3,6 @@ import HomeCarousel from "@/components/Carousel";
 import MovieCarousel from "@/components/MovieCarousel";
 import { useCurrentlyAiring } from "@/hooks/useCurrentlyAiring";
 import { useUpcomingMovies } from "@/hooks/useUpcomingMovie";
-import LoadingIndicator from "@/components/LoadingIndicator";
 import { useTrendingMovie } from "@/hooks/useTrending";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 
@@ -25,14 +24,6 @@ export default function HomePage() {
     error: trendingError,
   } = useTrendingMovie("week");
 
-  // if (isLoadingAiring || isLoadingUpcoming || isLoadingTrending)
-  //   return (
-  //     <div className="flex flex-row">
-  //       {Array.from({ length: 5 }).map((_, index) => (
-  //         <SkeletonMovieCard key={index} />
-  //       ))}
-  //     </div>
-  //   );
   if (airingError || upcomingError || trendingError)
     return (
       <div>

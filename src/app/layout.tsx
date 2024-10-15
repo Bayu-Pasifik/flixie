@@ -2,7 +2,6 @@ import "./globals.css";
 import { cn } from "../lib/utils";
 import Providers from "@/util/Providers";
 import Navbar from "@/components/Navbar";
-import TopLoader from "@/components/TopLoader";
 import Footer from "@/components/Footer";
 
 export const metadata = {

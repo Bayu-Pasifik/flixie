@@ -16,7 +16,6 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MiniCard from "@/components/MiniCard";
 import { useReviews } from "@/hooks/useReviews";
-import { Link } from "lucide-react";
 import MovieListCard from "@/components/MovieListCard";
 import Chips from "@/components/Chips";
 

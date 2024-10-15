@@ -1,6 +1,5 @@
 "use client";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
-import LoadingIndicator from "@/components/LoadingIndicator";
 import MovieCard from "@/components/MovieCard";
 import MovieListCard from "@/components/MovieListCard";
 import NewDataLoading from "@/components/NewDataLoading";

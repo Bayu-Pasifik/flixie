@@ -1,9 +1,7 @@
 "use client";
-import { useImages } from "@/hooks/useImages";
 import { useParams } from "next/navigation";
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import LoadingIndicator from "@/components/LoadingIndicator";
-import { useState } from "react";
 import { useCredits } from "@/hooks/useCredits";
 import MovieCard from "@/components/MovieCard";
 import { motion } from "framer-motion";

@@ -2,7 +2,6 @@
 
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
-import MovieListCard from "@/components/MovieListCard";
 import NewDataLoading from "@/components/NewDataLoading";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import { useDetailCompany, useInfinityTvByCompany } from "@/hooks/useCompany";

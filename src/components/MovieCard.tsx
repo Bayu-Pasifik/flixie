@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { motion } from "framer-motion"; // Import motion for animations
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {  CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Image from "next/image"; // Import for optimized images in Next.js
 import Link from "next/link"; // Import Next.js Link for navigation
 

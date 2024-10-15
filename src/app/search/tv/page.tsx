@@ -4,10 +4,9 @@ import AsyncSelect from "react-select/async";
 import Select from "react-select";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  useMovieByAdvancedSearch,
   useTvByAdvancedSearch,
 } from "@/hooks/useAdvancedSearch";
-import { useInfinitySearchMovie, useInfinitySearchTV } from "@/hooks/useSearch";
+import {useInfinitySearchTV } from "@/hooks/useSearch";
 import {
   useAdvancedSearchData,
   useCountries,
@@ -428,7 +427,7 @@ export default function SearchMoviePage() {
             <SkeletonMovieCard key={`skeleton-${index}`} />
           ))}
         {(useAdvancedSearch ? TvData : searchData)?.pages.map(
-          (page, pageIndex) =>
+          (page) =>
             page.tvShows.map((movie) => (
               <MovieCard
                 key={movie.id}
