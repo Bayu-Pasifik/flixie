@@ -51,9 +51,9 @@ export default function RecommendationPage() {
             >
               <MovieCard
                 id={index}
-                title={image.title}
-                posterPath={image.poster_path}
-                overview={image.overview}
+                title={image.name}
+                posterPath={image.poster_path || ""}
+                overview={image.overview || "No overview available"}
                 key={index}
               />
             </motion.div>

@@ -69,15 +69,15 @@ const UpcomingPage = () => {
                     <MovieCard
                       id={movie.id}
                       title={movie.title}
-                      overview={movie.overview}
-                      posterPath={movie.poster_path}
+                      overview={movie.overview || "No overview available"}
+                      posterPath={movie.poster_path || ""}
                     />
                   ) : (
                     <MovieListCard
                       id={movie.id}
                       title={movie.title}
-                      overview={movie.overview}
-                      posterPath={movie.poster_path}
+                      overview={movie.overview || "No overview available"}
+                      posterPath={movie.poster_path || ""}
                     />
                   )}
                 </motion.div>
