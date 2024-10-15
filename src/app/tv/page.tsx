@@ -117,6 +117,7 @@ export default function TvPage() {
               <div key={tv.id}>
                 {viewMode === "card" ? (
                   <MovieCard
+                  key={tv.id}
                     type="tv"
                     id={tv.id}
                     title={tv.name}
@@ -125,6 +126,7 @@ export default function TvPage() {
                   />
                 ) : (
                   <MovieListCard
+                    key={tv.id}
                     type="tv"
                     id={tv.id}
                     title={tv.name}

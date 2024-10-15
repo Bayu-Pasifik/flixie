@@ -56,7 +56,7 @@ export type Cast = {
 export type Crew = {
     adult:             boolean;
     backdrop_path:     null;
-    genre_ids:         any[];
+    genre_ids:         number[];
     id:                number;
     original_language: string;
     original_title:    string;

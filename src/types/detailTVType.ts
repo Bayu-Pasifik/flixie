@@ -1,7 +1,7 @@
 export type DetailTv = {
     adult:                boolean;
     backdrop_path:        string;
-    created_by:           any[];
+    created_by:           Created_by[];
     episode_run_time:     number[];
     first_air_date:       Date;
     genres:               Genre[];
@@ -85,4 +85,13 @@ export type SpokenLanguage = {
     english_name: string;
     iso_639_1:    string;
     name:         string;
+}
+
+export type Created_by = {
+    id:             number;
+    credit_id:      string;
+    name:           string;
+    gender:         number;
+    original_name:  string;
+    profile_path:   string;
 }
