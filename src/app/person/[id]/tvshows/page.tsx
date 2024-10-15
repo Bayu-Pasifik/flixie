@@ -15,12 +15,17 @@ export default function PersonMoviePage() {
     isLoading: isLoadingMovie,
     error: movieError,
   } = usePersonTvCredits(personId);
+
   return (
-    <div className="p-4">
+    <div className="p-4 ">
       <h1 className="text-2xl font-bold mb-4">
-        {" "}
         {person?.name} - Cast Tv Shows
       </h1>
+
+      {/* Show a message when there are no cast Tv shows */}
+      {tvShows?.cast?.length === 0 && !isLoadingMovie && (
+        <p className="text-center font-bold text-2xl">No Cast Tv shows</p>
+      )}
       <LayoutTemplate layout="card">
         {isLoadingMovie
           ? Array.from({ length: 20 }).map((_, index) => (
@@ -38,12 +43,14 @@ export default function PersonMoviePage() {
               />
             ))}
       </LayoutTemplate>
+
       <h1 className="text-2xl font-bold my-8">
-        {" "}
         {person?.name} - Crew Tv Shows
       </h1>
-      {tvShows?.crew.length === 0 && (
-        <p className="text-center font-bold text-2xl">No tv shows</p>
+
+      {/* Show a message when there are no crew Tv shows */}
+      {tvShows?.crew?.length === 0 && !isLoadingMovie && (
+        <p className="text-center font-bold text-2xl">No Crew Tv shows</p>
       )}
       <LayoutTemplate layout="card">
         {isLoadingMovie
@@ -62,6 +69,7 @@ export default function PersonMoviePage() {
               />
             ))}
       </LayoutTemplate>
+      <div className="h-20"></div>
     </div>
   );
 }

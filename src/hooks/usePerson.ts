@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../lib/axios';
 import { DetailPerson } from '@/types/personType';
 import { Images } from '@/types/imageType';
-import { Crew, Cast, Tv, TvCast, TvCrew } from '@/types/movieType';
+import { Crew, Cast, DetailTvCast, DetailTvCrew } from '@/types/movieType';
 
 async function fetchDetailPerson(id: number): Promise<DetailPerson> {
     try {
@@ -61,7 +61,7 @@ async function fetchPersonImages(id: number): Promise<Images[]> {
       queryFn: () => fetchMovieCredits(id),
     });
   };
-  async function fetchTvCredits(id: number): Promise<{ cast: TvCast[]; crew: TvCrew[] }> {
+  async function fetchTvCredits(id: number): Promise<{ cast: DetailTvCast[]; crew: DetailTvCrew[] }> {
     try {
         // Simulate delay to show animations
     await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
@@ -79,7 +79,7 @@ async function fetchPersonImages(id: number): Promise<Images[]> {
   
   // Hook untuk menggunakan React Query
   export const usePersonTvCredits = (id: number) => {
-    return useQuery<{ cast: TvCast[]; crew: TvCrew[] }, Error>({
+    return useQuery<{ cast: DetailTvCast[]; crew: DetailTvCrew[] }, Error>({
       queryKey: ['person/tv_credits', id],
       queryFn: () => fetchTvCredits(id),
     });

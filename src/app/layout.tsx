@@ -20,13 +20,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={cn("min-h-screen bg-slate-800 font-sans antialiased")}>
-        {/* <Navbar /> */}
+      <body
+        className={cn(
+          "min-h-screen bg-slate-800 font-sans antialiased flex flex-col"
+        )}
+      >
         <Providers>
           <Navbar />
-          {children}
-          <Footer />
+          <main className="flex-grow">{children}</main>
         </Providers>
+        <Footer />
       </body>
     </html>
   );
