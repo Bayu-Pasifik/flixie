@@ -29,11 +29,19 @@ export default function DetailCompanyTvShowPage() {
       fetchNextPageTv();
     }
   }, [inView, fetchNextPageTv]);
+  const emptyData = tvshows?.pages.some((page) => page.tvShows.length === 0);
   return (
     <div className="p-4  text-white">
       <h1 className="text-2xl font-bold mb-4 uppercase">
         TV Shows produced by {company?.name}
       </h1>
+
+      {emptyData && (
+        <div className="flex items-center justify-center text-center font-bold text-2xl w-full h-screen">
+          <p>No data found</p>
+        </div>
+      )}
+
       <LayoutTemplate layout="card">
         {isLoadingTv
           ? Array.from({ length: 20 }).map((_, index) => (
@@ -58,8 +66,11 @@ export default function DetailCompanyTvShowPage() {
       </LayoutTemplate>
       <div ref={ref} className="h1" />
       {isFetchingNextPageTv && <NewDataLoading />}
-      {!hasNextPageTv && (
-        <div className="text-center font-bold text-2xl my-3"> Congrat's you reached the end of list</div>
+      {!hasNextPageTv && !emptyData && (
+        <div className="text-center font-bold text-2xl my-3">
+          {" "}
+          Congrat's you reached the end of list
+        </div>
       )}
     </div>
   );
