@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard"; // Import SkeletonMovieCard
@@ -12,7 +12,7 @@ import { LayoutTemplate } from "@/components/LayoutTemplate";
 import { Button } from "@/components/ui/button";
 import LoadingIndicator from "@/components/LoadingIndicator";
 
-export default function PersonPage() {
+function PersonPage() {
   // Ambil query dari sessionStorage atau kosong jika tidak ada
   const [query, setQuery] = useState(() => {
     return sessionStorage.getItem("searchPersonQuery") || "";
@@ -172,5 +172,13 @@ export default function PersonPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PersonPages() {
+  return (
+    <Suspense fallback={<LoadingIndicator />}>
+      <PersonPage />
+    </Suspense>
   );
 }

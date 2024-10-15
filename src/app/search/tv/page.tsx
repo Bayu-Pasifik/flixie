@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import AsyncSelect from "react-select/async";
 import Select from "react-select";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -18,6 +18,7 @@ import { LayoutTemplate } from "@/components/LayoutTemplate";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
 import { useInView } from "react-intersection-observer";
 import NewDataLoading from "@/components/NewDataLoading";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
 const generateRatingOptions = () => {
   const options = [];
@@ -41,7 +42,7 @@ type OptionTypeNum = {
   label: string;
 };
 
-export default function SearchMoviePage() {
+function SearchTVPage() {
   const router = useRouter();
   const params = useSearchParams();
   const initialQuery = params.get("query");
@@ -480,5 +481,14 @@ export default function SearchMoviePage() {
       {/* Load More Trigger */}
       <div ref={loadMoreRef} className="h-1" />
     </div>
+  );
+}
+
+
+export default function SearchTvPages() {
+  return (
+    <Suspense fallback={<LoadingIndicator />}>
+      <SearchTVPage />
+    </Suspense>
   );
 }

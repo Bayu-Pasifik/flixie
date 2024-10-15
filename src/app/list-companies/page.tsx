@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useAdvancedSearchData } from "@/hooks/useAdvancedSearch";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function CompaniesListPage() {
+function CompaniesList() {
   const { companies, loading } = useAdvancedSearchData();
   const [selectedLetter, setSelectedLetter] = useState("A");
   const params = useSearchParams();
@@ -62,7 +62,6 @@ export default function CompaniesListPage() {
                 key={company.id}
               >
                 <li
-                  key={company.id}
                   className="text-white hover:underline hover:text-blue-500"
                 >
                   {company.name}
@@ -84,5 +83,13 @@ export default function CompaniesListPage() {
         <p className="text-gray-500">No companies found for {selectedLetter}</p>
       )}
     </div>
+  );
+}
+
+export default function CompaniesListPage() {
+  return (
+    <Suspense fallback={<LoadingIndicator />}>
+      <CompaniesList />
+    </Suspense>
   );
 }

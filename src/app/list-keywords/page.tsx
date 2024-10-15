@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useAdvancedSearchData } from "@/hooks/useAdvancedSearch";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import LoadingIndicator from "@/components/LoadingIndicator";
 
-export default function KeywordsListPage() {
+function KeywordsList() {
   const { keywords, loading } = useAdvancedSearchData();
   const [selectedLetter, setSelectedLetter] = useState("A");
   const params = useSearchParams();
@@ -66,7 +66,9 @@ export default function KeywordsListPage() {
                 }
                 key={keyword.id}
               >
-                <li className="text-white hover:underline hover:text-blue-500">{keyword.name}</li>
+                <li className="text-white hover:underline hover:text-blue-500">
+                  {keyword.name}
+                </li>
               </Link>
             );
           } else {
@@ -85,4 +87,10 @@ export default function KeywordsListPage() {
       )}
     </div>
   );
+}
+
+export default function KeywordsListPage() {
+  <Suspense fallback={<LoadingIndicator />}>
+    return <KeywordsList />;
+  </Suspense>;
 }

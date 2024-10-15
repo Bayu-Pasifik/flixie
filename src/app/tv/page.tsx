@@ -11,12 +11,13 @@ import { useInfinityAiringTV } from "@/hooks/useCurrentlyAiring";
 import { useInfinityTopRateTv } from "@/hooks/useTopRate";
 import { useInfinityTrendingTv } from "@/hooks/useTrending";
 import { Tv } from "@/types/movieType";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
 import SkeletonMovieCard from "@/components/SkeletonMovieCard";
+import LoadingIndicator from "@/components/LoadingIndicator";
 
-export default function TvPage() {
+function TvPage() {
   const chosenCategories = ["airing today", "trending", "top rated"];
 
   // Mengambil nilai dari sessionStorage atau menginisialisasi default jika tidak ada
@@ -154,5 +155,13 @@ export default function TvPage() {
 
       <div ref={ref}></div>
     </div>
+  );
+}
+
+export default function TvPages() {
+  return (
+    <Suspense fallback={<LoadingIndicator />}>
+      <TvPage />
+    </Suspense>
   );
 }
