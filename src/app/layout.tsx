@@ -3,6 +3,7 @@ import { cn } from "../lib/utils";
 import Providers from "@/util/Providers";
 import Navbar from "@/components/Navbar";
 import TopLoader from "@/components/TopLoader";
+import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Flixie",
@@ -25,6 +26,7 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           {children}
+          <Footer />
         </Providers>
       </body>
     </html>
