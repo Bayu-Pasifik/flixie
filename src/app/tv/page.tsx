@@ -110,37 +110,37 @@ export default function TvPage() {
       {/* Apply LayoutTemplate here with the chosen viewMode */}
       <LayoutTemplate layout={viewMode}>
         {isLoading &&
-          Array.from({ length: 20 }).map((_, index) => <SkeletonMovieCard />)}
+          Array.from({ length: 20 }).map((_, index) => (
+            <SkeletonMovieCard key={index} />
+          ))}
         {data?.pages.map((page) =>
-          page.tvShows.map((tv: Tv, index) => (
+          page.tvShows.map((tv: Tv) => (
             <motion.div
-              key={index}
+              key={tv.id}
               className="p-3"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <div key={tv.id}>
-                {viewMode === "card" ? (
-                  <MovieCard
-                    key={tv.id}
-                    type="tv"
-                    id={tv.id}
-                    title={tv.name}
-                    overview={tv.overview || "No overview"}
-                    posterPath={tv.poster_path}
-                  />
-                ) : (
-                  <MovieListCard
-                    key={tv.id}
-                    type="tv"
-                    id={tv.id}
-                    title={tv.name}
-                    overview={tv.overview || "No overview"}
-                    posterPath={tv.poster_path}
-                  />
-                )}
-              </div>
+              {viewMode === "card" ? (
+                <MovieCard
+                  key={tv.id}
+                  type="tv"
+                  id={tv.id}
+                  title={tv.name}
+                  overview={tv.overview || "No overview"}
+                  posterPath={tv.poster_path || ""}
+                />
+              ) : (
+                <MovieListCard
+                  key={tv.id}
+                  type="tv"
+                  id={tv.id}
+                  title={tv.name}
+                  overview={tv.overview || "No overview"}
+                  posterPath={tv.poster_path || ""}
+                />
+              )}
             </motion.div>
           ))
         )}
