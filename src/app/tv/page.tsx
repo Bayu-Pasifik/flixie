@@ -1,4 +1,5 @@
 "use client";
+// eslint-disable-next-line react-hooks/exhaustive-deps
 import { LayoutTemplate } from "@/components/LayoutTemplate";
 import MovieCard from "@/components/MovieCard";
 import MovieListCard from "@/components/MovieListCard";
@@ -50,13 +51,18 @@ export default function TvPage() {
     sessionStorage.setItem("timeMode", timeMode);
   }, [timeMode]);
 
-  // Define states and data for each category
+  // Initialize hooks outside of conditions
+  const airingData = useInfinityAiringTV();
+  const topRatedData = useInfinityTopRateTv();
+  const trendingData = useInfinityTrendingTv(timeMode);
+
+  // Choose which data to use based on the category
   const { data, isLoading, error, fetchNextPage, isFetchingNextPage } =
     currentCategory === "airing today"
-      ? useInfinityAiringTV()
+      ? airingData
       : currentCategory === "top rated"
-      ? useInfinityTopRateTv()
-      : useInfinityTrendingTv(timeMode);
+      ? topRatedData
+      : trendingData;
 
   const { ref, inView } = useInView({});
 
@@ -117,7 +123,7 @@ export default function TvPage() {
               <div key={tv.id}>
                 {viewMode === "card" ? (
                   <MovieCard
-                  key={tv.id}
+                    key={tv.id}
                     type="tv"
                     id={tv.id}
                     title={tv.name}
